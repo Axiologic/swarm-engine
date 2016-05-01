@@ -1,0 +1,38 @@
+{
+  "name": "swarmchore",
+  "description": "Execute swarm choregraphies. Control your asynchronous code with explicit flows! Created mainly for simplifying code within SwarmESB/PrivateSky projects but can be used outside SwarmESB ecosystem. ",
+  "version": "0.1.0",
+  "_id": "swarmchore@0.1.0",
+  "homepage": "https://github.com/axiologic/swarmchore",
+  "author": {
+    "name": "Alboaie Sinica",
+    "email": "abss@axiologic.ro"
+  },
+  "contributors": [
+    {
+      "name": "Alboaie Sinica",
+      "email": "abss@axiologic.ro"
+    }
+  ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/axiologic/swarmchore.git"
+  },
+  "bugs": {
+    "email": "salboaie@gmail.com",
+    "url": "https://github.com/axiologic/swarmchore/issues"
+  },
+  "directories": {
+    "lib": "./lib"
+  },
+  "main": "./lib/index.js",
+  "licenses": [
+    {
+      "type": "LGPL",
+      "url": "http://www.gnu.org/licenses/lgpl.html"
+    }
+  ],
+  "dependencies": {
+    "whys": "git+https://github.com/PrivateSky/whys.git"
+  }
+}
