@@ -10,11 +10,8 @@ var f = flow.describeSwarm("FlowExample", {
     },
     begin:function(a1,a2){
         this.result = a1 + a2;
-    },
-    result:function(){
-        return this.result;
     }
 })();
 
-f.begin();
-console.log(f.result());
+f.begin(1, 2);
+console.log(f.result);

@@ -11,15 +11,15 @@ var f = flow.createSwarm("stepExample", {
     begin:function(a1,a2){
         this.a1 = a1;
         this.a2 = a2;
-        this.doStep(10);
+        this.doStep(3);
     },
     doStep:function(a){
         this.result = this.a1 + this.a2 + a;
     },
-    result:function(){
+    doResult:function(){
         return this.result;
     }
 });
 
-f.begin();
-console.log(f.result());
+f.begin(1, 2);
+console.log(f.doResult());

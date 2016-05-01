@@ -23,3 +23,9 @@ f.begin();
 setTimeout(function(){
     console.log(f.result());
 }, 2);
+
+/*
+execute: function(contextInfo, requestedContext, func, args){
+            func.apply(requestedContext, args);
+        }
+ */

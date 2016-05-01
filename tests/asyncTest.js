@@ -19,8 +19,8 @@ var f = flow.createSwarm("asyncExample", {
 });
 
 
-f.begin();
+f.begin(1, 2);
 setTimeout(function(){
-    console.log(f.result());
+    console.log(f.result);
 }, 2);
 
