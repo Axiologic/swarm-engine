@@ -1,4 +1,4 @@
-#New concept that takes the put the old swarmcore concept and callflow toghethet:  control your asynchronous code with explicit flows and have executable choreographies
+#New concept that takes the put the swarmcore and callflow together:  control your asynchronous code with explicit flows and have executable choreographies
 
 ### This library purpose a concept of flows based on explicit continuations.
     
@@ -21,51 +21,90 @@ When a flow is created, a Java Script object is created. This object beside cont
     
     
 ### Basic example:
-    
-      var flow = require("callflow");
-      var f = flow.createFlow("Flow example", {
-            begin:function(a1,a2){
-                //.. code
-                this.variable = false;
-                this.step();
-            },
-            step:function(a){
-                //this.variable is set in begin
-                //.. code     
-                        
-            }
-        });
-        f();
+    var f = flow.describeSwarm("FlowExample", {
+        private:{
+            a1:"int",
+            a2:"int"
+        },
+        public:{
+            result:"int"
+        },
+        begin:function(a1,a2){
+            this.result = a1 + a2;
+        },
+        result:function(){
+            return this.result;
+        }
+    })();
+
+    f.begin();
+    console.log(f.result());
 
 
-### Example with a join and use of continue:
+### Example with a  asyncronous code:
+
+var f = flow.createSwarm("asyncExample", {
+    private:{
+        a1:"int",
+        a2:"int"
+    },
+    public:{
+        result:"int"
+    },
+    begin:function(a1,a2){
+        this.a1 = a1;
+        this.a2 = a2;
+        setTimeout(this.doStep, 1);
+    },
+    doStep:function(){
+        this.result = this.a1 + this.a2;
+    }
+});
+
+
+f.begin();
+setTimeout(function(){
+    console.log(f.result());
+}, 2);
+
+
+
+### Example with swarm primitive :
          
-      var f = flow.createFlow("Flow example", {
-            begin:function(a1,a2){
-                //..
-                this.step(true);
-                this.next("step", "Comment explaining why was this function called", true); // quite similar with this.step(true) but step wll be executed at nextTick   
-                
-                asyncFunction(this.continue("callback","Called later by asyncFunction");
-            },
-            step:function(a){
-                //a will be true in both cases
-                //..code
-                
-            }
-            callback:function(err,res){
-                            //..
-                
-            }
-            end:{
-                join:"step,callback", //waits 2 calls of step and one of callback
-                code:function(){
-                //..called     
-            }            
-        });
-        var flow = f();
-        f.status(); // see the flow status
-    
+     var f = flow.createSwarm("simpleSwarm", {
+         private:{
+             a1:"int",
+             a2:"int"
+         },
+         public:{
+             result:"int"
+         },
+         begin:function(a1,a2){
+             this.a1 = a1;
+             this.a2 = a2;
+         },
+         doStep:function(a){
+             this.result = this.a1 + this.a2 + a;
+         }
+     });
+
+
+     var storage = flow.createMemoryStorage();
+
+     f.begin();
+     storage.save(f);
+
+     var flowId = f.meta.swarmId()
+     f.dispose();
+
+
+     var newF = storage.revive(flowId);
+
+     newF.doStep(1);
+
+     setTimeout(function(){
+         console.log(newF.result());
+     }, 2);
 
 ###   Integration with the "whys" module (https://github.com/salboaie/whys)
 
