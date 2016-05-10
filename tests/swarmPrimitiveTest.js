@@ -11,17 +11,21 @@ var f = flow.createSwarm("simpleSwarm", {
     begin:function(a1,a2){
         this.a1 = a1;
         this.a2 = a2;
-        this.swarm(this.context("agent"), "doStep", 1);
+        this.continue("agent", "doStep", 1, this.afterExecution);
     },
     doStep:function(a){
         this.result = this.a1 + this.a2 + a;
+        this.asyncReturn(null, this.result);
+    },
+    afterExecution: function(err, res){
+        console.log("Execution after switching contexts...");
     }
 });
 
 
 f.begin();
 setTimeout(function(){
-    console.log(f.result());
+    console.log(f.result);
 }, 2);
 
 /*
