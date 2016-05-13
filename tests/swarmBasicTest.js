@@ -14,11 +14,7 @@ var f = flow.createSwarm("simpleSwarm", {
         this.a1 = a1;
         this.a2 = a2;
         this.continue("agent", "doStep", 3);
-        this.wait(this.afterExecution, this, this.keepAlive);
-        //console.log(this.getInnerValue().meta.swarmId);
-    },
-    keepAlive:function(){
-        return false;
+        this.wait(this.afterExecution);
     },
     doStep:function(a){
         this.result = this.a1 + this.a2 + a;
@@ -33,3 +29,5 @@ var f = flow.createSwarm("simpleSwarm", {
 });
 
 f.begin(1,2);
+
+//assert to check swarmAliveInstances
