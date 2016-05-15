@@ -30,7 +30,7 @@ var f = flow.createSwarm("simpleSwarm", {
     }
 });
 
-for(var v=0;v<1;v++ ){
+for(var v=0;v<2;v++ ){
     flow.startSwarm("simpleSwarm","system", "begin", 1, 2);
 }
 
