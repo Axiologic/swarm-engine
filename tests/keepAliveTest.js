@@ -6,13 +6,16 @@ flow.describeSwarm("subSwarm",{
         this.return(null,1);
         this.return(null,2);
         this.return(null,3);
-        this.return(null,4);
+        //this.return(null,4);
     }
 });
 
 var f = flow.createSwarm("simpleSwarm", {
-    private:{
+    protected:{
         count:"int"
+    },
+    public:{
+        xcount:"int"
     },
     begin:function(){
         this.count = 3; //allow only 3 messages
@@ -23,12 +26,11 @@ var f = flow.createSwarm("simpleSwarm", {
         return this.count > 0;
     },
     afterExecution: function(err, res){
-        console.log(`res should be <= 3 and is ${res} `);
+       console.log(`res should be <= 3 and is ${res} `);
     }
 });
 
+for(var v=0;v<1;v++ ){
+    flow.startSwarm("simpleSwarm","system", "begin", 1, 2);
+}
 
-flow.startSwarm("simpleSwarm","system", "begin", 1, 2);
-//f.begin(1,2);
-
-//assert to check swarmAliveInstances

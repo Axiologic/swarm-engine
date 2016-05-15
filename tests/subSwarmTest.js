@@ -19,7 +19,7 @@ var f = flow.createSwarm("simpleSwarm", {
         /*var newSwarm = flow.startSwarm("subSwarm");
         newSwarm.swarm("agent", "doSomething", a1,a2);
         */
-        flow.startSwarm("subSwarm", "agent", "doSomething", a1,a2).wait(this.afterExecution);
+        flow.startSwarm("subSwarm", "agent", "doSomething", a1,a2).onReturn(this.afterExecution);
 
         //this.wait(this.afterExecution, newSwarm, this.keepAlive);
 
@@ -32,8 +32,6 @@ var f = flow.createSwarm("simpleSwarm", {
     }
 });
 
-
-flow.startSwarm("simpleSwarm","system", "begin", 1, 2);
-//f.begin(1,2);
-
-//assert to check swarmAliveInstances
+for(var i = 0; i<=1024; i++){
+    flow.startSwarm("simpleSwarm","system", "begin", 1, 2);
+}

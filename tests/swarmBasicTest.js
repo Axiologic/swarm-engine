@@ -32,6 +32,5 @@ var f = flow.createSwarm("simpleSwarm", {
 
 f.begin(1,2);
 
-f.result;
-
+//check f.result;
 //assert to check swarmAliveInstances
