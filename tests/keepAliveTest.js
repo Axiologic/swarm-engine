@@ -23,7 +23,7 @@ var f = flow.createSwarm("simpleSwarm", {
         return this.count > 0;
     },
     afterExecution: function(err, res){
-        console.log(this, `res should be <= 3 and is ${res} `);
+        console.log(M(this), `res should be <= 3 and is ${res} `);
     }
 });
 
