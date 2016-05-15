@@ -6,7 +6,7 @@ flow.describeSwarm("subSwarm",{
         this.return(null,1);
         this.return(null,2);
         this.return(null,3);
-        //this.return(null,4);
+        this.return(null,4);
     }
 });
 
