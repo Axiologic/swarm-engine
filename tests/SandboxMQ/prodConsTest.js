@@ -1,11 +1,14 @@
 var flow = require("../../lib/index");
-var mq = require("../../lib/pubSub/folderMQ")
+var mq = require("../../lib/pubSub/core/folderMQ")
 
 var queue = mq.getFolderQueue("../temp/testFolderMQ");
 
 var flow = flow.createSwarm("test", {
     public:{
         value:"int"
+    },
+    init:function(){
+        this.value = 1;
     }
 });
 
@@ -25,6 +28,7 @@ function filter(){
 
 
 flow.observe(function(){
+            flow.init();
             producerHandler.addSwarm(flow, function(){});
         }, null,filter);
 
