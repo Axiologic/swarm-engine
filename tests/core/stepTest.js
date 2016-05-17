@@ -1,5 +1,5 @@
 
-var flow = require("../lib/index.js");
+var flow = require("../../lib/index.js");
 var f = flow.createSwarm("stepExample", {
     private:{
         a1:"int",

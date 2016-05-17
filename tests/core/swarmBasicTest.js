@@ -1,5 +1,5 @@
 
-var flow = require("../lib/index.js");
+var flow = require("../../lib/index.js");
 
 var f = flow.createSwarm("simpleSwarm", {
     type:"flow",       // flow, key, contract
