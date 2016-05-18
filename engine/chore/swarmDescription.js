@@ -113,6 +113,11 @@ function SwarmSpace(swarmType)
             return result;
         };
 
+        function filterForSerialisable (valueObject){
+            return valueObject.meta.swarmId;
+        }
+
+
         this.initialiseFunctions = function(valueObject, thisObject){
 
             for(var v in myFunctions){
@@ -125,22 +130,12 @@ function SwarmSpace(swarmType)
                     args.push(arguments[i]);
                 }
 
-                /*
-                var lastArg = arguments[arguments.length -1];
-
-                if(typeof lastArg == "function"){
-                    arguments.pop();
-                }*/
-
-                function filter (){
-                    return valueObject.meta.swarmId;
-                }
-
-                valueObject.myFunctions.observe(function(){  //make the execution at level 0  (after all pending events) and wait to have a swarmId
+                //make the execution at level 0  (after all pending events) and wait to have a swarmId
+                valueObject.myFunctions.observe(function(){
                     beesHealer.asJSON(valueObject, phaseName, args, function(err,jsMsg){
                         $$.PSK_PubSub.publish(context, jsMsg);
                     });
-                },null,filter);
+                },null,filterForSerialisable);
 
                 valueObject.myFunctions.notify();
 
@@ -240,6 +235,8 @@ function SwarmSpace(swarmType)
                 return swarmDebug.cleanDump(thisObject.valueOf());
             }
 
+
+
             valueObject.myFunctions["inspect"] /*= thisObject.inspect*/ = function(){
                 return swarmDebug.cleanDump(thisObject.valueOf());
             }
@@ -261,6 +258,14 @@ function SwarmSpace(swarmType)
                     localId++;
                 }
                 $$.PSK_PubSub.subscribe(valueObject.localId, callback, waitForMore, filter);
+            }
+
+            valueObject.myFunctions["toJSON"] = function(callback){
+                //make the execution at level 0  (after all pending events) and wait to have a swarmId
+                valueObject.myFunctions.observe(function(){
+                    beesHealer.asJSON(valueObject, null, null,callback)
+                },null,filterForSerialisable);
+                valueObject.myFunctions.notify();
             }
 
             valueObject.myFunctions["notify"] = function(event){
@@ -489,6 +494,7 @@ function SwarmSpace(swarmType)
 
         return swarm;
     }
+
 }
 
 

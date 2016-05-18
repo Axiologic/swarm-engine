@@ -50,10 +50,18 @@ function SwarmLibrary(prefixName, folder){
 
     var self = this;
 
+    function wrapSwarmRelatedFunctions(space, prefixName){
+        var ret = {};
+        var names = ["create","describe", "start", "restart"];
+        for(var i = 0;i<names.length;i++ ){
+            ret[names[i]] = wrapCall(space[names[i]], prefixName);
+        }
+        return ret;
+    }
 
-    this.callflows        = this.callflow   = wrapCall($$.callflows, prefixName);
-    this.swarms           = this.swarm      = wrapCall($$.swarms, prefixName);
-    this.contracts        = this.contract   = wrapCall($$.contracts, prefixName);
+    this.callflows        = this.callflow   = wrapSwarmRelatedFunctions($$.callflows, prefixName);
+    this.swarms           = this.swarm      = wrapSwarmRelatedFunctions($$.swarms, prefixName);
+    this.contracts        = this.contract   = wrapSwarmRelatedFunctions($$.contracts, prefixName);
     includeAllInRoot(folder, prefixName);
 }
 

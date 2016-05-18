@@ -13,4 +13,10 @@ exports.CRL = require("./fakes/dummyCRL");  //TODO: used by tests, but this shou
 exports.PDS = require("./fakes/dummyPDS");  //TODO: used by tests, but this should be removed soon...
 
 $$.loadLibrary("crl", "../libraries/crl");
-$$.loadLibrary("pds", "../libraries/crl");
+$$.loadLibrary("pds", "../libraries/pds");
+var core = $$.loadLibrary("core", "../libraries/launcher");
+
+var folder = require("os").tmpdir() + "/psk.config";
+console.log(folder);
+var test = $$.callflow.start(core.Serializer);
+test.store(test, folder);

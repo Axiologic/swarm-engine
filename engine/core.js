@@ -4,6 +4,11 @@ Contributors: Axiologic Research , PrivateSky project
 Code License: LGPL or MIT.
 */
 
+function safeErrorHandlingImplementation(err, res){
+    if(err) throw err;
+    return res;
+}
+
 $$ = {
     errorHandler: {
         error:function(err, args, msg){
@@ -37,8 +42,12 @@ $$ = {
     },
     securityContext:"system",
     uidGenerator: require("./chore/safe-uuid.js"),
-    defaultErrorHandling:function(err, res){
-        if(err) throw err;
+    safeErrorHandling:function(callback){
+        if(callback){
+            return callback;
+        } else{
+            return safeErrorHandlingImplementation;
+        }
     },
     libraryPrefix:"global",
     libraries: {
@@ -68,4 +77,10 @@ exports.enableTesting = function() {
     $$.PSK_PubSub = require("./pubSub/core/soundPubSub").soundPubSub;  //for testing
     var vms = require("./fakes/dummyVM");
     return exports;
+}
+
+$$.requireCoreModule = function(relativePath){
+    var path = require("path");
+    var absolutePath = path.resolve( __dirname + "/" + relativePath);
+    return require(absolutePath);
 }
