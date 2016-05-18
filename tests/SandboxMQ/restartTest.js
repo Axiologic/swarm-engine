@@ -1,9 +1,9 @@
-var flow = require("../../lib/core").enableTesting();
-var mq = require("../../lib/pubSub/core/folderMQ")
+require("../../engine/core").enableTesting();
+var mq = require("../../engine/pubSub/core/folderMQ")
 
 var queue = mq.getFolderQueue("../temp/testFolderMQ");
 
-var flow1 = flow.createSwarm("test", {
+var flow1 = $$.callflows.create("test", {
     public:{
         value:"int"
     },
@@ -13,7 +13,7 @@ var flow1 = flow.createSwarm("test", {
 });
 
 
-var flow2 = flow.startSwarm("test");
+var flow2 = $$.callflows.start("test");
 flow2.init(2);
 
 var producerHandler = queue.getHandler();

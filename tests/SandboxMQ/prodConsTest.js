@@ -1,5 +1,5 @@
-var flow = require("../../lib/index");
-var mq = require("../../lib/pubSub/core/folderMQ")
+var flow = require("../../engine/index");
+var mq = require("../../engine/pubSub/core/folderMQ")
 
 var queue = mq.getFolderQueue("../temp/testFolderMQ");
 

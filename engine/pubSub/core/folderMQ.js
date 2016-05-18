@@ -21,7 +21,7 @@ function FolderMQ(folder){
             },
             addSwarm : function(swarm, callback){
                 if(!callback){
-                    callback = __swarmGlobals.defaultErrorHandling;
+                    callback = $$.defaultErrorHandling;
                 }
 
                 beesHealer.asJSON(swarm,null, null, function(err, res){

@@ -1,4 +1,4 @@
-var flow = require("../../lib/index.js");
+var flow = require("../../engine/index.js");
 
 var f = flow.createSwarm("simpleSwarm", {
     protected:{

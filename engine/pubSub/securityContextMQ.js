@@ -14,11 +14,11 @@ exports.create = function(folder, agentId, callback){
        //restore swarm
     });
 
-    __swarmGlobals.PSK_PubSub.subscribe("pds", function(swarm){
+    $$.PSK_PubSub.subscribe("pds", function(swarm){
         pdsQueue.addSwarm(swarm);
     });
 
-    __swarmGlobals.PSK_PubSub.subscribe("crl", function(swarm){
+    $$.PSK_PubSub.subscribe("crl", function(swarm){
         crlQueue.addSwarm(swarm);
     });
 };

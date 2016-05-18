@@ -6,7 +6,7 @@ function dummyVM(name){
         sd.revive_swarm(swarm);
     }
 
-    __swarmGlobals.PSK_PubSub.subscribe(name, solveSwarm);
+    $$.PSK_PubSub.subscribe(name, solveSwarm);
 }
 
 
