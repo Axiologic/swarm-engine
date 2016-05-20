@@ -51,7 +51,18 @@ $$ = {
     },
     libraryPrefix:"global",
     libraries: {
+        global:{
 
+        }
+    },
+    __intern:{
+        mkArgs:function(args,pos){
+            var argsArray = [];
+            for(var i = pos; i < args.length; i++){
+                argsArray.push(args[i]);
+            }
+            return argsArray;
+        }
     }
 };
 

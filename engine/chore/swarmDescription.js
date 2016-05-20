@@ -236,6 +236,9 @@ function SwarmSpace(swarmType)
             }
 
 
+            valueObject.myFunctions["join"] = function(callback){
+                return require("./JoinPoint").createJoinPoint(thisObject, callback, $$.__intern.mkArgs(arguments,1));
+            }
 
             valueObject.myFunctions["inspect"] /*= thisObject.inspect*/ = function(){
                 return swarmDebug.cleanDump(thisObject.valueOf());
@@ -362,7 +365,10 @@ function SwarmSpace(swarmType)
 
         var pointPos = swarmTypeName.lastIndexOf('.');
         var shortName = swarmTypeName.substr( pointPos+ 1);
-        var libraryName = swarmTypeName.substr(0, pointPos)
+        var libraryName = swarmTypeName.substr(0, pointPos);
+        if(!libraryName){
+            libraryName = "global";
+        }
 
         var description = new SwarmDescription(swarmTypeName, description)
         if(descriptions[swarmTypeName] != undefined){
@@ -371,7 +377,7 @@ function SwarmSpace(swarmType)
 
         descriptions[swarmTypeName] = description;
 
-       // console.log(libraryName, shortName);
+       //console.log(libraryName, shortName);
         $$.registerSwarmDescription(libraryName,shortName, swarmTypeName);
         return description;
     }
