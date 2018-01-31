@@ -1,5 +1,5 @@
 
-var sd = require("../chore/swarmDescription");
+var sd = require("../choreographies/swarmDescription");
 
 function dummyVM(name){
     function solveSwarm(swarm){

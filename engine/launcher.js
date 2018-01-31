@@ -12,11 +12,22 @@ $$.PSK_PubSub = require("./pubSub/launcherMQ.js").pubSub;
 exports.CRL = require("./fakes/dummyCRL");  //TODO: used by tests, but this should be removed soon...
 exports.PDS = require("./fakes/dummyPDS");  //TODO: used by tests, but this should be removed soon...
 
+
+var tmpDir = require("os").tmpdir();
+
+var filePath =  tmpDir + "/psk.config";
+console.log(filePath);
+
+
 $$.loadLibrary("crl", "../libraries/crl");
 $$.loadLibrary("pds", "../libraries/pds");
-var core = $$.loadLibrary("core", "../libraries/launcher");
+var launcher = $$.loadLibrary("launcher", "../libraries/launcher");
 
-var folder = require("os").tmpdir() + "/psk.config";
-console.log(folder);
-var test = $$.callflow.start(core.Serializer);
-test.store(test, folder);
+
+
+
+$$.callflow.start(launcher.FileSerializer).load(launcher.Config, filePath, function(err, config){
+   //console.log(config.valueOf());
+    //console.log(config);
+   config.start();
+});

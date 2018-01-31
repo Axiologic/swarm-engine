@@ -7,8 +7,8 @@ exports.asJSON = function(valueObject, phaseName, args, callback){
 
         var valueObject = valueObject.valueOf();
         var res = {};
-        res.publicVars          = valueObject.public;
-        res.privateVars         = valueObject.private;
+        res.publicVars          = valueObject.publicVars;
+        res.privateVars         = valueObject.privateVars;
         res.meta                = {};
 
         res.meta.swarmTypeName  = valueObject.meta.swarmTypeName;
@@ -23,7 +23,12 @@ exports.asJSON = function(valueObject, phaseName, args, callback){
         }
 
         res.meta.waitStack  = valueObject.meta.waitStack; //TODO: think if is not better to be deep cloned and not referenced!!!
-        return callback(null, res);
+
+        if(callback){
+            callback(null, res);
+        }
+        //console.log("asJSON:", res, valueObject);
+        return res;
 }
 
 exports.jsonToNative = function(serialisedValues, result){

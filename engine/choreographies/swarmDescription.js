@@ -58,7 +58,7 @@ function SwarmSpace(swarmType)
         }
 
         var publicVars = createVars(description.public);
-        var protectedVars = createVars(description.protected);
+        var privateVars = createVars(description.private);
         var myFunctions = createMembers(description);
 
         function createPhase(thisInstance, func){
@@ -102,8 +102,8 @@ function SwarmSpace(swarmType)
                 result.publicVars[v] = publicVars[v].init();
             };
 
-            for(var v in protectedVars){
-                result.protectedVars[v] = protectedVars[v].init();
+            for(var v in privateVars){
+                result.privateVars[v] = privateVars[v].init();
             };
 
 
@@ -146,9 +146,6 @@ function SwarmSpace(swarmType)
             valueObject.myFunctions["swarm"] = continueFunction;
             valueObject.myFunctions["continue"] = continueFunction;
 
-            /*valueObject.myFunctions["toString "] = function(){
-                return valueObject.toString();
-            }*/
 
             var asyncReturn = function(err, result){
                 var context = valueObject.protectedVars.context;
@@ -224,14 +221,14 @@ function SwarmSpace(swarmType)
 
             valueObject.myFunctions["valueOf"] = function valueOf(){
                 var ret = {};
-                ret.meta        = valueObject.meta;
-                ret.public      = valueObject.publicVars;
-                ret.private     = valueObject.privateVars;
-                ret.protected   = valueObject.protectedVars;
+                ret.meta                = valueObject.meta;
+                ret.publicVars          = valueObject.publicVars;
+                ret.privateVars         = valueObject.privateVars;
+                ret.protectedVars       = valueObject.protectedVars;
                 return ret;
             }
 
-            valueObject.myFunctions["toString"] /*= thisObject.toString */ = function(){
+            valueObject.myFunctions["toString"] = thisObject.toString  = function(){
                 return swarmDebug.cleanDump(thisObject.valueOf());
             }
 
@@ -266,7 +263,7 @@ function SwarmSpace(swarmType)
             valueObject.myFunctions["toJSON"] = function(callback){
                 //make the execution at level 0  (after all pending events) and wait to have a swarmId
                 valueObject.myFunctions.observe(function(){
-                    beesHealer.asJSON(valueObject, null, null,callback)
+                    beesHealer.asJSON(valueObject, null, null,callback);
                 },null,filterForSerialisable);
                 valueObject.myFunctions.notify();
             }
@@ -279,19 +276,40 @@ function SwarmSpace(swarmType)
             }
         }
 
+        var internalFunctions = { //TODO refactor to put all these functions here instead of the object itself!!!!
+            toString:true,
+            valueOf:true,
+            toJSON:true,
+            onReturn:true,
+            swarm:true,
+            join:true,
+            inspect:true,
+        }
+        function internalFunction(name){
+                return internalFunctions[name];
+
+        }
+
         this.get = function(target, property, receiver){
 
-            if(target.privateVars.hasOwnProperty(property))
+            if(publicVars.hasOwnProperty(property))
+            {
+                return target.publicVars[property];
+            }
+
+            if(privateVars.hasOwnProperty(property))
             {
                 return target.privateVars[property];
             }
-            if(target.myFunctions.hasOwnProperty(property))
+
+            if(myFunctions.hasOwnProperty(property) || internalFunction(property))
             {
                 return target.myFunctions[property];
             }
-            if(target.publicVars.hasOwnProperty(property))
+
+            if(target.protectedVars.hasOwnProperty(property))
             {
-                return target.publicVars[property];
+                return target.protectedVars[property];
             }
 
             if(typeof property != "symbol") {
@@ -302,15 +320,15 @@ function SwarmSpace(swarmType)
 
         this.set = function(target, property, value, receiver){
 
-            if(target.protectedVars.hasOwnProperty(property))
+            if(privateVars.hasOwnProperty(property))
             {
-                target.protectedVars[property] = value;
-            }
-            if(target.publicVars.hasOwnProperty(property))
+                target.privateVars[property] = value;
+            } else
+            if(publicVars.hasOwnProperty(property))
             {
                 target.publicVars[property] = value;
             } else {
-                target.privateVars[property] = value;
+                target.protectedVars[property] = value;
             }
         }
 

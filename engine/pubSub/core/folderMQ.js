@@ -1,5 +1,5 @@
 
-var beesHealer = require("../../chore/beesHealer");
+var beesHealer = require("../../choreographies/beesHealer");
 var fs = require("fs");
 
 //TODO: prevent a class of race condition type of errors by signaling with files metadata to the watcher when it is safe to consume

@@ -10,3 +10,4 @@ How should be used for third party applications or by external contributors :
 
 
 For security and code quality reasons all the integration here and releases will be performed manually by a very small core of developers (Sinica and Cosmin)!
+

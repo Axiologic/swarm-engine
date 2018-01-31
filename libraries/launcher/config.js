@@ -1,7 +1,7 @@
 
-var core = $$.loadLibrary("core");
+var launcher = $$.loadLibrary("launcher");
 
-$$.callflows.describe("agent", {
+$$.callflows.describe("Agent", {
     public:{
         spaceUrl:String,
         agentId:String
@@ -12,17 +12,19 @@ $$.callflows.describe("agent", {
 });
 
 
-$$.callflows.describe("config", {
-    protected:{
-        privateKey:"PrivateKey"
-    },
+$$.callflows.describe("Config", {
     public:{
-        nodeAgent:core.agent,
-        agents:Array
+        nodeAgent:launcher.Agent,
+        agents:Array,
+        privateKey:"PrivateKey"
     },
     start:function(configFile){
         if(!this.privateKey){
-            this.privateKey = "secret";
+            this.__boot();
         }
+    },
+    __boot:function(){
+        this.privateKey = "secret";
+        this.__serialiser.__store(this);
     }
 });

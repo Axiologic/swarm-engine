@@ -32,9 +32,9 @@ exports.cleanDump = function (obj) {
         swarmTypeName:o.meta.swarmTypeName
     };
     return "\t swarmId: " + o.meta.swarmId + "{\n\t\tmeta: "    + J(meta) +
-        "\n\t\tpublic: "        + J(o.public) +
-        "\n\t\tprotected: "     + J(o.protected) +
-        "\n\t\tprivate: "       + J(o.private) + "\n\t}\n";
+        "\n\t\tpublic: "        + J(o.publicVars) +
+        "\n\t\tprotected: "     + J(o.protectedVars) +
+        "\n\t\tprivate: "       + J(o.privateVars) + "\n\t}\n";
 }
 
 //M = exports.cleanDump;

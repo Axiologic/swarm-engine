@@ -41,7 +41,7 @@ $$ = {
         }
     },
     securityContext:"system",
-    uidGenerator: require("./chore/safe-uuid.js"),
+    uidGenerator: require("./choreographies/safe-uuid.js"),
     safeErrorHandling:function(callback){
         if(callback){
             return callback;
@@ -71,7 +71,7 @@ $$.registerSwarmDescription =  function(libraryName,shortName, description){
 }
 
 
-var swarmDescr = require("./chore/swarmDescription");
+var swarmDescr = require("./choreographies/swarmDescription");
 
 
 $$.callflows        = swarmDescr.createSwarmEngine("callflow");
