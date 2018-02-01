@@ -1,7 +1,7 @@
 
-var flow = require("../../engine/index.js");
+require("../../engine/core").enableTesting();
 
-var f = flow.createSwarm("simpleSwarm", {
+var f = $$.swarms.create("simpleSwarm", {
     type:"flow",       // flow, key, contract
     private:{
             a1: {
@@ -16,7 +16,7 @@ var f = flow.createSwarm("simpleSwarm", {
     begin:function(a1,a2){
         this.a1 = a1;
         this.a2 = a2;
-        this.continue("agent", "doStep", 3).onReturn(this.afterExecution);
+        this.swarm("agent", "doStep", 3).onReturn(this.afterExecution);
     },
     doStep:function(a){
         this.result = this.a1 + this.a2 + a;

@@ -1,6 +1,6 @@
 
-var flow = require("../../engine/index.js");
-var f = flow.createSwarm("simpleSwarm", {
+var flow = require("../../engine/core").enableTesting();
+var f = $$.swarms.create("simpleSwarm", {
     private:{
         a1:"int",
         a2:"int"
@@ -17,7 +17,8 @@ var f = flow.createSwarm("simpleSwarm", {
     }
 });
 
-
+eroare.. nu e terminat sau util...
+/*
 var storage = flow.createMemoryStorage();
 
 f.begin();
@@ -33,4 +34,4 @@ newF.doStep(1);
 
 setTimeout(function(){
     console.log(newF.result());
-}, 2);
+}, 2); */

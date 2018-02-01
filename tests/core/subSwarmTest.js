@@ -1,7 +1,8 @@
+Fails after latest changes!!
 
-var flow = require("../../engine/index.js");
+require("../../engine/core").enableTesting();
 
-flow.describeSwarm("subSwarm",{
+$$.swarms.describe("subSwarm",{
     public:{
         value:"int"
     },
@@ -13,7 +14,7 @@ flow.describeSwarm("subSwarm",{
 
 
 
-var f = flow.createSwarm("simpleSwarm", {
+var f = $$.swarm.create("simpleSwarm", {
     begin:function(a1,a2){
 
         /*var newSwarm = flow.startSwarm("subSwarm");
@@ -33,5 +34,5 @@ var f = flow.createSwarm("simpleSwarm", {
 });
 
 for(var i = 0; i<=1024; i++){
-    flow.startSwarm("simpleSwarm","system", "begin", 1, 2);
+    $$.swarms.start("simpleSwarm","system", "begin", 1, 2);
 }

@@ -8,6 +8,7 @@ var bootSandBox = $$.flow.describe("PrivateSky.swarm.engine.bootInLauncher", {
         this.folder     = folder;
         this.spaceName  = spaceName;
         this.sandBox    = sandBox;
+        this.codeFolder    = codeFolder;
 
         var join = this.join(this.ensureFolders);
 
@@ -26,11 +27,11 @@ var bootSandBox = $$.flow.describe("PrivateSky.swarm.engine.bootInLauncher", {
     },
     ensureFolders: function(err, res){
         var join = this.join(this.runCode);
-        join.linkShouldExist(this.folder + "/code/engine",   codeFolder + "/engine/",    join.reportProgress );
-        join.linkShouldExist(this.folder + "/code/modules",  codeFolder + "/modules/",   join.reportProgress );
-        join.linkShouldExist(this.folder + "/code/libraries",codeFolder + "/libraries/", join.reportProgress );
-        this.sandBox.pdsQueue = mq.getFolderQueue(this.folder + "/mq/pds/", join.reportProgress);
-        this.sandBox.crlQueue = mq.getFolderQueue(this.folder + "/mq/crl/", join.reportProgress);
+        join.linkShouldExist(this.folder + "/code/engine",   this.codeFolder + "/engine/",    join.reportProgress );
+        join.linkShouldExist(this.folder + "/code/modules",  this.codeFolder + "/modules/",   join.reportProgress );
+        join.linkShouldExist(this.folder + "/code/libraries",this.codeFolder + "/libraries/", join.reportProgress );
+        this.sandBox.inbound = mq.getFolderQueue(this.folder + "/mq/inbound/", join.reportProgress);
+        this.sandBox.outbound = mq.getFolderQueue(this.folder + "/mq/outbound/", join.reportProgress);
     },
     runCode: function(err, res){
         if(!err){
@@ -43,15 +44,36 @@ var bootSandBox = $$.flow.describe("PrivateSky.swarm.engine.bootInLauncher", {
 
 });
 
-function SandBox(spaceName, folder, codeFolder, resultCallBack){
+function SandBoxHandler(spaceName, folder, codeFolder, resultCallBack){
 
     var self = this;
+    var mqHandler;
 
     bootSandBox().boot(this, spaceName,folder, codeFolder, function(err, childProcess){
         self.childProcess = childProcess;
+
+        this.outbound.registerConsumer(function(swarm){
+            $$.PSK_PubSub.publish($$.CONSTANTS.SWARM_FOR_EXECUTION, swarm);
+        });
+
+        mqHandler = this.inbound.getHandler();
+        if(pendingMessages.length){
+            pendingMessages.map(function(item){
+                self.send(item);
+            });
+            pendingMessages = null;
+        }
     });
 
+    var pendingMessages = [];
 
+    this.send = function (swarm, callback) {
+        if(mqHandler){
+            mqHandler.addSwarm(swarm, callback);
+        } else {
+            pendingMessages.push(swarm); //TODO: well, a clone will not be better?
+        }
+    }
 
 }
 
@@ -61,25 +83,25 @@ function SandBoxManager(sandboxesFolder, codeFolder){
 
     };
 
+    $$.PSK_PubSub.subscribe($$.CONSTANTS.SWARM_FOR_EXECUTION, function(swarm){
+        this.pushToSpaceASwarm(swarm.meta.target, swarm);
+    });
 
-    this.enableSpaces = function(arr){
-        arr.forEach(function(item){
-            $$.PSK_PubSub.subscribe(item);
-        })
-    }
 
-    this.startSandBox = function(spaceName, callback){
-        var sandBox = new SandBox(spaceName, sandboxesFolder + "/"+ spaceName, codeFolder);
+    function startSandBox(spaceName, callback){
+        var sandBox = new SandBoxHandler(spaceName, sandboxesFolder + "/"+ spaceName, codeFolder);
         sandBoxes[spaceName] = sandBox;
         return sandBox;
     }
 
-    function pendingMessages(){
 
-    }
 
-    this.pushMessage(spaceName){
-
+    this.pushToSpaceASwarm = function(spaceName, swarm){
+        var sandbox = sandBoxes[spaceName];
+        if(!sandbox){
+            sandbox = sandBoxes[spaceName] = startSandBox();
+        }
+        sandbox.send(swarm);
     }
 }
 

@@ -133,7 +133,9 @@ function SwarmSpace(swarmType)
                 //make the execution at level 0  (after all pending events) and wait to have a swarmId
                 valueObject.myFunctions.observe(function(){
                     beesHealer.asJSON(valueObject, phaseName, args, function(err,jsMsg){
-                        $$.PSK_PubSub.publish(context, jsMsg);
+                        jsMsg.meta.target = context;
+                        console.log($$.CONSTANTS.SWARM_FOR_EXECUTION);
+                        $$.PSK_PubSub.publish($$.CONSTANTS.SWARM_FOR_EXECUTION, jsMsg);
                     });
                 },null,filterForSerialisable);
 
@@ -160,12 +162,15 @@ function SwarmSpace(swarmType)
 
                     if(!context){
                         context = valueObject.meta.homeSecurityContext;//TODO: CHECK THIS
+
                     }
+                    jsMsg.meta.target = context;
 
                     if(!context){
                         $$.errorHandler.error(new Error("Asynchronous return inside of a swarm that does not wait for results"));
                     } else {
-                        $$.PSK_PubSub.publish(context, jsMsg);
+
+                        $$.PSK_PubSub.publish($$.CONSTANTS.SWARM_FOR_EXECUTION, jsMsg);
                     }
                 });
             };
@@ -173,7 +178,8 @@ function SwarmSpace(swarmType)
             valueObject.myFunctions["home"]   = function(err, result){
                 beesHealer.asJSON(valueObject, "home", [err, result], function(err,jsMsg){
                     var context = valueObject.meta.homeContext;
-                    $$.PSK_PubSub.publish(context, jsMsg);
+                    jsMsg.meta.target = context;
+                    $$.PSK_PubSub.publish($$.CONSTANTS.SWARM_FOR_EXECUTION, jsMsg);
                 });
             };
 
@@ -274,21 +280,10 @@ function SwarmSpace(swarmType)
                 }
                 $$.PSK_PubSub.publish(valueObject.localId, event);
             }
-        }
-
-        var internalFunctions = { //TODO refactor to put all these functions here instead of the object itself!!!!
-            toString:true,
-            valueOf:true,
-            toJSON:true,
-            onReturn:true,
-            swarm:true,
-            join:true,
-            inspect:true,
-        }
-        function internalFunction(name){
-                return internalFunctions[name];
 
         }
+
+
 
         this.get = function(target, property, receiver){
 
@@ -302,7 +297,7 @@ function SwarmSpace(swarmType)
                 return target.privateVars[property];
             }
 
-            if(myFunctions.hasOwnProperty(property) || internalFunction(property))
+            if(target.myFunctions.hasOwnProperty(property))
             {
                 return target.myFunctions[property];
             }
@@ -529,3 +524,4 @@ function SwarmSpace(swarmType)
 exports.createSwarmEngine = function(swarmType){
     return new SwarmSpace(swarmType);
 }
+

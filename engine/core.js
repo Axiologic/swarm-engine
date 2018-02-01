@@ -6,7 +6,7 @@ Code License: LGPL or MIT.
 
 var path = require("path");
 
-function safeErrorHandlingImplementation(err, res){
+function defaultErrorHandlingImplementation(err, res){
     if(err) throw err;
     return res;
 }
@@ -48,7 +48,7 @@ $$ = {
         if(callback){
             return callback;
         } else{
-            return safeErrorHandlingImplementation;
+            return defaultErrorHandlingImplementation;
         }
     },
     libraryPrefix:"global",
@@ -57,6 +57,7 @@ $$ = {
 
         }
     },
+    defaultErrorHandlingImplementation:defaultErrorHandlingImplementation,
     __intern:{
         mkArgs:function(args,pos){
             var argsArray = [];
@@ -130,4 +131,13 @@ $$.ensureLinkExists = function(existingPath, newPath, callback){
             fs.ln(existingPath, newPath, callback);
         }
     });
+}
+
+
+$$.CONSTANTS = {
+    SWARM_FOR_EXECUTION:"swarm_for_execution",
+    INBOUND:"inbound",
+    OUTBOUND:"outbound",
+    PDS:"PrivateDataSystem",
+    CRL:"CommunicationReplicationLayer"
 }
