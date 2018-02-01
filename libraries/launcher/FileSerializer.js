@@ -28,7 +28,6 @@ launcher.callflow.describe("FileSerializer", {
     },
     __doStoreResult: function(err,res){
         var text = $$.jsonReadable(res);
-        console.log("XXXXX:",text);
         fs.writeFile(this.fileName, text, this.storeCallBack);
     },
     __restoreSwarm: function(err, jsonObject){

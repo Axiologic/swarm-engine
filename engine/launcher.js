@@ -1,33 +1,37 @@
 
+
+
 //command line script
 //the first argument is a path to a configuration file
 
 
 //var config = require("util/configLoader.js")(process.args[1]);
-var core = require("./core");
-
-$$.PSK_PubSub = require("./pubSub/launcherMQ.js").pubSub;
-
-
-exports.CRL = require("./fakes/dummyCRL");  //TODO: used by tests, but this should be removed soon...
-exports.PDS = require("./fakes/dummyPDS");  //TODO: used by tests, but this should be removed soon...
-
+exports.core = require("./core");
 
 var tmpDir = require("os").tmpdir();
+var fs = require("fs");
+var path = require("path");
 
-var filePath =  tmpDir + "/psk.config";
-console.log(filePath);
+var basePath =  tmpDir + "/PrivateSkyNode/";
+fs.mkdir(basePath, function(){});
 
-
-$$.loadLibrary("crl", "../libraries/crl");
-$$.loadLibrary("pds", "../libraries/pds");
-var launcher = $$.loadLibrary("launcher", "../libraries/launcher");
-
+var cfgPath = basePath + "psk.config";
 
 
+var codeFolder =  path.normalize(__dirname + "/../");
 
-$$.callflow.start(launcher.FileSerializer).load(launcher.Config, filePath, function(err, config){
-   //console.log(config.valueOf());
+console.log(basePath, codeFolder);
+
+$$.PSK_PubSub = require("./pubSub/launcherPubSub.js").create(basePath, codeFolder);
+
+
+$$.loadLibrary("crl", __dirname+"/../libraries/crl");
+$$.loadLibrary("pds", __dirname+"/../libraries/pds");
+var launcher = $$.loadLibrary("launcher", __dirname + "/../libraries/launcher");
+
+
+$$.callflow.start(launcher.FileSerializer).load(launcher.Config, cfgPath, function(err, config){
+    //console.log(config.valueOf());
     //console.log(config);
-   config.start();
+    config.start("self/agent/root", ["space1", "space2", "space3"]);
 });

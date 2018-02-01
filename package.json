@@ -1,8 +1,8 @@
 {
-  "name": "swarmchore",
+  "name": "PrivateSky",
   "description": "Execute swarm choregraphies. Control your asynchronous code with explicit flows! Created mainly for simplifying code within SwarmESB/PrivateSky projects but can be used outside SwarmESB ecosystem. ",
-  "version": "0.1.1",
-  "_id": "privatesky@0.1.1",
+  "version": "0.1.2",
+  "_id": "privatesky@0.1.2",
   "homepage": "https://github.com/PrivateSky/privatesky",
   "author": {
     "name": "Alboaie Sinica",

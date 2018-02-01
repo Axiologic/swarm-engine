@@ -15,16 +15,19 @@ $$.callflows.describe("Agent", {
 $$.callflows.describe("Config", {
     public:{
         nodeAgent:launcher.Agent,
-        agents:Array,
+        spaces:Array,
         privateKey:"PrivateKey"
     },
-    start:function(configFile){
+    start:function(nodeAgent,  spaces){
         if(!this.privateKey){
+            this.nodeAgent  = nodeAgent;
+            this.spaces     = spaces;
             this.__boot();
         }
     },
     __boot:function(){
         this.privateKey = "secret";
         this.__serialiser.__store(this);
+        //create folders for spaces
     }
 });

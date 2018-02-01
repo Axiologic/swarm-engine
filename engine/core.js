@@ -4,6 +4,8 @@ Contributors: Axiologic Research , PrivateSky project
 Code License: LGPL or MIT.
 */
 
+var path = require("path");
+
 function safeErrorHandlingImplementation(err, res){
     if(err) throw err;
     return res;
@@ -67,6 +69,9 @@ $$ = {
 };
 
 $$.registerSwarmDescription =  function(libraryName,shortName, description){
+    if(!$$.libraries[libraryName]){
+        $$.libraries[libraryName] = {};
+    }
     $$.libraries[libraryName][shortName] = description;
 }
 
@@ -76,6 +81,8 @@ var swarmDescr = require("./choreographies/swarmDescription");
 
 $$.callflows        = swarmDescr.createSwarmEngine("callflow");
 $$.callflow         = $$.callflows;
+$$.flow             = $$.callflows;
+$$.flows            = $$.callflows;
 $$.swarms           = swarmDescr.createSwarmEngine("swarm");
 $$.swarm            = $$.swarms;
 $$.contracts        = swarmDescr.createSwarmEngine("contract");
@@ -90,8 +97,37 @@ exports.enableTesting = function() {
     return exports;
 }
 
-$$.requireCoreModule = function(relativePath){
-    var path = require("path");
-    var absolutePath = path.resolve( __dirname + "/" + relativePath);
-    return require(absolutePath);
+var loadedModules = {
+
+}
+
+$$.requireModule = function(name){
+    var existingModule = loadedModules[name];
+    if(!existingModule){
+        var absolutePath = path.resolve( __dirname + "/../modules/" + name);
+        existingModule = require(absolutePath);
+        loadedModules[name] = existingModule;
+    } else {
+        return existingModule;
+    }
+}
+
+
+var fs = require("fs");
+
+$$.ensureFolderExists = function(folder, callback){
+    fs.exists(folder, function(res){
+            if(!res){
+                fs.mkdir(folder, callback);
+            }
+        });
+}
+
+
+$$.ensureLinkExists = function(existingPath, newPath, callback){
+    fs.exists(newPath, function(res){
+        if(!res){
+            fs.ln(existingPath, newPath, callback);
+        }
+    });
 }

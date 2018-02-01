@@ -4,7 +4,16 @@ var fs = require("fs");
 
 //TODO: prevent a class of race condition type of errors by signaling with files metadata to the watcher when it is safe to consume
 
-function FolderMQ(folder){
+function FolderMQ(folder, callback){
+    fs.mkdir(folder, function(err, res){
+        fs.exists(folder, function(exists) {
+            if (exists) {
+                callback(null, folder)
+            } else {
+                callback(err);
+            }
+        });
+    });
 
     function mkFileName(swarmRaw){
         return folder + "/" + swarmRaw.meta.swarmId + "."+swarmRaw.meta.swarmTypeName;
@@ -57,8 +66,13 @@ function FolderMQ(folder){
 
     function consumeAllExisting(){
         fs.readdir(folder,"utf8", function(err, files){
-            files.forEach(consumeMessage);
-            watchFolder();
+            if(err){
+                $$.errorHandler.error(err)
+            } else {
+                files.forEach(consumeMessage);
+                watchFolder();
+            }
+
         });
     };
 
@@ -72,6 +86,6 @@ function FolderMQ(folder){
     };
 }
 
-exports.getFolderQueue = function(folder){
-    return new FolderMQ(folder);
+exports.getFolderQueue = function(folder, callback){
+    return new FolderMQ(folder, callback);
 }

@@ -363,7 +363,9 @@ function SwarmSpace(swarmType)
             self.initialiseFunctions(valueObject,result);
             if(!serialisedValues){
                 $$.uidGenerator.safe_uuid(function (err, result){
-                    valueObject.meta.swarmId = result;
+                    if(!valueObject.meta.swarmId){
+                        valueObject.meta.swarmId = result;  //do not overwrite!!!
+                    }
                     valueObject.myFunctions.notify();
                 });
             }
@@ -395,8 +397,8 @@ function SwarmSpace(swarmType)
 
         descriptions[swarmTypeName] = description;
 
-       //console.log(libraryName, shortName);
-        $$.registerSwarmDescription(libraryName,shortName, swarmTypeName);
+
+        $$.registerSwarmDescription(libraryName, shortName, swarmTypeName);
         return description;
     }
 
