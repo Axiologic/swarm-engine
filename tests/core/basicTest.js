@@ -1,6 +1,6 @@
 
-var flow = require("../../engine/index.js");
-var f = flow.describeSwarm("FlowExample", {
+require("../../engine/core").enableTesting();
+var f = $$.flow.describe("FlowExample", {
     private:{
         a1:"int",
         a2:"int"
@@ -14,4 +14,4 @@ var f = flow.describeSwarm("FlowExample", {
 })();
 
 f.begin(1, 2);
-console.log(f.result);
+console.log("Result should be 3 and is: ", f.result);

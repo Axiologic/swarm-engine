@@ -1,6 +1,6 @@
 
-var flow = require("../../engine/index.js");
-var f = flow.createSwarm("asyncExample", {
+require("../../engine/core").enableTesting();
+var f = $$.flow.create("asyncExample", {
     private:{
         a1:"int",
         a2:"int"
@@ -21,6 +21,6 @@ var f = flow.createSwarm("asyncExample", {
 
 f.begin(1, 2);
 setTimeout(function(){
-    console.log(f.result);
+    console.log("Result should be 3 and is: ", f.result);
 }, 2);
 

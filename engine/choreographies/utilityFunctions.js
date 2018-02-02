@@ -11,7 +11,7 @@ exports.createForObject = function(valueObject, thisObject, localId){
 
     var swarmFunction = function(context, phaseName){
         var args =[];
-        for(var i = 2;i < arguments.length; i++){
+        for(var i = 2; i < arguments.length; i++){
             args.push(arguments[i]);
         }
 

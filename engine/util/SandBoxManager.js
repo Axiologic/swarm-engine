@@ -78,22 +78,25 @@ function SandBoxHandler(spaceName, folder, codeFolder, resultCallBack){
 }
 
 
-function SandBoxManager(sandboxesFolder, codeFolder){
+function SandBoxManager(sandboxesFolder, codeFolder, callback){
+    var self = this;
+
     var sandBoxes = {
 
     };
 
+    console.log("Subscribing to:", $$.CONSTANTS.SWARM_FOR_EXECUTION);
     $$.PSK_PubSub.subscribe($$.CONSTANTS.SWARM_FOR_EXECUTION, function(swarm){
-        this.pushToSpaceASwarm(swarm.meta.target, swarm);
+        console.log("Executing in sandbox towards: ", swarm.meta.target);
+        self.pushToSpaceASwarm(swarm.meta.target, swarm);
     });
 
 
     function startSandBox(spaceName, callback){
-        var sandBox = new SandBoxHandler(spaceName, sandboxesFolder + "/"+ spaceName, codeFolder);
+        var sandBox = new SandBoxHandler(spaceName, sandboxesFolder + "/" + spaceName, codeFolder);
         sandBoxes[spaceName] = sandBox;
         return sandBox;
     }
-
 
 
     this.pushToSpaceASwarm = function(spaceName, swarm){
@@ -103,11 +106,13 @@ function SandBoxManager(sandboxesFolder, codeFolder){
         }
         sandbox.send(swarm);
     }
+
+    callback(null, this);
 }
 
 
-exports.create = function(folder, codeFolder){
-    new SandBoxManager(folder, codeFolder);
+exports.create = function(folder, codeFolder, callback){
+    new SandBoxManager(folder, codeFolder, callback);
 };
 
 

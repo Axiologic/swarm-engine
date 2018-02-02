@@ -8,7 +8,7 @@ if(typeof singleton_container_module_workaround_for_wired_node_js_caching == 'un
 /**
  * Created by salboaie on 4/27/15.
  */
-function Container(sf){
+function Container(errorHandler){
     var things = {};        //the actual values for our services, things
     var immediate = {};     //how dependencies were declared
     var callbacks = {};     //callback that should be called for each dependency declaration
@@ -94,7 +94,7 @@ function Container(sf){
      */
     this.declareDependency = function(name, dependencyArray, callback){
         if(callbacks[name]){
-            sf.exceptions.duplicateDependency(name);
+            errorHandler.ignorePossibleError("Duplicate dependency:" + name);
         } else {
             callbacks[name] = callback;
             immediate[name]   = dependencyArray;
@@ -143,8 +143,7 @@ function Container(sf){
         try{
             var value = callbacks[name].apply({},args);
         } catch(err){
-            console.log(err.stack);
-            sf.exceptions.resend(err);
+            errorHandler.throwError(err);
         }
 
 
@@ -181,7 +180,7 @@ function Container(sf){
 
 
     this.instanceFactory = function(name, dependencyArray, constructor){
-        sf.exceptions.notImplemented("instanceFactory is planned but not implemented");
+        errorHandler.notImplemented("instanceFactory is planned but not implemented");
     }
 
     /*
@@ -202,4 +201,4 @@ exports.newContainer    = function(checksLibrary){
     return new Container(checksLibrary);
 }
 
-exports.container = new Container(require("double-check"));
+//exports.container = new Container($$.errorHandler);

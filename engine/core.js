@@ -16,6 +16,13 @@ $$ = {
         error:function(err, args, msg){
             console.log(err, "Unknown error from function call with arguments:", args, "Message:", msg);
         },
+        throwError:function(err, args, msg){
+            console.log(err, "Unknown error from function call with arguments:", args, "Message:", msg);
+            throw err;
+        },
+        ignorePossibleError: function(name){
+            console.log(name);
+        },
         syntaxError:function(property, swarm, text){
             //throw new Error("Misspelled member name or other internal error!");
             var swarmName;
@@ -138,10 +145,10 @@ $$.ensureLinkExists = function(existingPath, newPath, callback){
 }
 
 
-$$.CONSTANTS = {
-    SWARM_FOR_EXECUTION:"swarm_for_execution",
-    INBOUND:"inbound",
-    OUTBOUND:"outbound",
-    PDS:"PrivateDataSystem",
-    CRL:"CommunicationReplicationLayer"
+$$.requireLibrary = function(name){
+    var absolutePath = path.resolve( __dirname + "/../libraries/" + name);
+    $$.loadLibrary(name,absolutePath);
 }
+
+
+$$.requireLibrary("core");
