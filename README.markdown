@@ -10,3 +10,10 @@ How should be used for third party applications or by external contributors :
 
 
 For security and code quality reasons all the integration here and releases will be performed manually by a very small core of developers (Sinica and Cosmin)!
+
+
+The main releases will be merged periodically here, the active developement stays here:  https://github.com/PrivateSky/privatesky
+
+The documentation is not ready for public but if you want access,please send an email to abss@axiologic.ro 
+
+Current Release: 0.1.0 (Unstable)
