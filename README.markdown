@@ -11,3 +11,11 @@ How should be used for third party applications or by external contributors :
 
 For security and code quality reasons all the integration here and releases will be performed manually by a very small core of developers (Sinica and Cosmin)!
 
+The stable releases will be merged periodically  https://github.com/Axiologic/swarm-engine or will be branched.
+https://github.com/PrivateSky/privatesky  is unnstable and is developed in master branch. Use it just as a preview for the newer releases. 
+
+The documentation is not ready for large public (only for parteners)  but if you want access,please send an email to abss@axiologic.ro 
+
+Current Release: 0.1.0 (Unstable)
+
+
