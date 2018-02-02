@@ -2,14 +2,18 @@
 var sd = require("../choreographies/swarmDescription");
 
 
-
 function dummyVM(name){
+
+
     function solveSwarm(swarm){
-        console.log("Got a swarm!")
-        $$.swarms.revive_swarm(swarm);
+        $$.swarmsInstancesManager.revive_swarm(swarm);
     }
-    $$.PSK_PubSub.subscribe($$.CONSTANTS.SWARM_FOR_EXECUTION, solveSwarm);
+
+    $$.PSK_PubSub.subscribe(name, solveSwarm);
+
+    console.log("Creating a fake execution context...");
 }
 
 
 
+dummyVM($$.CONSTANTS.SWARM_FOR_EXECUTION);

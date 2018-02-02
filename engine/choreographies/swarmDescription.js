@@ -1,11 +1,13 @@
 
-function SwarmSpace(swarmType)
-{
+
+var swarmInstancesManager = require("./swarmInstancesManager");
+
+function SwarmSpace(swarmType) {
     require("./safe-uuid");
 
     var beesHealer = require("./beesHealer");
 
-    var swarmDebug = require("../util/SwarmDebug");
+
 
     function getFullName(shortName){
         var fullName;
@@ -91,6 +93,9 @@ function SwarmSpace(swarmType)
                 myFunctions:{
 
                 },
+                utilityFunctions:{
+
+                },
                 meta:{
                     swarmTypeName:swarmTypeName,
                     swarmDescription:description
@@ -113,9 +118,7 @@ function SwarmSpace(swarmType)
             return result;
         };
 
-        function filterForSerialisable (valueObject){
-            return valueObject.meta.swarmId;
-        }
+
 
 
         this.initialiseFunctions = function(valueObject, thisObject){
@@ -124,168 +127,15 @@ function SwarmSpace(swarmType)
                 valueObject.myFunctions[v] = createPhase(thisObject, myFunctions[v]);
             };
 
-            var continueFunction = function(context, phaseName){
-                var args =[];
-                for(var i = 2;i < arguments.length; i++){
-                    args.push(arguments[i]);
-                }
-
-                //make the execution at level 0  (after all pending events) and wait to have a swarmId
-                valueObject.myFunctions.observe(function(){
-                    beesHealer.asJSON(valueObject, phaseName, args, function(err,jsMsg){
-                        jsMsg.meta.target = context;
-                        console.log($$.CONSTANTS.SWARM_FOR_EXECUTION);
-                        $$.PSK_PubSub.publish($$.CONSTANTS.SWARM_FOR_EXECUTION, jsMsg);
-                    });
-                },null,filterForSerialisable);
-
-                valueObject.myFunctions.notify();
-
-
-                return thisObject;
-            };
-
-            valueObject.myFunctions["swarm"] = continueFunction;
-            valueObject.myFunctions["continue"] = continueFunction;
-
-
-            var asyncReturn = function(err, result){
-                var context = valueObject.protectedVars.context;
-
-                if(!context && valueObject.meta.waitStack){
-                    context = valueObject.meta.waitStack.pop();
-                    valueObject.protectedVars.context = context;
-                }
-
-                beesHealer.asJSON(valueObject, "__return__", [err, result], function(err,jsMsg){
-                    jsMsg.meta.command = "asyncReturn";
-
-                    if(!context){
-                        context = valueObject.meta.homeSecurityContext;//TODO: CHECK THIS
-
-                    }
-                    jsMsg.meta.target = context;
-
-                    if(!context){
-                        $$.errorHandler.error(new Error("Asynchronous return inside of a swarm that does not wait for results"));
-                    } else {
-
-                        $$.PSK_PubSub.publish($$.CONSTANTS.SWARM_FOR_EXECUTION, jsMsg);
-                    }
-                });
-            };
-
-            valueObject.myFunctions["home"]   = function(err, result){
-                beesHealer.asJSON(valueObject, "home", [err, result], function(err,jsMsg){
-                    var context = valueObject.meta.homeContext;
-                    jsMsg.meta.target = context;
-                    $$.PSK_PubSub.publish($$.CONSTANTS.SWARM_FOR_EXECUTION, jsMsg);
-                });
-            };
-
-            valueObject.myFunctions["asyncReturn"]  = asyncReturn;
-            valueObject.myFunctions["return"]       = asyncReturn;
-
-            function waitResults(callback, keepAliveCheck, swarm){
-                if(!swarm){
-                    swarm = this;
-                }
-                if(!keepAliveCheck){
-                    keepAliveCheck = function(){
-                        return false;
-                    }
-                }
-                var inner = swarm.getInnerValue();
-                if(!inner.meta.waitStack){
-                    inner.meta.waitStack = [];
-                    inner.meta.waitStack.push($$.securityContext)
-                }
-                waitForSwarm(callback, swarm, keepAliveCheck);
-            }
-
-            valueObject.myFunctions["onReturn"]  = waitResults;
-            valueObject.myFunctions["onResult"]  = waitResults;
-
-            valueObject.myFunctions["getInnerValue"]   = function(){
-                return valueObject;
-            };
-
-            valueObject.myFunctions["runPhase"] = function(functName, args){
-                var func = valueObject.myFunctions[functName];
-                if(func){
-                    func.apply(thisObject, args);
-                } else {
-                    $$.errorHandler.syntaxError(functName, valueObject);
-                }
-
-            }
-
-            valueObject.myFunctions["update"] = function(serialisation){
-                beesHealer.jsonToNative(serialisation,valueObject);
-            }
-
-
-            valueObject.myFunctions["valueOf"] = function valueOf(){
-                var ret = {};
-                ret.meta                = valueObject.meta;
-                ret.publicVars          = valueObject.publicVars;
-                ret.privateVars         = valueObject.privateVars;
-                ret.protectedVars       = valueObject.protectedVars;
-                return ret;
-            }
-
-            valueObject.myFunctions["toString"] = thisObject.toString  = function(){
-                return swarmDebug.cleanDump(thisObject.valueOf());
-            }
-
-
-            valueObject.myFunctions["join"] = function(callback){
-                return require("./JoinPoint").createJoinPoint(thisObject, callback, $$.__intern.mkArgs(arguments,1));
-            }
-
-            valueObject.myFunctions["inspect"] /*= thisObject.inspect*/ = function(){
-                return swarmDebug.cleanDump(thisObject.valueOf());
-            }
-
-            valueObject.myFunctions["constructor"] /*= thisObject.constructor */= function(){
-                return SwarmDescription;
-            }
-
-
-            valueObject.myFunctions["observe"] = function (callback, waitForMore, filter){
-                if(!waitForMore){
-                    waitForMore = function (){
-                        return false;
-                    }
-                }
-
-                if(!valueObject.localId){
-                    valueObject.localId = swarmTypeName + "-" + localId;
-                    localId++;
-                }
-                $$.PSK_PubSub.subscribe(valueObject.localId, callback, waitForMore, filter);
-            }
-
-            valueObject.myFunctions["toJSON"] = function(callback){
-                //make the execution at level 0  (after all pending events) and wait to have a swarmId
-                valueObject.myFunctions.observe(function(){
-                    beesHealer.asJSON(valueObject, null, null,callback);
-                },null,filterForSerialisable);
-                valueObject.myFunctions.notify();
-            }
-
-            valueObject.myFunctions["notify"] = function(event){
-                if(!event){
-                    event = valueObject;
-                }
-                $$.PSK_PubSub.publish(valueObject.localId, event);
-            }
+            localId++;
+            valueObject.utilityFunctions = require("./utilityFunctions").createForObject(valueObject, thisObject, localId);
 
         }
 
 
 
         this.get = function(target, property, receiver){
+
 
             if(publicVars.hasOwnProperty(property))
             {
@@ -297,7 +147,14 @@ function SwarmSpace(swarmType)
                 return target.privateVars[property];
             }
 
-            if(target.myFunctions.hasOwnProperty(property))
+            if(target.utilityFunctions.hasOwnProperty(property))
+            {
+
+                return target.utilityFunctions[property];
+            }
+
+
+            if(myFunctions.hasOwnProperty(property))
             {
                 return target.myFunctions[property];
             }
@@ -314,6 +171,11 @@ function SwarmSpace(swarmType)
         }
 
         this.set = function(target, property, value, receiver){
+
+            if(target.utilityFunctions.hasOwnProperty(property) || target.myFunctions.hasOwnProperty(property)) {
+                $$.errorHandler.syntaxError(property);
+                throw new Error("Trying to overwrite immutable member" + property);
+            }
 
             if(privateVars.hasOwnProperty(property))
             {
@@ -361,7 +223,7 @@ function SwarmSpace(swarmType)
                     if(!valueObject.meta.swarmId){
                         valueObject.meta.swarmId = result;  //do not overwrite!!!
                     }
-                    valueObject.myFunctions.notify();
+                    valueObject.utilityFunctions.notify();
                 });
             }
 
@@ -439,82 +301,6 @@ function SwarmSpace(swarmType)
         return res;
     }
 
-
-    var swarmAliveInstances = {
-
-    }
-
-
-
-    function waitForSwarm(callback, swarm, keepAliveCheck){
-
-        function doLogic(){
-            var swarmId = swarm.getInnerValue().meta.swarmId;
-            var watcher = swarmAliveInstances[swarmId];
-            if(!watcher){
-                watcher = {
-                    swarm:swarm,
-                    callback:callback,
-                    keepAliveCheck:keepAliveCheck
-                }
-                swarmAliveInstances[swarmId] = watcher;
-            }
-        }
-
-        function filter(){
-            return swarm.getInnerValue().meta.swarmId;
-        }
-
-        //$$.uidGenerator.wait_for_condition(condition,doLogic);
-        swarm.observe(doLogic, null, filter);
-    }
-
-    function cleanSwarmWaiter(swarmSerialisation){ // TODO: add better mechanisms to prevent memory leaks
-        var swarmId = swarmSerialisation.meta.swarmId;
-        var watcher = swarmAliveInstances[swarmId];
-
-        if(!watcher){
-            $$.errorHandler.warning("Invalid swarm received: " + swarmId);
-            return;
-        }
-
-        var args = swarmSerialisation.meta.args;
-        args.push(swarmSerialisation);
-
-        watcher.callback.apply(null, args);
-        if(!watcher.keepAliveCheck()){
-            delete swarmAliveInstances[swarmId];
-        }
-    }
-
-    this.revive_swarm = function(swarmSerialisation){
-
-
-        var swarmId     = swarmSerialisation.meta.swarmId;
-        var swarmType   = swarmSerialisation.meta.swarmTypeName;
-        var instance    = swarmAliveInstances[swarmId];
-
-        var swarm;
-
-
-        if(instance){
-            swarm = instance.swarm;
-
-        }   else {
-            swarm = exports.createSwarm(swarmType, undefined, swarmSerialisation);
-        }
-
-
-        if(swarmSerialisation.meta.command == "asyncReturn"){
-            cleanSwarmWaiter(swarmSerialisation);
-        } else     if(swarmSerialisation.meta.command == "executeSwarmPhase"){
-            swarm.runPhase(swarmSerialisation.meta.phaseName, swarmSerialisation.meta.args);
-        } else {
-            console.log("Unknown command in swarmSerialisation.meta.command");
-        }
-
-        return swarm;
-    }
 
 }
 

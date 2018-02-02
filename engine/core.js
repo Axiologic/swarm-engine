@@ -16,7 +16,7 @@ $$ = {
         error:function(err, args, msg){
             console.log(err, "Unknown error from function call with arguments:", args, "Message:", msg);
         },
-        syntaxError:function(property, swarm){
+        syntaxError:function(property, swarm, text){
             //throw new Error("Misspelled member name or other internal error!");
             var swarmName;
             try{
@@ -32,7 +32,10 @@ $$ = {
                 swarmName = err.toString();
             }
             if(property){
-                console.log("Unknown member ", property,  " in swarm ", swarmName);
+                console.log("Wrong member name ", property,  " in swarm ", swarmName);
+                if(text) {
+                    console.log(text);
+                }
             } else {
                 console.log("Unknown swarm", swarmName);
             }
@@ -94,7 +97,8 @@ $$.loadLibrary      = require("./util/loadLibrary").loadLibrary;
 exports.enableTesting = function() {
     //$$.PSK_PubSub = require("./pubSub/InternalPubSub").internalBus;
     $$.PSK_PubSub = require("./pubSub/core/soundPubSub").soundPubSub;  //for testing
-    var vms = require("./fakes/dummyVM");
+
+    require("./fakes/dummyVM");
     return exports;
 }
 

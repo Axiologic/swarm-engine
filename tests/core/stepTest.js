@@ -1,6 +1,6 @@
 
-var flow = require("../../engine/index.js");
-var f = flow.createSwarm("stepExample", {
+require("../../engine/core").enableTesting();
+var f = $$.swarm.create("stepExample", {
     private:{
         a1:"int",
         a2:"int"
@@ -22,4 +22,4 @@ var f = flow.createSwarm("stepExample", {
 });
 
 f.begin(1, 2);
-console.log(f.doResult());
+console.log(f.doResult()); //should be 6

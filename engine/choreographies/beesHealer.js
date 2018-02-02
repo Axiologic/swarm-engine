@@ -13,6 +13,7 @@ exports.asJSON = function(valueObject, phaseName, args, callback){
 
         res.meta.swarmTypeName  = valueObject.meta.swarmTypeName;
         res.meta.swarmId        = valueObject.meta.swarmId;
+        res.meta.target         = valueObject.meta.target;
 
         if(!phaseName){
             res.meta.command    = "stored";

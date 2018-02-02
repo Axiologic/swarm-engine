@@ -1,4 +1,184 @@
-exports.createForObject = function(valueObject, thisObject){
+var beesHealer = require("./beesHealer");
+var swarmDebug = require("../util/SwarmDebug");
+
+
+exports.createForObject = function(valueObject, thisObject, localId){
     var ret = {};
+
+    function filterForSerialisable (valueObject){
+        return valueObject.meta.swarmId;
+    }
+
+    var swarmFunction = function(context, phaseName){
+        var args =[];
+        for(var i = 2;i < arguments.length; i++){
+            args.push(arguments[i]);
+        }
+
+        //make the execution at level 0  (after all pending events) and wait to have a swarmId
+        ret.observe(function(){
+            beesHealer.asJSON(valueObject, phaseName, args, function(err,jsMsg){
+                jsMsg.meta.target = context;
+                $$.PSK_PubSub.publish($$.CONSTANTS.SWARM_FOR_EXECUTION, jsMsg);
+            });
+        },null,filterForSerialisable);
+
+        ret.notify();
+
+
+        return thisObject;
+    };
+
+
+    var asyncReturn = function(err, result){
+        var context = valueObject.protectedVars.context;
+
+        if(!context && valueObject.meta.waitStack){
+            context = valueObject.meta.waitStack.pop();
+            valueObject.protectedVars.context = context;
+        }
+
+        beesHealer.asJSON(valueObject, "__return__", [err, result], function(err,jsMsg){
+            jsMsg.meta.command = "asyncReturn";
+
+            if(!context){
+                context = valueObject.meta.homeSecurityContext;//TODO: CHECK THIS
+
+            }
+            jsMsg.meta.target = context;
+
+            if(!context){
+                $$.errorHandler.error(new Error("Asynchronous return inside of a swarm that does not wait for results"));
+            } else {
+
+                $$.PSK_PubSub.publish($$.CONSTANTS.SWARM_FOR_EXECUTION, jsMsg);
+            }
+        });
+    };
+
+    function home(err, result){
+        beesHealer.asJSON(valueObject, "home", [err, result], function(err,jsMsg){
+            var context = valueObject.meta.homeContext;
+            jsMsg.meta.target = context;
+            $$.PSK_PubSub.publish($$.CONSTANTS.SWARM_FOR_EXECUTION, jsMsg);
+        });
+    };
+
+
+
+    function waitResults(callback, keepAliveCheck, swarm){
+        if(!swarm){
+            swarm = this;
+        }
+        if(!keepAliveCheck){
+            keepAliveCheck = function(){
+                return false;
+            }
+        }
+        var inner = swarm.getInnerValue();
+        if(!inner.meta.waitStack){
+            inner.meta.waitStack = [];
+            inner.meta.waitStack.push($$.securityContext)
+        }
+        $$.swarmsInstancesManager.waitForSwarm(callback, swarm, keepAliveCheck);
+    }
+
+
+    function getInnerValue(){
+        return valueObject;
+    };
+
+    function runPhase(functName, args){
+        var func = valueObject.myFunctions[functName];
+        if(func){
+            func.apply(thisObject, args);
+        } else {
+            $$.errorHandler.syntaxError(functName, valueObject, "Function " + functName + " does not exist!");
+        }
+
+    }
+
+    function update(serialisation){
+        beesHealer.jsonToNative(serialisation,valueObject);
+    }
+
+
+    function valueOf(){
+        var ret = {};
+        ret.meta                = valueObject.meta;
+        ret.publicVars          = valueObject.publicVars;
+        ret.privateVars         = valueObject.privateVars;
+        ret.protectedVars       = valueObject.protectedVars;
+        return ret;
+    }
+
+    function toString (){
+        return swarmDebug.cleanDump(thisObject.valueOf());
+    }
+
+
+    function createJoin(callback){
+        return require("./JoinPoint").createJoinPoint(thisObject, callback, $$.__intern.mkArgs(arguments,1));
+    }
+
+     function inspect(){
+        return swarmDebug.cleanDump(thisObject.valueOf());
+    }
+
+    function constructor(){
+        return SwarmDescription;
+    }
+
+
+    function observe(callback, waitForMore, filter){
+        if(!waitForMore){
+            waitForMore = function (){
+                return false;
+            }
+        }
+
+        if(!valueObject.localId){
+            valueObject.localId = valueObject.meta.swarmTypeName + "-" + localId;
+            localId++;
+        }
+        $$.PSK_PubSub.subscribe(valueObject.localId, callback, waitForMore, filter);
+    }
+
+     function toJSON(callback){
+        //make the execution at level 0  (after all pending events) and wait to have a swarmId
+        ret.observe(function(){
+            beesHealer.asJSON(valueObject, null, null,callback);
+        },null,filterForSerialisable);
+        ret.notify();
+    }
+
+     function notify(event){
+        if(!event){
+            event = valueObject;
+        }
+        $$.PSK_PubSub.publish(valueObject.localId, event);
+    }
+
+
+
+    ret.swarm           = swarmFunction;
+    ret.notify          = notify;
+    ret.toJSON          = toJSON;
+    ret.observe         = observe;
+    ret.inspect         = inspect;
+    ret.join            = createJoin;
+    ret.valueOf         = valueOf;
+    ret.update          = update;
+    ret.runPhase        = runPhase;
+    ret.onReturn        = waitResults;
+    ret.onResult        = waitResults;
+    ret.asyncReturn     = asyncReturn;
+    ret.return          = asyncReturn;
+    ret.getInnerValue   = getInnerValue;
+    ret.home            = home;
+    ret.toString        = toString;
+    ret.constructor     = constructor;
+
+    return ret;
 
 }
