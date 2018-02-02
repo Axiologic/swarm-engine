@@ -276,8 +276,11 @@ function SwarmSpace(swarmType) {
     this.restart = function(swarmTypeName, initialValues){
         swarmTypeName = getFullName(swarmTypeName);
         var desc = descriptions[swarmTypeName];
+
         if(desc){
             return desc(initialValues);
+        } else {
+            $$.errorHandler.syntaxError(swarmTypeName,initialValues, "Failed to restart a swarm with type " + swarmTypeName + "\n Maybe diffrent swarm space (used flow instead of swarm!?)");
         }
     }
 

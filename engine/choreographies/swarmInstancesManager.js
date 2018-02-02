@@ -59,7 +59,7 @@ function SwarmsInstancesManager(){
             swarm = instance.swarm;
 
         }   else {
-            swarm = exports.createSwarm(swarmType, undefined, swarmSerialisation);
+            swarm = $$.swarm.create(swarmType, undefined, swarmSerialisation);
         }
 
 

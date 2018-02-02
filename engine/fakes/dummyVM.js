@@ -16,4 +16,4 @@ function dummyVM(name){
 
 
 
-dummyVM($$.CONSTANTS.SWARM_FOR_EXECUTION);
+vm = dummyVM($$.CONSTANTS.SWARM_FOR_EXECUTION);
