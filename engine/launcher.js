@@ -8,7 +8,22 @@
 //var config = require("util/configLoader.js")(process.args[1]);
 exports.core = require("./core");
 
-var tmpDir = require("os").tmpdir();
+var tmpDir ;
+
+if(process.env.PRIVATESKY_TMP){
+    tmpDir = process.env.PRIVATESKY_TMP;
+}
+else
+if(process.argv.length == 1 || process.env.ENV_VARIABLE){
+    tmpDir = process.argv[1];
+    process.env.PRIVATESKY_TMP = tmpDir;
+
+} else {
+    tmpDir = require("os").tmpdir();
+    process.env.PRIVATESKY_TMP = tmpDir;
+}
+
+
 var fs = require("fs");
 var path = require("path");
 
@@ -20,6 +35,7 @@ var cfgPath = basePath + "psk.config";
 
 var codeFolder =  path.normalize(__dirname + "/../");
 
+$$.container = require("../modules/safebox").newContainer($$.errorHandler);
 
 $$.PSK_PubSub = require("./pubSub/launcherPubSub.js").create(basePath, codeFolder);
 
@@ -29,7 +45,7 @@ $$.loadLibrary("pds", __dirname+"/../libraries/pds");
 var launcher = $$.loadLibrary("launcher", __dirname + "/../libraries/launcher");
 
 
-$$.container = require("../modules/safebox").newContainer($$.errorHandler);
+
 
 
 $$.callflow.start(launcher.FileSerializer).load(launcher.Config, cfgPath, function(err, config){
@@ -42,11 +58,7 @@ $$.callflow.start(launcher.FileSerializer).load(launcher.Config, cfgPath, functi
 
 $$.container.declareDependency($$.DI_components.swarmIsReady, [$$.DI_components.configLoaded, $$.DI_components.sandBoxReady], function(fail, x, y ){
     if(!fail){
-        //... what to do...!?
+        console.log("Node launching...");
     }
 });
 
-
-$$.SandBoxManager = require("./util/SandBoxManager").create(basePath, codeFolder, function(err, res){
-    $$.container.resolve($$.DI_components.sandBoxReady, true);
-});

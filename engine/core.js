@@ -124,31 +124,29 @@ $$.requireModule = function(name){
     }
 }
 
+$$.requireLibrary = function(name){
+    var absolutePath = path.resolve( __dirname + "/../libraries/" + name);
+    return $$.loadLibrary(name,absolutePath);
+}
 
-var fs = require("fs");
+
+var core = $$.requireLibrary("core");
+
 
 $$.ensureFolderExists = function(folder, callback){
-    fs.exists(folder, function(res){
-            if(!res){
-                fs.mkdir(folder, callback);
-            }
-        });
+
+    var flow = $$.flow.start(core.mkDirRec);
+    flow.make(folder, callback);
+
 }
 
 
 $$.ensureLinkExists = function(existingPath, newPath, callback){
-    fs.exists(newPath, function(res){
-        if(!res){
-            fs.ln(existingPath, newPath, callback);
-        }
-    });
+
+    var flow = $$.flow.start(core.mkDirRec);
+    flow.makeLink(existingPath, newPath, callback);
 }
 
 
-$$.requireLibrary = function(name){
-    var absolutePath = path.resolve( __dirname + "/../libraries/" + name);
-    $$.loadLibrary(name,absolutePath);
-}
 
 
-$$.requireLibrary("core");

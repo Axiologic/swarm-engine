@@ -4,6 +4,8 @@ var child_process = require("child_process");
 
 var bootSandBox = $$.flow.describe("PrivateSky.swarm.engine.bootInLauncher", {
     boot:function(sandBox, spaceName, folder, codeFolder, callback){
+        //console.log("Booting in ", folder, " context ", spaceName);
+
         this.callback   = callback;
         this.folder     = folder;
         this.spaceName  = spaceName;
@@ -12,9 +14,11 @@ var bootSandBox = $$.flow.describe("PrivateSky.swarm.engine.bootInLauncher", {
 
         var join = this.join(this.ensureFolders);
 
-        join.folderShouldExist(this.folder + "/mq/", join.reportProgress);
-        join.folderShouldExist(this.folder + "/code/", join.reportProgress);
-        join.folderShouldExist(this.folder + "/tmp/", join.reportProgress);
+        this.folderShouldExist(this.folder + "/mq/",    join.progress);
+        this.folderShouldExist(this.folder + "/code/",  join.progress);
+        this.folderShouldExist(this.folder + "/tmp/",   join.progress);
+
+        console.log("Booting: ", this.spaceName);
     },
     folderShouldExist:  function(path, progress){
         $$.ensureFolderExists(path, progress);
@@ -22,23 +26,29 @@ var bootSandBox = $$.flow.describe("PrivateSky.swarm.engine.bootInLauncher", {
     linkShouldExist:    function(existingPath, newPath, progress){
         $$.ensureLinkExists(existingPath, newPath, progress);
     },
-    reportProgress:function(err, res){
-        //do exactly nothing for now ;)
-    },
     ensureFolders: function(err, res){
-        var join = this.join(this.runCode);
-        join.linkShouldExist(this.folder + "/code/engine",   this.codeFolder + "/engine/",    join.reportProgress );
-        join.linkShouldExist(this.folder + "/code/modules",  this.codeFolder + "/modules/",   join.reportProgress );
-        join.linkShouldExist(this.folder + "/code/libraries",this.codeFolder + "/libraries/", join.reportProgress );
-        this.sandBox.inbound = mq.getFolderQueue(this.folder + "/mq/inbound/", join.reportProgress);
-        this.sandBox.outbound = mq.getFolderQueue(this.folder + "/mq/outbound/", join.reportProgress);
+        if(err){
+            console.log(err);
+        } else {
+            var join = this.join(this.runCode);
+            this.linkShouldExist(this.codeFolder + "/engine/",      this.folder + "/code/engine",       join.progress );
+            this.linkShouldExist(this.codeFolder + "/modules/",     this.folder + "/code/modules",      join.progress );
+            this.linkShouldExist(this.codeFolder + "/libraries/",   this.folder + "/code/libraries",    join.progress );
+            this.sandBox.inbound = mq.getFolderQueue(this.folder + "/mq/inbound/", join.progress);
+            this.sandBox.outbound = mq.getFolderQueue(this.folder + "/mq/outbound/", join.progress);
+        }
+
     },
     runCode: function(err, res){
         if(!err){
             var mainFile = this.folder + "/code/engine/sandbox.js";
             var args = [this.spaceName];
-            console.log("Running: ", mainFile, args);
-            //child_process.fork(mainFile, args, this.callback);
+            //console.log("Running: ", mainFile, args);
+            var child = child_process.fork(mainFile, args);
+
+            this.callback(err, child);
+        } else {
+            console.log(err);
         }
     }
 
@@ -52,11 +62,11 @@ function SandBoxHandler(spaceName, folder, codeFolder, resultCallBack){
     bootSandBox().boot(this, spaceName,folder, codeFolder, function(err, childProcess){
         self.childProcess = childProcess;
 
-        this.outbound.registerConsumer(function(swarm){
+        self.outbound.registerConsumer(function(swarm){
             $$.PSK_PubSub.publish($$.CONSTANTS.SWARM_FOR_EXECUTION, swarm);
         });
 
-        mqHandler = this.inbound.getHandler();
+        mqHandler = self.inbound.getHandler();
         if(pendingMessages.length){
             pendingMessages.map(function(item){
                 self.send(item);
@@ -85,26 +95,26 @@ function SandBoxManager(sandboxesFolder, codeFolder, callback){
 
     };
 
-    console.log("Subscribing to:", $$.CONSTANTS.SWARM_FOR_EXECUTION);
+    //console.log("Subscribing to:", $$.CONSTANTS.SWARM_FOR_EXECUTION);
     $$.PSK_PubSub.subscribe($$.CONSTANTS.SWARM_FOR_EXECUTION, function(swarm){
         console.log("Executing in sandbox towards: ", swarm.meta.target);
         self.pushToSpaceASwarm(swarm.meta.target, swarm);
     });
 
 
-    function startSandBox(spaceName, callback){
+    function startSandBox(spaceName){
         var sandBox = new SandBoxHandler(spaceName, sandboxesFolder + "/" + spaceName, codeFolder);
         sandBoxes[spaceName] = sandBox;
         return sandBox;
     }
 
 
-    this.pushToSpaceASwarm = function(spaceName, swarm){
+    this.pushToSpaceASwarm = function(spaceName, swarm, callback){
         var sandbox = sandBoxes[spaceName];
         if(!sandbox){
-            sandbox = sandBoxes[spaceName] = startSandBox();
+            sandbox = sandBoxes[spaceName] = startSandBox(spaceName);
         }
-        sandbox.send(swarm);
+        sandbox.send(swarm, callback);
     }
 
     callback(null, this);

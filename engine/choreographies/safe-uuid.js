@@ -15,7 +15,7 @@ function stampWithTime(buf, salt, msalt){
     }
     var date = new Date;
     var ct = Math.floor(date.getTime() / salt);
-    var counter = 0; ;
+    var counter = 0;
     while(ct > 0 ){
         //console.log("Counter", counter, ct);
         buf[counter*msalt] = Math.floor(ct % 256);

@@ -3,21 +3,29 @@ var joinCounter;
 
 function JoinPoint(swarm, callback, args){
     joinCounter++;
-    var channelId = "JoinPoint"+joinCounter;
+    var channelId = "JoinPoint" + joinCounter;
     var self = this;
     var counter = 0;
     var allreadyJoined = false;
-    var triggerJoinFailureError = null;
+    var triggerJoinFailureError = [];
+
+
+    if(typeof callback !== "function"){
+        $$.errorHandler.syntaxError("invalid join",swarm, "invalid function at join in swarm");
+        return;
+    }
 
     function asyncCheckForRun(){
         if(allreadyJoined){
           return ;
         }
 
-        if(triggerJoinFailureError){
-            allreadyJoined = true;
-            args.unshift(triggerJoinFailureError);
-            callback.apply(swarm,args);
+        if(triggerJoinFailureError.length != 0){
+            setTimeout(function(){
+                allreadyJoined = true;
+                args.unshift(triggerJoinFailureError);
+                callback.apply(swarm,args);
+            })
         } else
         if(counter == 0){
             args.unshift(null);
@@ -42,19 +50,32 @@ function JoinPoint(swarm, callback, args){
     var inner = swarm.getInnerValue();
 
 
+
+    function defaultProgressReport(err, res){
+        if(err) {
+            throw err;
+        }
+        return res;
+    }
+
+
     function mkFunction(name){
         return function(){
-            var f = inner.myFunctions[name];
+            var f = defaultProgressReport;
+            if(name){
+                f = inner.myFunctions[name];
+            }
             var ret;
             try{
                 ret = f.apply(self,arguments);
             } catch(err){
                 decCounter();
-                triggerJoinFailureError = err;
+                triggerJoinFailureError.push(err);
                 $$.PSK_PubSub.publish(channelId, self);
+                //console.log("Join failed ", err);
                 //throw err;
+                return ;
             }
-
             decCounter();
             return ret;
         }
@@ -64,6 +85,8 @@ function JoinPoint(swarm, callback, args){
     for(var v in inner.myFunctions){
         proxiedFUnctions[v] = mkFunction(v);
     }
+
+    proxiedFUnctions["progress"] = mkFunction();
 
     this.get = function(target, prop, receiver){
         if(proxiedFUnctions.hasOwnProperty(prop)){
