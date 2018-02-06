@@ -117,8 +117,12 @@ exports.createForObject = function(valueObject, thisObject, localId){
     }
 
 
-    function createJoin(callback){
+    function createParallel(callback){
         return require("./JoinPoint").createJoinPoint(thisObject, callback, $$.__intern.mkArgs(arguments,1));
+    }
+
+    function createSerial(callback){
+        return require("./serialJoinPoint").createSerialJoinPoint(thisObject, callback, $$.__intern.mkArgs(arguments,1));
     }
 
      function inspect(){
@@ -166,7 +170,9 @@ exports.createForObject = function(valueObject, thisObject, localId){
     ret.toJSON          = toJSON;
     ret.observe         = observe;
     ret.inspect         = inspect;
-    ret.join            = createJoin;
+    ret.join            = createParallel;
+    ret.parallel        = createParallel;
+    ret.serial          = createSerial;
     ret.valueOf         = valueOf;
     ret.update          = update;
     ret.runPhase        = runPhase;

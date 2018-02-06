@@ -97,6 +97,7 @@ function JoinPoint(swarm, callback, args){
     }
 }
 
+
 exports.createJoinPoint = function(swarm, callback, args){
     var jp = new JoinPoint(swarm, callback, args);
     var inner = swarm.getInnerValue();

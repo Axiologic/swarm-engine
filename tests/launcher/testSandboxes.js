@@ -1,6 +1,6 @@
 
 var path = require("path");
-process.env.PRIVATESKY_TMP = path.normalize(__dirname + "../../../tmp");
+process.env.PRIVATESKY_TMP = path.normalize(__dirname + "../../../../tmp");
 require("../../engine/launcher");//.core.enableTesting();
 
 

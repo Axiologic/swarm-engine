@@ -16,7 +16,8 @@ $$.flow.describe("mkDirRec", {
         for(var i = 1; i < folders.length; i++){
             currentFolder += path.sep;
             currentFolder += folders[i];
-            this.__mkOneStep(currentFolder, join.progress);
+            console.log(currentFolder);
+            join.__mkOneStep(currentFolder, join.progress);
         }
 
    },
