@@ -1,7 +1,9 @@
 
-var joinCounter;
+var joinCounter = 0;
 
 function SerialJoinPoint(swarm, callback, args){
+
+    joinCounter++;
 
     var self = this;
     var channelId = "SerialJoinPoint" + joinCounter;
@@ -32,6 +34,12 @@ function SerialJoinPoint(swarm, callback, args){
         //console.log("Creating function ", name, pos);
         plannedArguments[pos] = undefined;
 
+        function triggetNextStep(){
+            if(plannedExecutions.length == executionCounter || plannedArguments[executionCounter] )  {
+                $$.PSK_PubSub.publish(channelId, self);
+            }
+        }
+
         var f = function (){
             if(executionCounter != pos) {
                 plannedArguments[pos] = arguments;
@@ -41,6 +49,10 @@ function SerialJoinPoint(swarm, callback, args){
                 if(plannedArguments[pos]){
                     //console.log("Executing  function:", executionCounter, pos, plannedArguments, arguments, functionCounter);
                     arguments = plannedArguments[pos];
+                } else {
+                    plannedArguments[pos] = arguments;
+                    triggetNextStep();
+                    return __proxy;
                 }
             }
 
@@ -60,23 +72,28 @@ function SerialJoinPoint(swarm, callback, args){
             }
             executionCounter++;
 
-            if(plannedExecutions.length == executionCounter || plannedArguments[executionCounter] )  {
-                $$.PSK_PubSub.publish(channelId, self);
-            }
+            triggetNextStep();
 
             return __proxy;
-        }
+        };
 
         plannedExecutions.push(f);
         functionCounter++;
         return f;
     }
 
+     var finished = false;
 
     function runNextFunction(){
         if(executionCounter == plannedExecutions.length ){
-            args.unshift(null);
-            callback.apply(swarm,args);
+            if(!finished){
+                args.unshift(null);
+                callback.apply(swarm,args);
+                finished = true;
+                $$.PSK_PubSub.unsubscribe(channelId,runNextFunction);
+            } else {
+                console.log("serial construct is using functions that are called multiple times...");
+            }
         } else {
             plannedExecutions[executionCounter]();
         }

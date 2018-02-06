@@ -14,16 +14,17 @@ if(process.argv.length < 1) {
     console.log("Failed to start sandbox with a space name");
     return;
 } else {
-    spaceName = process.argv[1];
+    spaceName = process.argv[2];
 }
 
 console.log("Booting sandbox:", spaceName );
 
 
 var baseFolder =  path.normalize(__dirname + "/../../");
+/*
 $$.PSK_PubSub = require("./pubSub/sandboxPubSub.js").create(baseFolder,spaceName, function(err,res){
 
-});
+}); */
 
 $$.requireLibrary("sandbox");
 

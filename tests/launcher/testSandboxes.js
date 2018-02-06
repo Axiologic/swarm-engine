@@ -5,7 +5,7 @@ require("../../engine/launcher");//.core.enableTesting();
 
 
 
-var f = $$.swarm.create("test12", {
+var f = $$.swarm.create("testSandBoxExecution", {
     public:{
         result:"int"
     },

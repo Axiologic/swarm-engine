@@ -7,6 +7,7 @@ Code License: LGPL or MIT.
 var path = require("path");
 
 function defaultErrorHandlingImplementation(err, res){
+    //console.log(err.stack);
     if(err) throw err;
     return res;
 }

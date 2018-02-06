@@ -118,7 +118,7 @@ exports.createForObject = function(valueObject, thisObject, localId){
 
 
     function createParallel(callback){
-        return require("./JoinPoint").createJoinPoint(thisObject, callback, $$.__intern.mkArgs(arguments,1));
+        return require("./parallelJoinPoint").createJoinPoint(thisObject, callback, $$.__intern.mkArgs(arguments,1));
     }
 
     function createSerial(callback){
@@ -162,8 +162,6 @@ exports.createForObject = function(valueObject, thisObject, localId){
         }
         $$.PSK_PubSub.publish(valueObject.localId, event);
     }
-
-
 
     ret.swarm           = swarmFunction;
     ret.notify          = notify;
