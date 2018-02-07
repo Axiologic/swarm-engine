@@ -9,10 +9,11 @@ var f = $$.callflow.create("parallelExceptionCase", {
     start:function(){
         this.result = 0;
         this.resultCount = 0;
-        var join = this.join(this.doJoin, "\nbut also the args should be fine");
+        var join = this.parallel(this.doJoin, "\nBut also the args should be fine");
         join.doStep(1);
         join.doStep(2);
         join.doStepErr("Intentional error");
+        //join.doStepErr("Intentional error");
     },
     doStep:function(value){
         this.result += value;
@@ -24,14 +25,13 @@ var f = $$.callflow.create("parallelExceptionCase", {
         this.resultCount++;
         if(this.resultCount == 1){
             if(err){
-                console.log("Error as expected:", err, text);
+                console.log("Error as expected:", err != null, text);
             } else {
                 console.log("Why there is not an error!!!!?");
             }
         }  else {
-            console.log("Error is expected, but only once!", this.resultCount );
+            console.log("Error is expected, but only once!", err != null, this.resultCount );
         }
-
     }
 });
 

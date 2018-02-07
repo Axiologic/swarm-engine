@@ -1,24 +1,30 @@
 
 var joinCounter;
 
-
-
 function ParallelJoinPoint(swarm, callback, args){
     joinCounter++;
     var channelId = "ParallelJoinPoint" + joinCounter;
     var self = this;
     var counter = 0;
-    var finishedInError = false;
+    var stopOtherExecution     = false;
 
-
-    function executionStep(funct, localArgs){
+    function executionStep(funct, localArgs, stop){
 
         this.doExecute = function(){
+            if(stopOtherExecution){
+                return false;
+            }
             try{
-                return funct.apply(swarm, localArgs);
+                funct.apply(swarm, localArgs);
+                if(stop){
+                    stopOtherExecution = true;
+                    return false;
+                }
+                return true; //everyting is fine
             } catch(err){
                 args.unshift(err);
-                callback.apply(swarm,args);
+                sendForSoundExecution(callback, args, true);
+                return false; //stop it, do not call again anything
             }
         }
     }
@@ -31,27 +37,27 @@ function ParallelJoinPoint(swarm, callback, args){
 
 
     $$.PSK_PubSub.subscribe(channelId,function(forExecution){
-        if(finishedInError){
+        if(stopOtherExecution){
             return ;
         }
 
         try{
-            forExecution.doExecute();
+            if(forExecution.doExecute()){
+                decCounter();
+            } // had an error...
         } catch(err){
-            args.unshift(err);
-            finishedInError = true;
-            callback.apply(swarm, args);
-            return ;
+            //console.log(err);
+            //$$.errorHandler.syntaxError("__internal__",swarm, "exception in the execution of the join function of a parallel task");
         }
-        decCounter();
+
     });
 
     function incCounter(){
         counter++;
     }
 
-    function sendForSoundExecution(funct, args){
-        var obj = new executionStep(funct, args);
+    function sendForSoundExecution(funct, args, stop){
+        var obj = new executionStep(funct, args, stop);
         $$.PSK_PubSub.publish(channelId, obj); // force execution to be "sound"
     }
 
@@ -59,7 +65,7 @@ function ParallelJoinPoint(swarm, callback, args){
         counter--;
         if(counter == 0) {
             args.unshift(null);
-            callback.apply(swarm, args);
+            sendForSoundExecution(callback, args, false);
         }
     }
 
@@ -85,7 +91,8 @@ function ParallelJoinPoint(swarm, callback, args){
             if(name != "progress"){
                 f = inner.myFunctions[name];
             }
-            sendForSoundExecution(f, $$.__intern.mkArgs(arguments));
+            var args = $$.__intern.mkArgs(arguments, 0);
+            sendForSoundExecution(f, args, false);
             return __proxyObject;
         }
     }

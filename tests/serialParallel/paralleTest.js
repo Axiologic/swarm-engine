@@ -6,12 +6,11 @@ var f = $$.callflow.create("joinsExample", {
     },
     start:function(){
         this.result = 0;
-        var join = this.join(this.doJoin, "call var args");
+        var join = this.parallel(this.doJoin, "call var args");
         join.doStep1(1);
         join.doStep1(2);
     },
     doStep1:function(value){
-
         this.result += value;
     },
     doStep2:function(value){
