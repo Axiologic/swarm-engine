@@ -14,7 +14,7 @@ if(process.env.PRIVATESKY_TMP){
     tmpDir = process.env.PRIVATESKY_TMP;
 }
 else
-if(process.argv.length == 1 || process.env.ENV_VARIABLE){
+if(process.argv.length == 1){
     tmpDir = process.argv[1];
     process.env.PRIVATESKY_TMP = tmpDir;
 
@@ -43,8 +43,6 @@ $$.PSK_PubSub = require("./pubSub/launcherPubSub.js").create(basePath, codeFolde
 $$.loadLibrary("crl", __dirname+"/../libraries/crl");
 $$.loadLibrary("pds", __dirname+"/../libraries/pds");
 var launcher = $$.loadLibrary("launcher", __dirname + "/../libraries/launcher");
-
-
 
 
 

@@ -4,7 +4,6 @@ process.env.PRIVATESKY_TMP = path.normalize(__dirname + "../../../../tmp");
 require("../../engine/launcher");//.core.enableTesting();
 
 
-
 var f = $$.swarm.create("testSandBoxExecution", {
     public:{
         result:"int"
