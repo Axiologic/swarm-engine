@@ -16,18 +16,20 @@ var test = $$.flow.describe("signatureTest",{
         }
 
         this.digest = safeBox.digest(this.obj);
+
         safeBox.sign(this.digest, this.getSignature);
     },
-    getSignature:function(err,res){
-        safeBox.verify(this.digest, res, this.prinREsults);
-
+    getSignature:function(err,signature){
+        this.signature = signature;
+        safeBox.verify(this.digest, signature, this.printResults);
     },
 
-    prinREsults:function(err,res){
-        if(res){
-            console.log("Sucess");
+    printResults:function(err,isGood){
+        console.log(this.signature, isGood);
+        if(isGood){
+            console.log("Success");
         } else {
-            console.log("fail");
+            console.log("Fail to verify");
         }
     }
 })

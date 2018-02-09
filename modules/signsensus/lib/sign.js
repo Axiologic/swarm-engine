@@ -1,14 +1,15 @@
 
 const crypto = require('crypto');
-const hash = crypto.createHash('sha256');
+const dumper = require("./dumper");
+
 
 
 function generatePosHashXTimes(buffer, pos, count){ //generate positional hash
     var result  = buffer.toString("hex");
-    result[pos] = 0;
+    if(pos != -1 )
+        result[pos] = 0;
 
-
-    for(var i=0; i< count; i++){
+    for(var i=0; i < count; i++){
         var hash = crypto.createHash('sha256');
         hash.update(result);
         result = hash.digest('hex');
@@ -18,7 +19,12 @@ function generatePosHashXTimes(buffer, pos, count){ //generate positional hash
 
 function hashStringArray(arr){
     const hash = crypto.createHash('sha256');
-    arr.forEach(item => hash.update(item));
+    var result = "";
+    arr.forEach(item => {
+        result += item;
+    });
+
+    hash.update(result);
     return hash.digest('hex');
 }
 
@@ -45,58 +51,99 @@ function generatePublicAndPrivateKeys(result){
 }
 
 
-function SignsensusSignature(previousSignsensusSignature){
+function SignsensusSignatureChain(previousSignsensusSignature){
 
-    var next = {};
-    generatePublicAndPrivateKeys(next);
+    var __next = null;
+    var __internal = {};
+
 
     var __privateKey;
 
-    var privateKey;
+
     if(!previousSignsensusSignature){
         this.counter = 0;
-        __privateKey = next.private;
-        generatePublicAndPrivateKeys(next);
     } else {
         this.counter = previousSignsensusSignature.counter++;
     }
 
+
+    generatePublicAndPrivateKeys(__internal);
+    __privateKey        = __internal.private;
+    this.publicKey      = __internal.public;
+
+
+
+
     this.proof = null;
 
-    this.nextPublicKey = next.public;
+
 
     this.sign = function(digest) {
+
         if (this.proof) {
-            console.log("Do not sign two times with a single public key");
+            console.log("Do not sign two times with a single public key. Ignoring this request! ...");
             return null;
         }
 
+
+        __next = new SignsensusSignatureChain(this);
+
+
         this.proof = [];
 
-        var digestForSigning = [digest, this.nextPublicKey];
+        var digestForSigning = [digest,  __next.publicKey];
 
         var digest = hashStringArray(digestForSigning);
         const bufDigest = Buffer.from(digest, 'hex');
 
         for(var i=0; i < 32; i++){
             var counter = bufDigest[i];
-            this.proof.push(generatePosHashXTimes(__privateKey.p1, i , counter));
-            this.proof.push(generatePosHashXTimes(__privateKey.p2, i , 256 - counter));
+            this.proof.push(generatePosHashXTimes(__privateKey.p1, i , counter + 1));
+            this.proof.push(generatePosHashXTimes(__privateKey.p2, i , 256 - counter -1));
         }
-        this.proof.push(this.nextPublicKey);
+        this.proof.push(__next.publicKey);
 
-        return this.proof;
-        //..
-
+        return this;
     }
 
 
     this.verify = function(digest){
+        var digestForSigning = [digest, __next.publicKey];
 
+        var digest = hashStringArray(digestForSigning);
+        const bufDigest = Buffer.from(digest, 'hex');
+
+        var arr = [];
+        for(var i=0; i < 32; i++){
+            var counter = bufDigest[i];
+            arr.push(generatePosHashXTimes(__privateKey.p1, i , 256 - counter -1));
+            arr.push(generatePosHashXTimes(__privateKey.p2, i , counter + 1));
+        }
+
+        var publicFromDigest = hashStringArray(arr);
+
+        console.log(publicFromDigest, this.publicKey);
+        if(publicFromDigest == this.publicKey){
+            return true;
+        } else {
+            return false;
+        }
     }
 
-    this.getNextPrivateKey(){
-        return next.private;
+
+    this.getTopOFChain = function(){
+        if(__next) return __next.getCurrentSignature();
+        else {
+            return this;
+        }
+    }
+
+    this.setProof = function(previousDigest, proofAsString){
+        //TODO: will be used on consensus observers
+    }
+
+    this.getProof = function(proofAsString){
+        //TODO: will be used on consensus observers
     }
 }
 
@@ -105,20 +152,23 @@ function AgentSafeBox(agentName){
 
 
     var __public = "";
+    var rootSignature = new SignsensusSignatureChain();
 
 
-
-
-
-    this.digest  = function(object){
-    return "nimic";
+    this.digest  = function(obj){
+        var result = dumper.dumpObjectForDigest(obj);
+        var hash = crypto.createHash('sha256');
+        hash.update(result);
+        return hash.digest('hex');
     }
 
     this.sign  = function(digest, calback){
-
+        var top = rootSignature.getTopOFChain();
+        top.sign(digest);
+        calback(null,top);
     }
 
-    this.verify  = function(digest, signature, calback){
+    this.verify  = function(digest, signature, callback){
         callback(null, signature.verify(digest));
     }
 
@@ -127,23 +177,15 @@ function AgentSafeBox(agentName){
     }
 
 
-    var certificate = {}
 
-    generatePublicAndPrivateKeys(certificate);
-    __public = certificate.public;
+
+
 
 }
 
 
 exports.getAgentSafeBox = function(agent){
     var sb = new AgentSafeBox(agent);
-
-    var obj = {
-        name:"Hello World"
-    };
-
-    console.log(sb.digest(obj), sb.getCurrentPublicKey());
-
 
     return sb;
 
