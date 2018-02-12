@@ -4,10 +4,14 @@ const dumper = require("./dumper");
 const ssutil = require("./ssutil");
 
 
-const PROOF_BLOCK_SIZE = 4;
 
 
-function SignsensusSignatureChain(loader){
+
+function SignsensusSignatureChain(PROOF_BLOCK_SIZE , loader){
+
+    if(!PROOF_BLOCK_SIZE ){
+        PROOF_BLOCK_SIZE = 32;
+    }
 
     if(loader){
         console.log("Loading previous signatures is not implemented yet. Starting from 0 for testing");
@@ -20,7 +24,7 @@ function SignsensusSignatureChain(loader){
     var __internal = {};
 
 
-    function generatePublicAndPrivateKeys(){
+    function generatePublicAndPrivateKeys(myCounter){
         var result = {}
         result.private = Buffer.alloc(32);
         crypto.randomFillSync(result.private);
@@ -30,11 +34,12 @@ function SignsensusSignatureChain(loader){
             proof.push(ssutil.generatePosHashXTimes(result.private, i, PROOF_BLOCK_SIZE, 256)); //not 255 to not discolose much about the private key for digests with 0 in bytes
         }
 
-        result.public = ssutil.hashStringArray(counter, proof, PROOF_BLOCK_SIZE);
+        result.public = ssutil.hashStringArray(myCounter, proof, PROOF_BLOCK_SIZE);
+        console.log("Public key", myCounter, " :", result.public);
         return result;
     }
 
-    signatureIndex.push(generatePublicAndPrivateKeys());
+    signatureIndex.push(generatePublicAndPrivateKeys(counter));
 
     function computeHashes(digest, nextPublic,  verificationMode, startFrom){
 
@@ -50,20 +55,35 @@ function SignsensusSignatureChain(loader){
 
         var proof = [];
         var jumps;
-        for(var i = 0; i < 32; i++){
+        var debugInfo = [];
 
+        for(var i = 0; i < 32; i++){
             if(!verificationMode){
-                jumps = directDigest[i];
-                proof.push(ssutil.generatePosHashXTimes(startFrom.private, i , PROOF_BLOCK_SIZE, jumps + 1));
-                jumps = nonDigest[i];
-                proof.push(ssutil.generatePosHashXTimes(startFrom.private, i + 32 , PROOF_BLOCK_SIZE, jumps + 1));
+                jumps = directDigest[i] + 1;
+                proof.push(ssutil.generatePosHashXTimes(startFrom.private, i , PROOF_BLOCK_SIZE, jumps));
+                debugInfo.push(jumps);
             } else { //verification mode
-                jumps = directDigest[i];
-                proof.push(ssutil.generatePosHashXTimes(startFrom[i], i , PROOF_BLOCK_SIZE, 256 - jumps ));
-                jumps = nonDigest[i];
-                proof.push(ssutil.generatePosHashXTimes(startFrom[i + 32], i + 32 , PROOF_BLOCK_SIZE, 256 - jumps ));
+                jumps = 255 - directDigest[i];
+                proof.push(ssutil.generatePosHashXTimes(startFrom[i], i , PROOF_BLOCK_SIZE, jumps ));
+                debugInfo.push(jumps);
             }
+            //console.log(proof[proof.length -1]);
         }
+
+        for(var i = 0; i < 32; i++){
+            if(!verificationMode){
+                jumps = nonDigest[i] + 1 ;
+                proof.push(ssutil.generatePosHashXTimes(startFrom.private, i + 32 , PROOF_BLOCK_SIZE, jumps));
+                debugInfo.push(jumps);
+            } else { //verification mode
+                jumps = 255 - nonDigest[i];
+                proof.push(ssutil.generatePosHashXTimes(startFrom[i + 32], i + 32 , PROOF_BLOCK_SIZE, jumps ));
+                debugInfo.push(jumps);
+            }
+            //console.log(proof[proof.length -1]);
+        }
+
+        //console.log("Debug:", debugInfo.join(" "));
         return proof;
     }
 
@@ -71,7 +91,7 @@ function SignsensusSignatureChain(loader){
 
         var current = signatureIndex[counter];
 
-        var next = generatePublicAndPrivateKeys();
+        var next = generatePublicAndPrivateKeys(counter + 1);
         signatureIndex.push(next);
 
         var proof = computeHashes(digest, next.public, false, current)
@@ -88,16 +108,23 @@ function SignsensusSignatureChain(loader){
         var current = signatureIndex[signJSON.counter];
         var next = signatureIndex[signJSON.counter + 1];
 
-        if(signJSON.nextPublic != next.public) return false; // fake signature
+        //console.log(signJSON);
+
+        if(signJSON.nextPublic != next.public) {
+            console.log("Faking the next public!!!")
+            return false;
+        } // fake signature
 
         var proof = computeHashes(digest, next.public, true, signJSON.proof);
 
 
         var publicFromSignature = ssutil.hashStringArray(signJSON.counter, proof, PROOF_BLOCK_SIZE);
 
-        if(publicFromSignature == this.publicKey){
+        console.log(publicFromSignature, current.public)
+        if(publicFromSignature == current.public){
             return true;
         } else {
+            console.log("Not a match")
             return false;
         }
     }

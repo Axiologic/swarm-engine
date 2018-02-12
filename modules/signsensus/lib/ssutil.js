@@ -64,13 +64,13 @@ exports.generatePosHashXTimes = function generatePosHashXTimes(buffer, pos, size
     /*if(pos != -1 )
         result[pos] = 0; */
 
-    for(var i = 0; i <= count; i++){
+    for(var i = 0; i < count; i++){
         var hash = crypto.createHash('sha256');
         result = exports.wipeOutsidePayload(result, pos, size);
         hash.update(result);
         result = hash.digest('hex');
     }
-    return result;
+    return exports.wipeOutsidePayload(result, pos, size);
 }
 
 exports.hashStringArray = function hashStringArray(counter, arr, payloadSize){
@@ -84,7 +84,6 @@ exports.hashStringArray = function hashStringArray(counter, arr, payloadSize){
 
     hash.update(result);
     var result = hash.digest('hex');
-    console.log("HASH: ", result);
     return result;
 }
 
@@ -138,7 +137,7 @@ exports.dumpObjectForDigest = function dumpObjectForDigest(obj){
     var keys = Object.keys(obj);
     keys.sort();
 
-    //console.log(result);
+
     for(var i=0; i < keys.length; i++){
         result += dumpMember(keys[i]);
         result += dumpMember(obj[keys[i]]);
@@ -166,7 +165,6 @@ exports.getJSONFromSignature = function getJSONFromSignature(signature, size){
 
     var proof = a[3]
 
-    console.log(proof.length, proof.length/size);
 
     if(proof.length/size != 64) {
         throw new Error("Invalid signature " + proof);
