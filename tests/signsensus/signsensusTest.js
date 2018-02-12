@@ -21,11 +21,12 @@ var test = $$.flow.describe("signatureTest",{
     },
     getSignature:function(err,signature){
         this.signature = signature;
-        safeBox.verify(this.digest, signature, this.printResults);
+        console.log("Signature:", this.signature);
+       safeBox.verify(this.digest, signature, this.printResults);
     },
 
     printResults:function(err,isGood){
-        console.log(this.signature, isGood);
+        //console.log(this.signature, isGood);
         if(isGood){
             console.log("Success");
         } else {
