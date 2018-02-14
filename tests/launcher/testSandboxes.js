@@ -1,7 +1,8 @@
 
 var path = require("path");
-process.env.PRIVATESKY_TMP = path.normalize(__dirname + "../../../../tmp");
+process.env.PRIVATESKY_TMP = path.normalize(__dirname + "./../../../../tmp");
 require("../../engine/launcher");//.core.enableTesting();
+//require("../../engine/core").enableTesting();
 
 
 var f = $$.swarm.create("testSandBoxExecution", {
@@ -35,7 +36,7 @@ function runCode(){
 
 
 $$.container.declareDependency("onlyNowICanRunThis", [$$.DI_components.swarmIsReady], function(fail, ready){
-    //console.log("onlyNowICanRunThis", fail, ready);
+    console.log("onlyNowICanRunThis", fail, ready);
     if(!fail){
        runCode();
     }

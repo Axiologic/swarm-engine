@@ -30,7 +30,7 @@ function FolderMQ(folder, callback){
             },
             addSwarm : function(swarm, callback){
                 if(!callback){
-                    callback = $$.defaultErrorHandling;
+                    callback = $$.defaultErrorHandlingImplementation;
                 }
 
                 beesHealer.asJSON(swarm,null, null, function(err, res){
@@ -38,7 +38,7 @@ function FolderMQ(folder, callback){
                 });
             }
         }
-    }
+    };
 
     this.registerConsumer = function(callback){
         if(consumer){
@@ -48,7 +48,7 @@ function FolderMQ(folder, callback){
         fs.mkdir(folder, function(err,res){
             consumeAllExisting();
         })
-    }
+    };
 
     /* ---------------- protected  functions */
     var consumer = null;
@@ -74,7 +74,7 @@ function FolderMQ(folder, callback){
             }
 
         });
-    };
+    }
 
     function watchFolder(){
         fs.watch(folder, function(eventType, filename){
@@ -83,9 +83,9 @@ function FolderMQ(folder, callback){
                 consumeMessage(filename);
             }
         });
-    };
+    }
 }
 
 exports.getFolderQueue = function(folder, callback){
     return new FolderMQ(folder, callback);
-}
+};

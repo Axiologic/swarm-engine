@@ -34,8 +34,8 @@ $$.flow.describe("mkDirRec", {
    __mkOneStep:function(folder, callback){
        console.log("Folder: ", folder);
        fs.exists(folder, function(res){
-           if(!res){
-               fs.mkdir(folder, callback);
+           if(!res && folder!==""){
+              fs.mkdir(folder, callback);
            } else {
                callback(null, true);
            }
