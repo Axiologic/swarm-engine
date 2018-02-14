@@ -29,7 +29,6 @@ exports.createForObject = function(valueObject, thisObject, localId){
         return thisObject;
     };
 
-
     var asyncReturn = function(err, result){
         var context = valueObject.protectedVars.context;
 
@@ -62,7 +61,7 @@ exports.createForObject = function(valueObject, thisObject, localId){
             jsMsg.meta.target = context;
             $$.PSK_PubSub.publish($$.CONSTANTS.SWARM_FOR_EXECUTION, jsMsg);
         });
-    };
+    }
 
 
 
@@ -86,7 +85,7 @@ exports.createForObject = function(valueObject, thisObject, localId){
 
     function getInnerValue(){
         return valueObject;
-    };
+    }
 
     function runPhase(functName, args){
         var func = valueObject.myFunctions[functName];
@@ -148,7 +147,13 @@ exports.createForObject = function(valueObject, thisObject, localId){
         $$.PSK_PubSub.subscribe(valueObject.localId, callback, waitForMore, filter);
     }
 
-     function toJSON(callback){
+    function toJSON(prop){
+        //preventing max call stack size exceeding on proxy auto referencing
+        //replace {} as result of JSON(Proxy) with the string [Object protected object]
+        return "[Object protected object]";
+    }
+
+    function getJSONasync(callback){
         //make the execution at level 0  (after all pending events) and wait to have a swarmId
         ret.observe(function(){
             beesHealer.asJSON(valueObject, null, null,callback);
@@ -165,6 +170,7 @@ exports.createForObject = function(valueObject, thisObject, localId){
 
     ret.swarm           = swarmFunction;
     ret.notify          = notify;
+    ret.getJSONasync    = getJSONasync;
     ret.toJSON          = toJSON;
     ret.observe         = observe;
     ret.inspect         = inspect;
@@ -185,4 +191,4 @@ exports.createForObject = function(valueObject, thisObject, localId){
 
     return ret;
 
-}
+};

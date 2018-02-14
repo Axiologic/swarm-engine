@@ -4,7 +4,7 @@ var fs = require("fs");
 
 $$.jsonReadable = function(obj){
     return JSON.stringify(obj, null, 2);
-}
+};
 
 
 
@@ -24,7 +24,7 @@ launcher.callflow.describe("FileSerializer", {
         if(fileName) {
             this.fileName = fileName;
         }
-        flow.toJSON(this.__doStoreResult);
+        flow.getJSONasync(this.__doStoreResult);
     },
     __doStoreResult: function(err,res){
         var text = $$.jsonReadable(res);
