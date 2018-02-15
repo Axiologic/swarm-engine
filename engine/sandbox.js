@@ -20,7 +20,8 @@ if(process.argv.length < 1) {
 console.log("Booting sandbox:", spaceName );
 
 
-var baseFolder =  path.normalize(__dirname + "./../../../tmp/PrivateSkyNode/sandboxes/");
+var baseFolder =  path.normalize(process.env.PRIVATESKY_TMP + "/sandboxes/");
+console.log(baseFolder);
 /*$$.PSK_PubSub = require("./pubSub/sandboxPubSub.js").create(baseFolder,spaceName, function(err,res){
 
 });*/
@@ -28,6 +29,7 @@ var baseFolder =  path.normalize(__dirname + "./../../../tmp/PrivateSkyNode/sand
 $$.PSK_PubSub = require("./pubSub/sandboxPubSub.js").create(baseFolder+spaceName);
 
 $$.requireLibrary("sandbox");
+$$.requireLibrary("testSwarms");
 
 
 

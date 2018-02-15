@@ -27,7 +27,7 @@ if(process.argv.length == 1){
 var fs = require("fs");
 var path = require("path");
 
-var basePath =  tmpDir + "/PrivateSkyNode/";
+var basePath =  tmpDir ;
 fs.mkdir(basePath, function(){});
 
 var cfgPath = basePath + "psk.config";
@@ -45,13 +45,15 @@ $$.loadLibrary("pds", __dirname+"/../libraries/pds");
 var launcher = $$.loadLibrary("launcher", __dirname + "/../libraries/launcher");
 
 
+$$.container.declareDependency("nimic", [$$.DI_components.sandBoxReady], function(fail, ready){
+    if(!fail){
+        $$.callflow.start(launcher.FileSerializer).load(launcher.Config, cfgPath, function(err, config){
+            config.start("self/agent/root", ["space1", "space2", "space3"]);
+            $$.container.resolve($$.DI_components.configLoaded, true);
+        });
+    }
+})
 
-$$.callflow.start(launcher.FileSerializer).load(launcher.Config, cfgPath, function(err, config){
-    //console.log(config.valueOf());
-    //console.log(config);
-    config.start("self/agent/root", ["space1", "space2", "space3"]);
-    $$.container.resolve($$.DI_components.configLoaded, true);
-});
 
 
 $$.container.declareDependency($$.DI_components.swarmIsReady, [$$.DI_components.configLoaded, $$.DI_components.sandBoxReady], function(fail, x, y ){

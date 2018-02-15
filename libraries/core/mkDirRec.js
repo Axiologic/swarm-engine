@@ -22,7 +22,7 @@ $$.flow.describe("mkDirRec", {
    },
 
     makeLink: function(existingPath, newPath, callback){
-        console.log("Link: ", existingPath, newPath);
+        //console.log("Link: ", existingPath, newPath);
         fs.exists(newPath, function(res) {
             if (!res) {
                 fs.symlink(existingPath, newPath,'dir', callback);
@@ -32,7 +32,7 @@ $$.flow.describe("mkDirRec", {
         })
     },
    __mkOneStep:function(folder, callback){
-       console.log("Folder: ", folder);
+       //console.log("Folder: ", folder);
        fs.exists(folder, function(res){
            if(!res && folder!==""){
               fs.mkdir(folder, callback);
