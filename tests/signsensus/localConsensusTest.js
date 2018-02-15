@@ -15,14 +15,14 @@ var com = {
         nodes.forEach( function(n){
             setTimeout(function(){
                 n.newTransaction(t, n.nodeName);
-            }, getRandomInt(SIMULATION_TIMEOUT))
+            }, getRandomInt(SIMULATION_TIMEOUT * 2))
         });
     },
     broadcastSequence: function(seq){
         nodes.forEach( function(n){
             setTimeout(function(){
                 n.receiveSequence(seq, n.nodeName);
-            }, getRandomInt(SIMULATION_TIMEOUT))
+            }, getRandomInt(SIMULATION_TIMEOUT * 2))
         });
     },
     requestTransaction: function(digest){
@@ -40,11 +40,10 @@ var numberTransactions = 10;
 var counter = 0;
 
 
-while(numberTransactions>0){
+while(numberTransactions > 0){
     setTimeout(function(){
         var i = getRandomInt(MAX_NODES);
         var n = nodes[i];
-        console.log(i);
         n.newTransaction(consensus.createTransaction( "Transaction" + counter), n.nodeName);
         counter++;
     }, getRandomInt(SIMULATION_TIMEOUT));
