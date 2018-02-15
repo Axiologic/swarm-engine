@@ -68,7 +68,7 @@ function SwarmsInstancesManager(){
         } else     if(swarmSerialisation.meta.command == "executeSwarmPhase"){
             swarm.runPhase(swarmSerialisation.meta.phaseName, swarmSerialisation.meta.args);
         } else {
-            console.log("Unknown command in swarmSerialisation.meta.command");
+            console.log("Unknown command",swarmSerialisation.meta.command, "in swarmSerialisation.meta.command");
         }
 
         return swarm;

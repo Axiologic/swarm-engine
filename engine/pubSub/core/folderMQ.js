@@ -5,6 +5,10 @@ var fs = require("fs");
 //TODO: prevent a class of race condition type of errors by signaling with files metadata to the watcher when it is safe to consume
 
 function FolderMQ(folder, callback){
+    var path = require("path");
+    folder = path.normalize(folder);
+
+
     fs.mkdir(folder, function(err, res){
         fs.exists(folder, function(exists) {
             if (exists) {
@@ -32,8 +36,10 @@ function FolderMQ(folder, callback){
                 if(!callback){
                     callback = $$.defaultErrorHandlingImplementation;
                 }
+                console.log("Scriu");
 
                 beesHealer.asJSON(swarm,null, null, function(err, res){
+                    console.log("Chiar scriu");
                     fs.writeFile(mkFileName(res),J(res), callback);
                 });
             }
@@ -87,5 +93,6 @@ function FolderMQ(folder, callback){
 }
 
 exports.getFolderQueue = function(folder, callback){
+
     return new FolderMQ(folder, callback);
 };

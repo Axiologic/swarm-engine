@@ -62,7 +62,7 @@ function SandBoxHandler(spaceName, folder, codeFolder, resultCallBack){
         self.childProcess = childProcess;
 
 
-        /*
+
         self.outbound.registerConsumer(function(swarm){
             $$.PSK_PubSub.publish($$.CONSTANTS.SWARM_FOR_EXECUTION, swarm);
         });
@@ -73,7 +73,7 @@ function SandBoxHandler(spaceName, folder, codeFolder, resultCallBack){
                 self.send(item);
             });
             pendingMessages = null;
-        } */
+        }
     });
 
     var pendingMessages = [];
