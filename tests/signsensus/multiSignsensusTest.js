@@ -3,7 +3,7 @@ var ss = require("../../modules/signsensus");
 
 require("../../engine/core").enableTesting();
 
-var safeBox = ss.getAgentSafeBox("testAgent");
+var safeBox = ss.getAgentSafeBox("testAgent", 63);
 
 
 
@@ -17,7 +17,14 @@ var test = $$.flow.describe("signatureTest",{
 
         this.digest = safeBox.digest(this.obj);
 
-        safeBox.sign(this.digest, this.getSignature);
+        for(var i=0; i<10; i++){
+            var t = process.hrtime();
+
+            safeBox.sign(this.digest, this.getSignature);
+
+            t = process.hrtime(t);
+            console.log('Signing + generating a new public key took %d seconds (or %d milliseconds)', t[0] + t[1]/1000000000, t[1]/ 1000000);
+        }
     },
     getSignature:function(err,signature){
         this.signature = signature;

@@ -22,7 +22,10 @@ var test = $$.flow.describe("signatureTest",{
     getSignature:function(err,signature){
         this.signature = signature;
         console.log("Signature:", this.signature);
-       safeBox.verify(this.digest, signature, this.printResults);
+
+        this.obj.name = "Hello World!!!!!!!!!";
+        this.digest = safeBox.digest(this.obj);
+        safeBox.verify(this.digest, signature, this.printResults);
     },
 
     printResults:function(err,isGood){

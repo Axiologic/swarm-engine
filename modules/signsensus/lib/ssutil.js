@@ -103,9 +103,9 @@ function dumpMember(obj){
 
     switch(type){
         case "number":
-        case "string":
-        case "boolean": return obj.toString('hex'); break;
+        case "string":return obj.toString('hex'); break;
         case "object": return dumpObjectForDigest(member); break;
+        case "boolean": return  obj? "true": "false"; break;
         case "array":
             var result ="";
             for(var i=0; i < obj.length; i++){
@@ -114,13 +114,13 @@ function dumpMember(obj){
             return result;
             break;
         default:
-            throw new Error("Type " +  type + " cannot be cryptographically digested properly");
+            throw new Error("Type " +  type + " cannot be cryptographically digested");
     }
 
 }
 
 
-exports.dumpObjectForDigest = function dumpObjectForDigest(obj){
+exports.dumpObjectForHashing = function dumpObjectForDigest(obj){
     var result = "";
 
     if(obj == null){
@@ -130,7 +130,15 @@ exports.dumpObjectForDigest = function dumpObjectForDigest(obj){
         return "undefined";
     }
 
-    if(typeof obj == "array"){
+    var basicTypes = {
+        "array"     : true,
+        "number"    : true,
+        "boolean"   : true,
+        "string"    : true,
+        "object"    : false
+    }
+    var type = typeof obj;
+    if( basicTypes[type]){
         return dumpMember(obj);
     }
 
@@ -149,7 +157,7 @@ exports.dumpObjectForDigest = function dumpObjectForDigest(obj){
 
 exports.hashValues  = function hashStringArray(values){
     const hash = crypto.createHash('sha256');
-    var result = exports.dumpObjectForDigest(values);
+    var result = exports.dumpObjectForHashing(values);
     hash.update(result);
     return hash.digest('hex');
 };

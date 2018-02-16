@@ -1,13 +1,12 @@
 
 const crypto = require('crypto');
-const dumper = require("./dumper");
 const ssutil = require("./ssutil");
 
 
 
 
 
-function SignsensusSignatureChain(PROOF_BLOCK_SIZE , loader){
+function SignsensusSignatureChain(agent, PROOF_BLOCK_SIZE , loader){
 
     if(!PROOF_BLOCK_SIZE ){
         PROOF_BLOCK_SIZE = 32;
@@ -25,6 +24,9 @@ function SignsensusSignatureChain(PROOF_BLOCK_SIZE , loader){
 
 
     function generatePublicAndPrivateKeys(myCounter){
+
+
+
         var result = {}
         result.private = Buffer.alloc(32);
         crypto.randomFillSync(result.private);
@@ -35,7 +37,8 @@ function SignsensusSignatureChain(PROOF_BLOCK_SIZE , loader){
         }
 
         result.public = ssutil.hashStringArray(myCounter, proof, PROOF_BLOCK_SIZE);
-        console.log("Public key", myCounter, " :", result.public);
+        //console.log("Public key", myCounter, " :", result.public);
+
         return result;
     }
 
@@ -97,7 +100,7 @@ function SignsensusSignatureChain(PROOF_BLOCK_SIZE , loader){
         var proof = computeHashes(digest, next.public, false, current)
 
         counter++;
-        return ssutil.createSignature("agent", counter - 1, next.public, proof, PROOF_BLOCK_SIZE );
+        return ssutil.createSignature(agent, counter - 1, next.public, proof, PROOF_BLOCK_SIZE );
     }
 
 
@@ -111,7 +114,7 @@ function SignsensusSignatureChain(PROOF_BLOCK_SIZE , loader){
         //console.log(signJSON);
 
         if(signJSON.nextPublic != next.public) {
-            console.log("Faking the next public!!!")
+            console.log("Found a signature with a fake next public!!!")
             return false;
         } // fake signature
 
@@ -120,24 +123,24 @@ function SignsensusSignatureChain(PROOF_BLOCK_SIZE , loader){
 
         var publicFromSignature = ssutil.hashStringArray(signJSON.counter, proof, PROOF_BLOCK_SIZE);
 
-        console.log(publicFromSignature, current.public)
+        //console.log(publicFromSignature, current.public)
         if(publicFromSignature == current.public){
             return true;
         } else {
-            console.log("Not a match")
             return false;
         }
     }
 }
 
 
-function AgentSafeBox(agentName){
+function AgentSafeBox(agentName, blockSize){
 
-    var chain = new SignsensusSignatureChain();
+    var agentHash = ssutil.hashValues(agentName)
+    var chain = new SignsensusSignatureChain(agentHash, blockSize);
 
 
     this.digest  = function(obj){
-        var result = ssutil.dumpObjectForDigest(obj);
+        var result = ssutil.dumpObjectForHashing(obj);
         var hash = crypto.createHash('sha256');
         hash.update(result);
         return hash.digest('hex');
@@ -153,8 +156,8 @@ function AgentSafeBox(agentName){
 }
 
 
-exports.getAgentSafeBox = function(agent){
-    var sb = new AgentSafeBox(agent);
+exports.getAgentSafeBox = function(agent, blockSize){
+    var sb = new AgentSafeBox(agent, blockSize);
 
     return sb;
 
