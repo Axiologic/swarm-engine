@@ -3,30 +3,12 @@ function getRandomInt(max) {
     return Math.floor(Math.random() * Math.floor(max));
 }
 
-function TransactionInput(){
-    this.value = getRandomInt(100);
-    this.compare = function(t){
-        return this.value - t.value;
-    }
-}
 
-function TransactionOutput(){
-    this.value = getRandomInt(100);
-    this.compare = function(t){
-        return this.value - t.value;
-    }
-}
 
 var ssutil = require("./ssutil");
 
 var counter = 0;
 function Transaction(swarm, input, output){
-    if(!input){
-        input = new TransactionInput();
-    }
-    if(!output){
-        output = new TransactionInput();
-    }
 
     this.input  = input;
     this.output = output;
@@ -98,7 +80,7 @@ function ConsensusManager(delgatedAgentName, communicationOutlet, pulseTime, sta
     this.newTransaction = function(trans, from){
         getTransactionInfo(trans.digest, trans, from)
         if(from == this.nodeName){
-            communicationOutlet.broadcastTransaction(trans);
+            communicationOutlet.broadcastTransaction(trans, from);
         }
     }
 
@@ -109,14 +91,18 @@ function ConsensusManager(delgatedAgentName, communicationOutlet, pulseTime, sta
     }
 
 
+    this.getTransaction = function(digest){
+        var ti = getTransactionInfo(digest);
+        return ti.transaction;
+    }
 
     function pulse(){
-
+        currentPulse++;
         if(unorderedTransactions.length){
             currentSeq =  new Sequence(unorderedTransactions);
             communicationOutlet.broadcastSequence(currentSeq, self.nodeName);
         }
-        setTimeout(pulse, pulseTime);
+        setTimeout(pulse, pulseTime/2 + getRandomInt(pulseTime/2));
     }
 
     this.printCurrentSequence = function(){
