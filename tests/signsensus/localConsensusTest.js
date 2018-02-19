@@ -45,7 +45,7 @@ function fakePDSVerificationSpace(){
     }
 
 
-    this.returnInputOut = function(){
+    this.generateInputOut = function(){
 
         var result = {
             input:{},
@@ -81,6 +81,7 @@ function fakePDSVerificationSpace(){
             result.output[keyName] = key;
         }
 
+        return result;
     }
 
 }
@@ -123,12 +124,14 @@ var numberTransactions = 15;
 var counter = 0;
 
 
+var fakePDS = new fakePDSVerificationSpace();
+
 while(numberTransactions > 0){
     setTimeout(function(){
         var i = getRandomInt(MAX_NODES);
         var n = nodes[i];
-        var inpout = fakePDSVerificationSpace.returnInputOut();
-        n.newTransaction(consensus.createTransaction( "Transaction" + counter, inpout.input, inpout.output ), n.nodeName);
+        var inpOut = fakePDS.generateInputOut();
+        n.newTransaction(consensus.createTransaction( "Transaction" + counter, inpOut.input, inpOut.output ), n.nodeName);
         counter++;
     }, getRandomInt(SIMULATION_TIMEOUT *2));
     numberTransactions--;
