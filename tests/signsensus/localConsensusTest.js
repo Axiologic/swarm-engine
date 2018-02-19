@@ -6,11 +6,32 @@ function getRandomInt(max) {
 
 
 var MAX_NODES = 5;
-var SIMULATION_TIMEOUT = 1000;
-var PULSE_TIMEOUT       = 300;
-var MAX_KEY             = 10;
+var SIMULATION_TIMEOUT  = 1000;
+var PULSE_PERIODICITY   = 300;
+
+var PULSES_TIMEOUT      = 10;
+
+var MAX_KEYS_COUNT      = 10;
 
 var nodes = [];
+
+
+var transactionCounter = 0;
+function Transaction(swarm, input, output){
+    this.input  = input;
+    this.output = output;
+    this.swarm  = swarm;
+    this.pulseNumber  = 0; //will be modified by nodes
+
+    var arr     = process.hrtime();
+    this.second  = arr[0];
+    this.nanosecod  = arr[1];
+
+    //this.digest = ssutil.hashValues(this);
+    this.digest = "T"+ transactionCounter; //TODO:  this is for debug and tests only.. use the proper hashValues
+    transactionCounter++;
+}
+
 
 
 
@@ -46,15 +67,14 @@ function fakePDSVerificationSpace(){
 
 
     this.generateInputOut = function(){
-
         var result = {
             input:{},
             output:{}
-        }
+        };
 
-        var howMany = getRandomInt(MAX_KEY/4) + 1;
+        var howMany = getRandomInt(MAX_KEYS_COUNT/4) + 1;
         for(var i = 0; i< howMany; i++ ){
-            var keyName = "key" + getRandomInt(MAX_KEY);
+            var keyName = "key" + getRandomInt(MAX_KEYS_COUNT);
 
             var key = {};
             key.name    = keyName;
@@ -71,9 +91,9 @@ function fakePDSVerificationSpace(){
             result.input[keyName] = key;
         }
 
-        var howMany = getRandomInt(MAX_KEY/8) + 1 ;
+        var howMany = getRandomInt(MAX_KEYS_COUNT/8) + 1 ;
         for(var i = 0; i< howMany; i++ ){
-            var keyName = "key" + getRandomInt(MAX_KEY);
+            var keyName = "key" + getRandomInt(MAX_KEYS_COUNT);
 
             var key = {};
             key.name    = keyName;
@@ -86,36 +106,28 @@ function fakePDSVerificationSpace(){
 
 }
 
-
 var com = {
-    broadcastTransaction: function(t, from){
+    broadcastPulse: function(pulse, from){
         nodes.forEach( function(n){
             setTimeout(function(){
                 if(n.nodeName != from) {
-                    n.newTransaction(t, from);
+                    n.newPulse(pulse, from);
                 }
-            }, getRandomInt(SIMULATION_TIMEOUT * 2))
+            }, getRandomInt(PULSE_PERIODICITY * 2))
         });
     },
-    broadcastSequence: function(seq){
-        nodes.forEach( function(n){
-            setTimeout(function(){
-                n.receiveSequence(seq, n.nodeName);
-            }, getRandomInt(SIMULATION_TIMEOUT * 2))
-        });
-    },
-    requestTransaction: function(digest, byWho, fromOther){
+    requestPulse: function(whoIsAsking, fromWho, pulseNumber){
         setTimeout(function(){
-            var t = nodes[fromOther].getTransaction(digest);
+            var t = nodes[fromWho].getPulse(pulseNumber);
             if(t){
-                nodes[byWho].newTransaction(t, fromOther);
+                nodes[whoIsAsking].newPulse(t, fromWho);
             }
-        }, getRandomInt(SIMULATION_TIMEOUT))
+        }, getRandomInt(PULSE_PERIODICITY * 2))
     }
 }
 
 for(var i = 0; i< MAX_NODES; i++){
-    nodes.push(consensus.createConsensusManager("Node"+i, com, PULSE_TIMEOUT, MAX_NODES));
+    nodes.push(consensus.createConsensusManager("Node"+i, com, PULSE_PERIODICITY, MAX_NODES));
 }
 
 
@@ -131,7 +143,7 @@ while(numberTransactions > 0){
         var i = getRandomInt(MAX_NODES);
         var n = nodes[i];
         var inpOut = fakePDS.generateInputOut();
-        n.newTransaction(consensus.createTransaction( "Transaction" + counter, inpOut.input, inpOut.output ), n.nodeName);
+        n.newTransaction(new Transaction("TransactionSwarm" + counter, inpOut.input, inpOut.output ));
         counter++;
     }, getRandomInt(SIMULATION_TIMEOUT *2));
     numberTransactions--;

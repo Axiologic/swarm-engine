@@ -7,57 +7,36 @@ function getRandomInt(max) {
 
 var ssutil = require("./ssutil");
 
-var counter = 0;
-function Transaction(swarm, input, output){
 
-    this.input  = input;
-    this.output = output;
-    this.swarm  = swarm;
-    var arr     = process.hrtime();
-    this.second     = arr[0];
+function orderTransactions(unorderedTransactions){
 
-    var breakNanosecond = getRandomInt(3); //TODO: just for initial testing! remove this ;)
+    return unorderedTransactions;
+}
 
-    if(!breakNanosecond){
-        this.nanosecod  = arr[1];
-    } else {
-        this.nanosecod  = 0;
-    }
-
-    //this.digest = ssutil.hashValues(this);
-    this.digest = "T"+ counter; //TODO:  this is for debug and tests only.. use the proper hashValues
-    counter++;
+function Pulse(signer, number, newTransactions, orderedTransactions){
+    this.signer                 = signer;
+    this.pulseNumber            = number;
+    this.newTransactions        = newTransactions;
+    this.orderedTransactions    = orderedTransactions;
 }
 
 
-
-function Sequence(unorderedTransactions){
-    this.orderedTransactions = [];
-}
-
-
-function ConsensusManager(delgatedAgentName, communicationOutlet, pulseTime, stakeHolders){
-
-    var currentOrder = [];
-
+function ConsensusManager(delgatedAgentName, communicationOutlet, pulsePeriodicty, pulsesTimeout, stakeHolders){
 
     var currentPulse = 0;
 
-    var currentSeq = [];
+    var currentConsent = [];
 
     var knownTransactions = {};
     var unorderedTransactions = [];
+
+
 
     var self = this;
 
     this.nodeName = delgatedAgentName;
 
     function getTransactionInfo(digest, transaction, from){
-
-        if(transaction){
-            unorderedTransactions.push([transaction.digest, currentPulse]);
-        }
-
         var ti = knownTransactions[digest];
         if(!ti ){
              ti = {
@@ -77,21 +56,36 @@ function ConsensusManager(delgatedAgentName, communicationOutlet, pulseTime, sta
         return ti;
     }
 
-    this.newTransaction = function(trans, from){
-        getTransactionInfo(trans.digest, trans, from)
-        if(from == this.nodeName){
-            communicationOutlet.broadcastTransaction(trans, from);
+    var notBroadcasted;
+    this.newTransaction = function(trans){
+        getTransactionInfo(trans.digest, trans, this.nodeName);
+        if(!notBroadcasted){
+            notBroadcasted = [];
+        }
+        notBroadcasted.push(trans);
+    }
+
+    this.recordTransaction = function(trans, from){
+        getTransactionInfo(trans.digest, trans, from);
+    }
+
+    var allPulses = {};
+    function testOrInit(obj, prop){
+        if(!obj[prop]){
+            obj[prop] = {};
         }
     }
 
-    this.receiveSequence = function(seq, from){
-        seq.orderedTransactions.forEach(function(transactionDigest){
-            var ti = getTransactionInfo(transactionDigest, from);
-        })
+    this.newPulse = function(pulse, from){
+        testOrInit(allPulses,pulse.pulseNumber);
+        testOrInit(allPulses[pulse.pulseNumber], from);
+
+        //TODO: validate does not exist
+        allPulses[pulse.pulseNumber][from] = pulse;
     }
 
 
-    this.getTransaction = function(digest){
+    function getTransaction (digest){
         var ti = getTransactionInfo(digest);
         return ti.transaction;
     }
@@ -99,14 +93,15 @@ function ConsensusManager(delgatedAgentName, communicationOutlet, pulseTime, sta
     function pulse(){
         currentPulse++;
         if(unorderedTransactions.length){
-            currentSeq =  new Sequence(unorderedTransactions);
-            communicationOutlet.broadcastSequence(currentSeq, self.nodeName);
+            var transactionSequence = [];
+            var newPulse = new Pulse(this.nodeName, currentPulse, notBroadcasted, transactionSequence );
+            communicationOutlet.broadcastPulse(newPulse, self.nodeName);
         }
-        setTimeout(pulse, pulseTime/2 + getRandomInt(pulseTime/2));
+        setTimeout(pulse, pulsePeriodicty);
     }
 
     this.printCurrentSequence = function(){
-        console.log("Consensus for", currentOrder.length, "transactions in " + delgatedAgentName,":", currentOrder.join(" "));
+        console.log("Consensus for", currentConsent.length, "transactions in " + delgatedAgentName,":", currentConsent.join(" "));
         console.log("Unordered ", unorderedTransactions.length, "transactions in " + delgatedAgentName,":", unorderedTransactions.join(" "));
     }
 
@@ -117,8 +112,4 @@ exports.createConsensusManager = function(delegatedAgent, communicationOutlet, p
         return new ConsensusManager(delegatedAgent, communicationOutlet, pulse, stakeHolders);
 }
 
-
-exports.createTransaction = function(swarm){
-    return new Transaction(swarm);
-}
 
