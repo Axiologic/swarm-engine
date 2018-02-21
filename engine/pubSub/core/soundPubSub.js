@@ -138,7 +138,7 @@ function SoundPubSub(){
     /* ---------------------------------------- protected stuff ---------------------------------------- */
     var self = this;
     // map channelName (object local id) -> array with subscribers
-    var channelSubscribers = [];
+    var channelSubscribers = {};
 
     // map channelName (object local id) -> queue with waiting messages
     var channelsStorage = {};
