@@ -64,7 +64,7 @@ function SwarmSpace(swarmType) {
         var myFunctions = createMembers(description);
 
         function createPhase(thisInstance, func){
-            return function(){
+            var phase = function(){
                 var ret;
                 try{
                     $$.PSK_PubSub.blockCallBacks();
@@ -76,6 +76,9 @@ function SwarmSpace(swarmType) {
                 }
                 return ret;
             }
+            //dynamic named func in order to improve callstack
+            Object.defineProperty(phase, "name", {get: function(){return swarmTypeName+"."+func.name}});
+            return phase;
         }
 
         this.initialise = function(serialisedValues){
