@@ -14,7 +14,7 @@ exports.create = function(folder, core){
     });
 
     pubSub.subscribe($$.CONSTANTS.SWARM_FOR_EXECUTION, function(swarm){
-        outbound.addSwarm(swarm);
+        outbound.sendSwarmForExecution(swarm);
     });
 
 

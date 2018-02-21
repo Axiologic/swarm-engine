@@ -12,7 +12,7 @@ function runCode(){
 
 
 $$.container.declareDependency("onlyNowICanRunThis", [$$.DI_components.swarmIsReady], function(fail, ready){
-    console.log("onlyNowICanRunThis", fail, ready);
+    //console.log("onlyNowICanRunThis", fail, ready);
     if(!fail){
        runCode();
     }

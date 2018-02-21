@@ -1,4 +1,3 @@
-
 require("../../engine/core").enableTesting();
 var f = $$.callflow.create("serialExample", {
     public:{

@@ -21,7 +21,7 @@ console.log("Booting sandbox:", spaceName );
 
 
 var baseFolder =  path.normalize(process.env.PRIVATESKY_TMP + "/sandboxes/");
-console.log(baseFolder);
+/*console.log(baseFolder);*/
 /*$$.PSK_PubSub = require("./pubSub/sandboxPubSub.js").create(baseFolder,spaceName, function(err,res){
 
 });*/

@@ -59,20 +59,21 @@ function SandBoxHandler(spaceName, folder, codeFolder, resultCallBack){
 
 
     bootSandBox().boot(this, spaceName,folder, codeFolder, function(err, childProcess){
-        self.childProcess = childProcess;
+        if(!err){
+            self.childProcess = childProcess;
 
 
-
-        self.outbound.registerConsumer(function(swarm){
-            $$.PSK_PubSub.publish($$.CONSTANTS.SWARM_FOR_EXECUTION, swarm);
-        });
-
-        mqHandler = self.inbound.getHandler();
-        if(pendingMessages.length){
-            pendingMessages.map(function(item){
-                self.send(item);
+            self.outbound.registerConsumer(function(swarm){
+                $$.PSK_PubSub.publish($$.CONSTANTS.SWARM_FOR_EXECUTION, swarm);
             });
-            pendingMessages = null;
+
+            mqHandler = self.inbound.getHandler();
+            if(pendingMessages.length){
+                pendingMessages.map(function(item){
+                    self.send(item);
+                });
+                pendingMessages = null;
+            }
         }
     });
 
@@ -80,7 +81,7 @@ function SandBoxHandler(spaceName, folder, codeFolder, resultCallBack){
 
     this.send = function (swarm, callback) {
         if(mqHandler){
-            mqHandler.addSwarm(swarm, callback);
+            mqHandler.sendSwarmForExecution(swarm, callback);
         } else {
             pendingMessages.push(swarm); //TODO: well, a deep clone will not be a better idea?
         }

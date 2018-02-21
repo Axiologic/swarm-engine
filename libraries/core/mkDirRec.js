@@ -23,13 +23,16 @@ $$.flow.describe("mkDirRec", {
 
     makeLink: function(existingPath, newPath, callback){
         //console.log("Link: ", existingPath, newPath);
-        fs.exists(newPath, function(res) {
-            if (!res) {
-                fs.symlink(existingPath, newPath,'dir', callback);
-            } else {
-                callback(null, newPath);
-            }
-        })
+        if(!fs.existsSync(newPath)){
+            fs.symlink(existingPath, newPath,'dir', function(err, res){
+                if(err){
+                    console.error("Warning: ", err);
+                }
+                callback(null, res);
+            });
+        }else{
+            callback(null, newPath);
+        }
     },
    __mkOneStep:function(folder, callback){
        //console.log("Folder: ", folder);
