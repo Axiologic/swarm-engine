@@ -1,5 +1,5 @@
 
-var joinCounter;
+var joinCounter = 0;
 
 function ParallelJoinPoint(swarm, callback, args){
     joinCounter++;
@@ -8,14 +8,14 @@ function ParallelJoinPoint(swarm, callback, args){
     var counter = 0;
     var stopOtherExecution     = false;
 
-    function executionStep(funct, localArgs, stop){
+    function executionStep(stepFunc, localArgs, stop){
 
         this.doExecute = function(){
             if(stopOtherExecution){
                 return false;
             }
             try{
-                funct.apply(swarm, localArgs);
+                stepFunc.apply(swarm, localArgs);
                 if(stop){
                     stopOtherExecution = true;
                     return false;
@@ -53,7 +53,26 @@ function ParallelJoinPoint(swarm, callback, args){
     });
 
     function incCounter(){
+        if(testIfUnderInspection()){
+            //preventing inspector from increasing counter when reading the values for debug reason
+            //console.log("preventing inspection");
+            return;
+        }
         counter++;
+    }
+
+    function testIfUnderInspection(){
+        var res = false;
+        var constArgv = process.execArgv.join();
+        if(constArgv.indexOf("inspect")!==-1 || constArgv.indexOf("debug")!==-1){
+            //only when running in debug
+            var callstack = new Error().stack;
+            if(callstack.indexOf("DebugCommandProcessor")!==-1){
+                console.log("DebugCommandProcessor detected!");
+                res = true;
+            }
+        }
+        return res;
     }
 
     function sendForSoundExecution(funct, args, stop){
