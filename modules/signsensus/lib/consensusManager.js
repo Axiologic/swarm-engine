@@ -76,13 +76,19 @@ function ConsensusManager(delgatedAgentName, communicationOutlet, pdsAdapter, pu
     }
 
     function pulse(){
-
-        if(detectMajoritarianPtBlock()){                                //step 1
-            pdsAdapter.commit(ptBlock);
+        var majoritatianVSD = detectMajoritarianPtBlock();// will also replace ptBlock
+        var  vsd = pdsAdapter.computeVSD(ptBlock);
+        if(vsd == majoritatianVSD){
+            pdsAdapter.commit(ptBlock);                                 //step 1
+        } else {
+            // the node is badly out-of-sync
+            //TODO: resync with the majoritarian nodes
+            throw new Error("Sync not implemented yet");
         }
 
-        var vsd     = pdsAdapter.computeVSD();                          //step 2
-        ptBlock     = pdsAdapter.makeBlock(detectNextBlockSet());       //step 3 and step 4
+        var nextBlockSet = detectNextBlockSet();                        //step 2
+        ptBlock     = pdsAdapter.makeBlock(nextBlockSet);               //step 3
+        vsd     = pdsAdapter.computeVSD(ptBlock);                       //step 4
 
         var newPulse = new Pulse(this.nodeName, currentPulse, ptBlock, lset, vsd);
 
