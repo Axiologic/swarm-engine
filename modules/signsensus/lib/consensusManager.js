@@ -1,7 +1,4 @@
 
-function getRandomInt(max) {
-    return Math.floor(Math.random() * Math.floor(max));
-}
 
 
 
@@ -9,99 +6,69 @@ var ssutil = require("./ssutil");
 var cutil = require("./cutil");
 
 
-function orderTransactions(unorderedTransactions){
-
-    return unorderedTransactions;
-}
-
 function Pulse(signer, currentPulseNumber, block, newTransactions, vsd){
-    this.signer = signer;
-    this.cp     = currentPulseNumber;
-    this.lset   = newTransactions;
-    this.ptBlock  = block;
-    this.vsd    = vsd;
+    this.signer     = signer;
+    this.cp         = currentPulseNumber;
+    this.lset       = newTransactions; //digest -> transaction
+    this.ptBlock    = block;      //array of digests
+    this.vsd        = vsd;
 }
 
 
-function ConsensusManager(delgatedAgentName, communicationOutlet, pdsAdapter, pulsePeriodicity, pulsesTimeout, stakeHolders){
+function ConsensusManager(delgatedAgentName, communicationOutlet, pdsAdapter, pulsePeriodicity,  stakeHolders){
 
     var currentPulse = 0;
+    var self = this;
 
-    var knownTransactions = {};
-    var lset = [];
-    var pset = [];
+    var lset = {}; // digest -> transaction
+    var pset = {}; // digest -> transaction
 
     var ptBlock = [];
 
     var consensuses = [];
-    var self = this;
 
     var pulsesHistory = {};
 
     this.nodeName = delgatedAgentName;
-
-
-    function detectMajoritarianPtBlock(){
-        var pulsesCPMinus1 = pulsesHistory[currentPulse-1];
-        if(!pulsesCPMinus1){
-            return false;
-        }
-
-        var allVSDs = {};
-        for(var pulse in pulsesCPMinus1){
-            var v = pulse.vsd;
-            if(allVSDs[v] ){
-                allVSDs[v]++;
-            } else {
-                allVSDs[v] = 1;
-            }
-        }
-
-        for(var i in allVSDs){
-            if(allVSDs[i] >= math.floor(stakeHolders/2) + 1){
-                var vsd = allVSDs[i];
-                for(var p in pulsesCPMinus1){
-                    if(p.vsd == vsd){
-                        ptBlock = p.ptBlock;
-                        return true;
-                    }
-                }
-            }
-        }
-        return false; //there is no majority
-    }
-
-    function detectNextBlockSet(){
-        //ptBlock
-    }
+    var  vsd = pdsAdapter.computeVSD();
 
     function pulse(){
-        var majoritatianVSD = detectMajoritarianPtBlock();// will also replace ptBlock
-        var  vsd = pdsAdapter.computeVSD(ptBlock);
+
+        var majoritatianVSD = cutil.detectMajoritarianVSD(currentPulse,  pulsesHistory, stakeHolders);
+        if(majoritatianVSD == "none"){
+            majoritatianVSD = vsd; // we are alone or the network is down ;)
+        }
+
         if(vsd == majoritatianVSD){
-            pdsAdapter.commit(ptBlock);                                 //step 1
+            ptBlock = cutil.detectMajoritarianPTBlock(currentPulse, pulsesHistory, stakeHolders);
+
+            pdsAdapter.commit(cutil.makeSetFromBlock(pset, ptBlock));   //step 1
+            cutil.setsRemoveArray(pset, ptBlock); //cleanings
         } else {
             // the node is badly out-of-sync
             //TODO: resync with the majoritarian nodes
             throw new Error("Sync not implemented yet");
         }
 
-        var nextBlockSet = detectNextBlockSet();                        //step 2
-        ptBlock     = pdsAdapter.makeBlock(nextBlockSet);               //step 3
-        vsd     = pdsAdapter.computeVSD(ptBlock);                       //step 4
+        var nextBlockSet = cutil.detectNextBlockSet(currentPulse,
+                     pulsesHistory, stakeHolders, pset);                //step 2
 
-        var newPulse = new Pulse(this.nodeName, currentPulse, ptBlock, lset, vsd);
+
+        ptBlock         = pdsAdapter.approveBlock(nextBlockSet);        //step 3
+
+        vsd             = pdsAdapter.computeVSD();                      //step 4
+
+        var newPulse    = new Pulse(this.nodeName, currentPulse, ptBlock, lset, vsd);
 
         communicationOutlet.broadcastPulse(self.nodeName, newPulse);    //step 5
-
-        pset = pset.concat(lset);                                       //step 6
-        lset = [];                                                      //step 7
+        this.recordPulse(self.nodeName, newPulse);                      //step 6 (it also moving lset in pset)
+        //pset          = cutil.setsConcat(pset, lset);
+        lset            = [];                                           //step 7
         currentPulse++;                                                 //step 8
         setTimeout(pulse, pulsePeriodicity);                            //step 9
     }
 
-    pulse();
-
+    pulse();// TODO: replace with a synchronization process
 
     this.dump = function(){
         console.log("Node:", delgatedAgentName, "Consensus history:", consensuses.join(" "));
@@ -114,10 +81,20 @@ function ConsensusManager(delgatedAgentName, communicationOutlet, pdsAdapter, pu
     }
 
     this.recordPulse = function(from, pulse){
+
+        pulse.blockDigest = ssutil.hashValues(pulse.ptBlock);
         if(!pulsesHistory[pulse.cp]){
             pulsesHistory[pulse.cp] = {};
         }
         pulsesHistory[pulse.cp][from] = pulse;
+
+        //check for delayed pulses that should be ignored ( pulse.cp < CurrentPulse - 2)
+        if(pulse.cp >= currentPulse - 2){
+            for(var d in pulse.lset){
+                pset[d] = pulse.lset[d];
+            }
+        }
+        //TODO: ask for pulses that others received but we failed to receive
     }
 }
 
