@@ -39,10 +39,12 @@ exports.orderTransactions = function( pset){ //order in place the pset array
     return pset;
 }
 
-function getMajorityField(obj, fieldName, extractFieldName, stakeHolders){
+function getMajorityFieldInPulses(allPulses, fieldName, extractFieldName, stakeHolders){
     var allFields = {};
     var majorityValue;
-    for(var pulse in obj){
+    var pulse;
+    for(var  agent in allPulses){
+        pulse = allPulses[agent];
         var v = pulse[fieldName];
         if(allFields[v] ){
             allFields[v]++;
@@ -57,9 +59,10 @@ function getMajorityField(obj, fieldName, extractFieldName, stakeHolders){
             if(fieldName == extractFieldName){
                 return majorityValue;
             } else {
-                for(var v in obj){
-                    if(obj[fieldName] == majorityValue){
-                        return obj[extractFieldName];
+                for(var agent in allPulses){
+                    pulse = allPulses[agent];
+                    if(pulse[fieldName] == majorityValue){
+                        return pulse[extractFieldName];
                     }
                 }
             }
@@ -74,7 +77,7 @@ exports.detectMajoritarianVSD = function (currentPulse, pulsesHistory, stakeHold
         return "none"; //for booting empty spaces
     }
 
-    return getMaximCountField(pulsesCPMinus1, "vsd", "vsd", stakeHolders);
+    return getMajorityFieldInPulses(pulsesCPMinus1, "vsd", "vsd", stakeHolders);
 }
 
 exports.detectMajoritarianPTBlock = function(currentPulse, pulsesHistory, stakeHolders){
@@ -82,7 +85,7 @@ exports.detectMajoritarianPTBlock = function(currentPulse, pulsesHistory, stakeH
     if(!pulsesCPMinus1){
         return []; //there is none...
     }
-    var btBlock = getMajorityField(pulsesCPMinus1,"blockDigest", "ptBlock", stakeHolders);
+    var btBlock = getMajorityFieldInPulses(pulsesCPMinus1,"blockDigest", "ptBlock", stakeHolders);
     if(btBlock != "none"){
         return btBlock;
     }
@@ -96,14 +99,50 @@ exports.makeSetFromBlock = function(knownTransactions, block){
     return result;
 }
 
-exports.detectNextBlockSet = function(currentPulse, ignoreNewerThen, pulsesHistory, stakeHolders, pset){
+exports.detectNextBlockSet = function(currentPulse, pulsesHistory, stakeHolders, pset){
     var pulsesCPMinus1 = pulsesHistory[currentPulse - 1];
     if(!pulsesCPMinus1){
         return {}; //for booting empty spaces
     }
+    //
 
     var nextBlock = [];
 
+    var tempPulses = {};
+    for(var v in pulsesCPMinus1){
+        tempPulses[v] = pulsesCPMinus1;
+    }
+
+    function majoritarianAtLevel(level){
+        var counting = {};
+        for(var a in tempPulses){
+            var pulse = tempPulses[a];
+            if(pulse.ptBlock.length < level){
+                var digest = pulse.ptBlock[level];
+                if(counting[digest]){
+                    counting[digest]++
+                }    else {
+                    counting[digest] = 1;
+                }
+            }
+        }
+
+        for(var d in counting){
+            if(counting[d] >= math.floor(stakeHolders/2) + 1){
+                return d;
+            }
+        }
+
+        return "none";
+    }
+
+    var foundMajoritarian;
+    var level = 0;
+    do {
+        foundMajoritarian =majoritarianAtLevel(level);
+        nextBlock.push(foundMajoritarian);
+        level++;
+    } while(foundMajoritarian != "none");
 
     return exports.makeSetFromBlock(pset, nextBlock);
 }
