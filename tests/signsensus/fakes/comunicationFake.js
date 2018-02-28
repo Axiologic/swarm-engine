@@ -3,7 +3,7 @@ var nodes = [];
 var PDSFakes = [];
 
 var cfg = require("./simulationConfig");
-var pds = require("./PDSFake");
+var pds = require("../../../modules/signsensus/lib/InMemoryPDS");
 var cutil = require("../../../modules/signsensus/lib/cutil");
 
 var com = {
@@ -26,48 +26,36 @@ exports.init = function(){
 }
 
 
-
+var counter = 0 ;
 exports.generateRandomTransaction = function(){
     var i = getRandomInt(MAX_NODES);
     var node = nodes[i];
-    var pds = PDSFakes[i];
+    var pds = PDSFakes[i].createForkedPDS();
 
     var swarm = {
-        input:{},
-        output:{}
+        swarmName: "Swarm:" + counter
     };
 
     var howMany = getRandomInt(MAX_KEYS_COUNT/4) + 1;
     for(var i = 0; i< howMany; i++ ){
         var keyName = "key" + getRandomInt(MAX_KEYS_COUNT);
 
-        var key = {};
-        key.name    = keyName;
-        var problemsDice =  getRandomInt(3); // one in 3 keys will create concurrency issues
-        if(problemsDice){
-            key.version = readKey(keyName);
-        } else {
+        var dice =  getRandomInt(6);
 
-            var key = {};
-            key.name    = keyName;
-            key.version = modifyKey(keyName);
-            result.output[keyName] = key;
+        if(dice == 0){  //concurrency issues
+            keyName = "sameKey";
+            pds.writeKey(keyName, getRandomInt(10000));
         }
-        result.input[keyName] = key;
-    }
 
-    var howMany = getRandomInt(MAX_KEYS_COUNT/8) + 1 ;
-    for(var i = 0; i< howMany; i++ ){
-        var keyName = "key" + getRandomInt(MAX_KEYS_COUNT);
+        if(dice <= 4){
+            pds.readKey(keyName);
+        } else{
+            pds.writeKey(keyName, getRandomInt(10000));
+        }
 
-        var key = {};
-        key.name    = keyName;
-        key.version = modifyKey(keyName);
-        result.output[keyName] = key;
-    }
-
-
+    PDSFakes[i].computeSwarmTransactionDiff(swarm, pds);
     node.createTransactionFromSwarm(swarm);
+    counter++;
 }
 
 expors.dumpVSDs = function(){

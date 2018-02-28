@@ -54,7 +54,7 @@ function ConsensusManager(delgatedAgentName, communicationOutlet, pdsAdapter, pu
                      pulsesHistory, stakeHolders, pset);                //step 2
 
 
-        ptBlock         = pdsAdapter.approveBlock(nextBlockSet);        //step 3
+        ptBlock         = pdsAdapter.computePTBlock(nextBlockSet);      //step 3
 
         vsd             = pdsAdapter.computeVSD();                      //step 4
 

@@ -25,7 +25,16 @@ exports.createTransaction = function(currentPulse, swarm, input, output){
 }
 
 exports.orderTransactions = function( pset){ //order in place the pset array
-    pset.sort(function(t1, t2){
+    var arr = [];
+    if(typeof pset != "array"){
+
+        for(var d in pset){
+            arr.push(pset[d]);
+        }
+    } else {
+        arr = pset;
+    }
+    arr.sort(function(t1, t2){
         if(t1.CP < t2.CP ) return -1;
         if(t1.CP > t2.CP ) return 1;
         if(t1.second < t2.second ) return -1;
@@ -36,7 +45,7 @@ exports.orderTransactions = function( pset){ //order in place the pset array
         if(t1.digest > t2.digest ) return 1;
         return 0; //only for identical transactions...
     })
-    return pset;
+    return arr;
 }
 
 function getMajorityFieldInPulses(allPulses, fieldName, extractFieldName, stakeHolders){
@@ -46,7 +55,7 @@ function getMajorityFieldInPulses(allPulses, fieldName, extractFieldName, stakeH
     for(var  agent in allPulses){
         pulse = allPulses[agent];
         var v = pulse[fieldName];
-        if(allFields[v] ){
+        if(allFields[v]){
             allFields[v]++;
         } else {
             allFields[v] = 1;
@@ -95,7 +104,12 @@ exports.detectMajoritarianPTBlock = function(currentPulse, pulsesHistory, stakeH
 
 exports.makeSetFromBlock = function(knownTransactions, block){
     var result = {};
-    block.forEach(i => result[i] = knownTransactions[i]);
+    block.forEach(function(item){
+        result[item] = knownTransactions[item];
+        if(!result[item]){
+            throw new Error("Do not give unknown transaction digests to makeSetFromBlock");
+        }
+    });
     return result;
 }
 
@@ -139,7 +153,7 @@ exports.detectNextBlockSet = function(currentPulse, pulsesHistory, stakeHolders,
     var foundMajoritarian;
     var level = 0;
     do {
-        foundMajoritarian =majoritarianAtLevel(level);
+        foundMajoritarian = majoritarianAtLevel(level);
         nextBlock.push(foundMajoritarian);
         level++;
     } while(foundMajoritarian != "none");
