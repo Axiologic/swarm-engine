@@ -137,7 +137,7 @@ function InMemoryPDS(storage, diskPersistence){
 
     var mainStorage = new Storage(storage);
 
-    this.createForkedPDS = function(){
+    this.getHandler = function(){ // a way to work with PDS
         var tempStorage = new Storage(mainStorage);
         return tempStorage;
     }

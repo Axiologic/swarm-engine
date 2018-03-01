@@ -30,7 +30,7 @@ var counter = 0 ;
 exports.generateRandomTransaction = function(){
     var i = getRandomInt(MAX_NODES);
     var node = nodes[i];
-    var pds = PDSFakes[i].createForkedPDS();
+    var pdsHanlder = PDSFakes[i].getHandler();
 
     var swarm = {
         swarmName: "Swarm:" + counter
@@ -44,16 +44,16 @@ exports.generateRandomTransaction = function(){
 
         if(dice == 0){  //concurrency issues
             keyName = "sameKey";
-            pds.writeKey(keyName, getRandomInt(10000));
+            pdsHanlder.writeKey(keyName, getRandomInt(10000));
         }
 
         if(dice <= 4){
-            pds.readKey(keyName);
+            pdsHanlder.readKey(keyName);
         } else{
-            pds.writeKey(keyName, getRandomInt(10000));
+            pdsHanlder.writeKey(keyName, getRandomInt(10000));
         }
 
-    PDSFakes[i].computeSwarmTransactionDiff(swarm, pds);
+    PDSFakes[i].computeSwarmTransactionDiff(swarm, pdsHanlder);
     node.createTransactionFromSwarm(swarm);
     counter++;
 }
