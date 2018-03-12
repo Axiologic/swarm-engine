@@ -96,11 +96,27 @@ function SandBoxManager(sandboxesFolder, codeFolder, callback){
     var sandBoxes = {
 
     };
+    function belongsToReplicatedSpace(){
+        return true;
+    }
 
     //console.log("Subscribing to:", $$.CONSTANTS.SWARM_FOR_EXECUTION);
     $$.PSK_PubSub.subscribe($$.CONSTANTS.SWARM_FOR_EXECUTION, function(swarm){
         console.log("Executing in sandbox towards: ", swarm.meta.target);
-        self.pushToSpaceASwarm(swarm.meta.target, swarm);
+
+        if(swarm.meta.target == "system"){
+            $$.swarmsInstancesManager.revive_swarm(swarm);
+            //$$.swarms.restart(swarm.meta.swarmTypeName, swarm);
+        } else
+        if(swarm.meta.target == "pds"){
+            //
+        } else
+        if(belongsToReplicatedSpace(swarm.meta.target)){
+            self.pushToSpaceASwarm(swarm.meta.target, swarm);
+        } else {
+            //TODO: send towards network
+        }
+
     });
 
 
