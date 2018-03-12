@@ -1,4 +1,6 @@
-
+/*
+ SignSens helper functions
+ */
 const crypto = require('crypto');
 
 exports.wipeOutsidePayload = function wipeOutsidePayload(hashStringHexa, pos, size){

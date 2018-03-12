@@ -1,4 +1,4 @@
-const payload = require("../../modules/signsensus/lib/ssutil");
+const payload = require("../../../modules/signsensus/lib/ssutil");
 
 var str = "1c4a796577863ba5ea33b3034eb99e42e892567d7778158277d59ff0a99eba9c";
 console.log(str);
