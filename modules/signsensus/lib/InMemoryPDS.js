@@ -15,8 +15,9 @@ function Storage(otherStorage, diskPersistence){
     var readSet         = {};
     var writeSet        = {};
 
-    var vsd             = "";
+    var vsd             = undefined;
 
+    var self = this;
 
 
     if( otherStorage){
@@ -83,21 +84,21 @@ function Storage(otherStorage, diskPersistence){
     function applyTransaction(t){
         for(var k in t.input){
             var transactionVersion = t.input[k];
-            var currentVersion = getVersion[k];
+            var currentVersion = getVersion(k);
             if(transactionVersion != currentVersion){
                 return false;
             }
         }
 
         for(var k in t.output){
-            this.writeKey(k, t.output[k]);
+            self.writeKey(k, t.output[k]);
         }
 
         return true;
     }
 
-    this.computePTBlock = function(nextBlockSet){
-        var validBlock = [];  //make a transactions block from nextBlockSet by removing invalid transactions from the key versions point of view
+    this.computePTBlock = function(nextBlockSet){   //make a transactions block from nextBlockSet by removing invalid transactions from the key versions point of view
+        var validBlock = [];
         var orderedByTime = cutil.orderTransactions(nextBlockSet);
         var i = 0;
 
@@ -116,16 +117,16 @@ function Storage(otherStorage, diskPersistence){
         var orderedByTime = cutil.orderTransactions(blockSet);
         while(i < orderedByTime.length){
             var t = orderedByTime[i];
-            if(!applyTransaction(t)){ //paranoid check,  fail to work if a majority is corupted
+            if(!applyTransaction(t)){ //paranoid check,  fail to work if a majority is corrupted
                 //pretty bad
                 throw new Error("Failed to commit an invalid block. This could be a nasty bug or the stakeholders majority is corrupted! It should never happen!");
             }
         }
-        this.getVsd(true);
+        this.getVSD(true);
     }
 
     this.getVSD = function(forceCalculation){
-        if(forceCalculation){
+        if(!vsd || forceCalculation){
             var tmp = this.getInternalValues();
             vsd = ssutil.hashValues(tmp);
         }
@@ -146,6 +147,7 @@ function InMemoryPDS(storage, diskPersistence){
         var inpOutp     = forkedPds.getInputOutput();
         swarm.input     = inpOutp.input;
         swarm.output    = inpOutp.output;
+        return swarm;
     }
 
     this.computePTBlock = function(nextBlockSet){
@@ -154,6 +156,9 @@ function InMemoryPDS(storage, diskPersistence){
 
     }
 
+    this.commit = function(blockSet){
+        mainStorage.commit(blockSet);
+    }
 
     this.computeVSD = function (){
         return mainStorage.getVSD(false);
@@ -162,5 +167,5 @@ function InMemoryPDS(storage, diskPersistence){
 
 
 exports.newPDS = function(){
-    return InMemoryPDS();
+    return new InMemoryPDS();
 }

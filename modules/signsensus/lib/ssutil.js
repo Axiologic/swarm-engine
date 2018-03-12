@@ -105,13 +105,13 @@ function dumpMember(obj){
 
     switch(type){
         case "number":
-        case "string":return obj.toString('hex'); break;
-        case "object": return dumpObjectForDigest(member); break;
+        case "string":return obj.toString(16); break;
+        case "object": return exports.dumpObjectForHashing(obj); break;
         case "boolean": return  obj? "true": "false"; break;
         case "array":
-            var result ="";
+            var result = "";
             for(var i=0; i < obj.length; i++){
-                result += dumpObjectForDigest(obj[i]);
+                result += exports.dumpObjectForHashing(obj[i]);
             }
             return result;
             break;
@@ -122,7 +122,7 @@ function dumpMember(obj){
 }
 
 
-exports.dumpObjectForHashing = function dumpObjectForDigest(obj){
+exports.dumpObjectForHashing = function(obj){
     var result = "";
 
     if(obj == null){

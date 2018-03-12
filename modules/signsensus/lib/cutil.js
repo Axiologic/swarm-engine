@@ -4,9 +4,25 @@ consensus helper functions
 
 var ssutil = require("./ssutil");
 
-function getRandomInt(max) {
-    return Math.floor(Math.random() * Math.floor(max));
+exports.getRandomInt = function (max) {
+    if(!max){
+        console.log("getRandomInt with undefined argument. Defaulting to 1000");
+        max = 1000;
+    }
+    var n = Math.floor(Math.random() * max);
+    return 1;
 }
+
+
+function Pulse(signer, currentPulseNumber, block, newTransactions, vsd){
+    this.signer     = signer;
+    this.cp         = currentPulseNumber;
+    this.lset       = newTransactions;  //digest -> transaction
+    this.ptBlock    = block;            //array of digests
+    this.vsd        = vsd;
+}
+
+
 
 function Transaction(currentPulse, swarm){
     this.input      = swarm.input;
@@ -20,8 +36,12 @@ function Transaction(currentPulse, swarm){
 }
 
 
-exports.createTransaction = function(currentPulse, swarm, input, output){
-    return new Transaction(currentPulse, swarm, input, output);
+exports.createTransaction = function(currentPulse, swarm){
+    return new Transaction(currentPulse, swarm);
+}
+
+exports.createPulse = function(signer, currentPulseNumber, block, newTransactions, vsd){
+    return new Pulse(signer, currentPulseNumber, block, newTransactions, vsd);
 }
 
 exports.orderTransactions = function( pset){ //order in place the pset array
@@ -63,7 +83,7 @@ function getMajorityFieldInPulses(allPulses, fieldName, extractFieldName, stakeH
     }
 
     for(var i in allFields){
-        if(allFields[i] >= math.floor(stakeHolders/2) + 1){
+        if(allFields[i] >= Math.floor(stakeHolders/2) + 1){
             majorityValue = allFields[i];
             if(fieldName == extractFieldName){
                 return majorityValue;
@@ -131,6 +151,7 @@ exports.detectNextBlockSet = function(currentPulse, pulsesHistory, stakeHolders,
         var counting = {};
         for(var a in tempPulses){
             var pulse = tempPulses[a];
+            console.log(pulse);
             if(pulse.ptBlock.length < level){
                 var digest = pulse.ptBlock[level];
                 if(counting[digest]){
@@ -165,13 +186,13 @@ exports.detectNextBlockSet = function(currentPulse, pulsesHistory, stakeHolders,
 
 exports.setsConcat = function(target, from){
     for(var d in from){
-        target[d] = from;
+        target[d] = from[d];
     }
     return target;
 }
 
 
 exports.setsRemoveArray = function(target, arr){
-    arr.forEach(i => delete target[i]; );
+    arr.forEach(i => delete target[i] );
     return target;
 }

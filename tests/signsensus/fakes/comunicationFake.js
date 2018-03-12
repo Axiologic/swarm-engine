@@ -2,15 +2,16 @@
 var nodes = [];
 var PDSFakes = [];
 
-var cfg = require("./simulationConfig");
+var cfg = require("./simulationConfig").config;
 var pds = require("../../../modules/signsensus/lib/InMemoryPDS");
 var cutil = require("../../../modules/signsensus/lib/cutil");
+var consensus = require("../../../modules/signsensus/lib/consensusManager")
 
 var com = {
     broadcastPulse: function(from, pulse){
         nodes.forEach( function(n){
                 if(n.nodeName != from) {
-                    n.newPulse(pulse, from);
+                    n.recordPulse(from, pulse);
                 }
         });
     }
@@ -27,8 +28,8 @@ exports.init = function(){
 
 
 var counter = 0 ;
-exports.generateRandomTransaction = function(){
-    var i = getRandomInt(MAX_NODES);
+exports.generateRandomTransaction = function() {
+    var i = cutil.getRandomInt(cfg.MAX_NODES);
     var node = nodes[i];
     var pdsHanlder = PDSFakes[i].getHandler();
 
@@ -36,28 +37,29 @@ exports.generateRandomTransaction = function(){
         swarmName: "Swarm:" + counter
     };
 
-    var howMany = getRandomInt(MAX_KEYS_COUNT/4) + 1;
-    for(var i = 0; i< howMany; i++ ){
-        var keyName = "key" + getRandomInt(MAX_KEYS_COUNT);
+    var howMany = cutil.getRandomInt(cfg.MAX_KEYS_COUNT / 4) + 1;
+    for (var i = 0; i < howMany; i++) {
+        var keyName = "key" + cutil.getRandomInt(cfg.MAX_KEYS_COUNT);
 
-        var dice =  getRandomInt(6);
+        var dice = cutil.getRandomInt(6);
 
-        if(dice == 0){  //concurrency issues
+        if (dice == 0) {  //concurrency issues
             keyName = "sameKey";
-            pdsHanlder.writeKey(keyName, getRandomInt(10000));
+            pdsHanlder.writeKey(keyName, cutil.getRandomInt(10000));
         }
 
-        if(dice <= 4){
+        if (dice <= 4) {
             pdsHanlder.readKey(keyName);
-        } else{
-            pdsHanlder.writeKey(keyName, getRandomInt(10000));
+        } else {
+            pdsHanlder.writeKey(keyName, cutil.getRandomInt(10000));
         }
 
-    PDSFakes[i].computeSwarmTransactionDiff(swarm, pdsHanlder);
-    node.createTransactionFromSwarm(swarm);
-    counter++;
+        PDSFakes[i].computeSwarmTransactionDiff(swarm, pdsHanlder);
+        node.createTransactionFromSwarm(swarm);
+        counter++;
+    }
 }
 
-expors.dumpVSDs = function(){
+exports.dumpVSDs = function(){
     nodes.forEach( node => console.log(node.dump()));
 }

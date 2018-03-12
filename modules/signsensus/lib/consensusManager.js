@@ -6,14 +6,6 @@ var ssutil = require("./ssutil");
 var cutil = require("./cutil");
 
 
-function Pulse(signer, currentPulseNumber, block, newTransactions, vsd){
-    this.signer     = signer;
-    this.cp         = currentPulseNumber;
-    this.lset       = newTransactions; //digest -> transaction
-    this.ptBlock    = block;      //array of digests
-    this.vsd        = vsd;
-}
-
 
 function ConsensusManager(delgatedAgentName, communicationOutlet, pdsAdapter, pulsePeriodicity,  stakeHolders){
 
@@ -61,14 +53,14 @@ function ConsensusManager(delgatedAgentName, communicationOutlet, pdsAdapter, pu
         var newPulse    = new Pulse(this.nodeName, currentPulse, ptBlock, lset, vsd);
 
         communicationOutlet.broadcastPulse(self.nodeName, newPulse);    //step 5
-        this.recordPulse(self.nodeName, newPulse);                      //step 6 (it also moving lset in pset)
+        self.recordPulse(self.nodeName, newPulse);                      //step 6 (it also moving lset in pset)
         //pset          = cutil.setsConcat(pset, lset);
         lset            = [];                                           //step 7
         currentPulse++;                                                 //step 8
         setTimeout(pulse, pulsePeriodicity);                            //step 9
     }
 
-    pulse();// TODO: replace with a synchronization process
+
 
     this.dump = function(){
         console.log("Node:", delgatedAgentName, "Consensus history:", consensuses.join(" "));
@@ -96,6 +88,8 @@ function ConsensusManager(delgatedAgentName, communicationOutlet, pdsAdapter, pu
         }
         //TODO: ask for pulses that others received but we failed to receive
     }
+
+    pulse();// TODO: replace with a synchronization process
 }
 
 exports.createConsensusManager = function(delegatedAgent, communicationOutlet, pulse, stakeHolders){

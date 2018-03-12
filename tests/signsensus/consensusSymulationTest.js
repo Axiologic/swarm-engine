@@ -1,7 +1,9 @@
 const consensus = require("../../modules/signsensus/lib/consensusManager");
 
-var cfg = require("./fakes/simulationConfig");
+var cfg = require("./fakes/simulationConfig").config;
 var network = require("./fakes/comunicationFake");
+
+var cutil = require("../../modules/signsensus/lib/cutil");
 
 network.init();
 
@@ -11,7 +13,7 @@ var numberTransactions = 15;
 while(numberTransactions > 0){
     setTimeout(function(){
         network.generateRandomTransaction();
-    }, getRandomInt(cfg.SIMULATION_TIMEOUT));
+    }, cutil.getRandomInt(cfg.SIMULATION_TIMEOUT));
     numberTransactions--;
 }
 
