@@ -1,5 +1,5 @@
 var child_process = require("child_process");
-
+var debugArg = (process.platform == 'win32') ? "--inspect-brk=" : "--debug-brk=";
 var multiplier = 0;
 function prepareDebugPortOnFork(execArgv){
     multiplier++;
@@ -8,7 +8,7 @@ function prepareDebugPortOnFork(execArgv){
     for(var i = 0; i < execArgv.length; i++){
         var argv = execArgv[i];
         newArgv.push(argv);
-        if(argv.indexOf("--debug-brk=")!=-1){
+        if(argv.indexOf(debugArg)!=-1){
             newArgv[i] = argv.replace(process.debugPort, process.debugPort+portIncreaseNumber);
         }
     }

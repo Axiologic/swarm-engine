@@ -62,12 +62,12 @@ function SoundPubSub(){
             //console.log("SPS: Pub for "+ target);
             compactAndStore(target, message);
             dispatchNext();
-            return channelSubscribers[target];
+            return channelSubscribers[target].length;
         } else{
             /*wprint("No one is subscribed to "+ J(target));*/
             return null;
         }
-    }
+    };
 
     /**
      * publish
@@ -75,8 +75,8 @@ function SoundPubSub(){
      * @return
      */
     this.subscribe = function(target, callBack, waitForMore, filter){
-        if(!callBack && typeof callBack != "function"){
-            wprint("Can't subscribe to an invalid callback! " + callBack );
+        if(!callBack || typeof callBack != "function"){
+            wprint("Can't subscribe with an invalid callback! " + callBack );
             return;
         }
         var subscriber = {"callBack":callBack, "waitForMore":waitForMore, "filter":filter};
@@ -86,7 +86,7 @@ function SoundPubSub(){
             channelSubscribers[target] = arr;
         }
         arr.push(subscriber);
-    }
+    };
 
     /**
      * publish
@@ -96,25 +96,27 @@ function SoundPubSub(){
     this.unsubscribe = function(target, callBack, filter){
         if(callBack){
             var gotit = false;
-            for(var i = 0; i < channelSubscribers[target].length;i++){
-                var subscriber =  channelSubscribers[target][i];
-                if(subscriber.callBack == callBack && (filter == undefined || subscriber.filter == filter )){
-                    gotit = true;
-                    subscriber.forDelete = true;
-                    subscriber.callBack = null;
-                    subscriber.filter = null;
+            if(channelSubscribers[target]){
+                for(var i = 0; i < channelSubscribers[target].length;i++){
+                    var subscriber =  channelSubscribers[target][i];
+                    if(subscriber.callBack == callBack && (filter == undefined || subscriber.filter == filter )){
+                        gotit = true;
+                        subscriber.forDelete = true;
+                        subscriber.callBack = null;
+                        subscriber.filter = null;
+                    }
                 }
             }
             if(!gotit){
                 wprint("Unable to unsubscribe a callback that was not subscribed!");
             }
         }
-    }
+    };
 
 
     this.blockCallBacks = function(){
         level++;
-    }
+    };
 
     this.releaseCallBacks = function(){
         level--;
@@ -126,14 +128,14 @@ function SoundPubSub(){
         while(level == 0 && callAfterAllEvents()){
 
         }
-    }
+    };
 
 
     this.afterAllEvents = function(callBack){
         afterEventsCalls.push(callBack);
         this.blockCallBacks();
         this.releaseCallBacks();
-    }
+    };
 
     /* ---------------------------------------- protected stuff ---------------------------------------- */
     var self = this;
@@ -154,7 +156,7 @@ function SoundPubSub(){
     // it can compact the new one or the newEvent if can't be compacted)
     this.registerCompactor = function(type, callBack) {
         typeCompactor[type] = callBack;
-    }
+    };
 
     /**
      *
@@ -162,7 +164,7 @@ function SoundPubSub(){
      * @return {Boolean}
      */
     function dispatchNext(fromReleaseCallBacks){
-        if(level >0) {
+        if(level > 0) {
             return false;
         }
         var channelName = executionQueue[0];
@@ -171,6 +173,7 @@ function SoundPubSub(){
             try{
                 var message = channelsStorage[channelName][0];
                 if(message == undefined){
+                    wprint("Can't use as message in a pub/sub channel this object: " + message);
                     executionQueue.shift();
                 } else {
                     if(message.__transmisionIndex == undefined){
@@ -225,7 +228,8 @@ function SoundPubSub(){
             arr = [];
             channelsStorage[target] = arr;
         }
-        if(message.type != undefined){
+
+        if(message && message.type != undefined){
             var typeCompactorCallBack = typeCompactor[message.type];
             if(typeCompactorCallBack != undefined){
                 for(var i = 0; i < arr.length; i++ ){
@@ -240,15 +244,11 @@ function SoundPubSub(){
             }
         }
 
-        if(!gotCompacted){
+        if(!gotCompacted && message){
             arr.push(message);
             executionQueue.push(target);
         }
     }
-
-
-
-
 
     var afterEventsCalls =  [];
     function callAfterAllEvents (){
@@ -259,53 +259,20 @@ function SoundPubSub(){
             callBack();
         }
         return afterEventsCalls.length;
-    }
-
+    };
 
     this.hasChannel = function(channel){
         if(channelSubscribers[channel]!=undefined){
             return true;
         }
         return false;
-    }
+    };
 
     this.addChannel = function(channel){
         if(!this.hasChannel(channel)){
             channelSubscribers[channel] = [];
         }
-    }
+    };
 }
 
 exports.soundPubSub = new SoundPubSub();
-
-/*
-//function CollectionChangeEvent(data){
-//    this.type = SHAPEEVENTS.COLLECTION_CHANGE;
-//    this.history = [];
-//    this.history.push(data);
-//}
-//
-//function PropertyChangeEvent(model,property,newValue, oldValue){
-//    this.type = SHAPEEVENTS.PROPERTY_CHANGE;
-//    this.property = property;
-//    this.newValue = newValue;
-//    this.oldValue = oldValue;
-//}
-
-this.registerCompactor(SHAPEEVENTS.PROPERTY_CHANGE, function(newEvent, oldEvent){
-    if(newEvent.type ==  oldEvent.type && newEvent.property == oldEvent.property ){
-        oldEvent.newValue = newEvent.newValue;
-        return oldEvent;
-    }
-    return newEvent;
-});
-
-this.registerCompactor(SHAPEEVENTS.COLLECTION_CHANGE,function(newEvent, oldEvent){
-    if(newEvent.type ==  oldEvent.type){
-        for(var i = 0; i< newEvent.history.length; i++){
-            oldEvent.history.push(newEvent.history[i]);
-        }
-        return oldEvent; // succes compacting
-    }
-    return newEvent; // not this time
-}); */
