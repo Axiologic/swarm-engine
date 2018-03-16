@@ -10,30 +10,35 @@ var contract = contracts.describeSwarm("standardConsentMicroContract", {
     },
     request:function(requster, dataOwner, validUntil, benefitToken){
         this.requster           = requster;
-        this.dataOwnerSignature          = dataOwner;
+        this.dataOwnerSignature = dataOwner;
         this.benefitToken       = benefitToken;
         this.validUntil         = validUntil;
-        this.state  = "requested";
+        this.state              = "requested";
         this.requsterSignature  = signState(this);
+        this.save();
     },
     accept:function(){
         this.state  = "accepted";
         this.dataOwnerSignature = signState(this);
+        this.save();
     },
     reject:function(){
         this.state  = "refused";
         this.dataOwnerSignature = signState(this);
+        this.save();
     },
     withdraw:function(){
         this.state  = "refused";
         this.dataOwnerSignature = signState(this);
+        this.save();
     },
     selfUpdateState:function(){
          if(currentTime() >= this.validUntil){
              this.state  = "expired";
          }
     },
-    verification: function(previousState, resultCallback){  //used in the consensus algoritm
+    verification: function(resultCallback){  //used in the consensus algoritm
+        var previousState = this.loadValidatedState();
         if(this.state == expired){
             if(currentTime() >= this.validUntil){
                 resultCallback(null, true);
@@ -41,7 +46,7 @@ var contract = contracts.describeSwarm("standardConsentMicroContract", {
                 resultCallback(new Error("invalid check"));
             }
         }
-        if(previousState.state == null){
+        if(previousState == null){
             assertSignature(this, this.requster, this.requsterSignature, resultCallback)
         } else {
             assertSignature(this, this.dataOwnerSignature,this.dataOwnerSignature, resultCallback); //assume that only the data owner can change it
