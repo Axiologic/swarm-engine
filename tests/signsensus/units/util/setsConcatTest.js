@@ -1,4 +1,4 @@
-const cutil = require("../../../../modules/signsensus/lib/cutil");
+const cutil = require("../../../../modules/signsensus/lib/consUtil");
 
 
 cutil.orderTransactions(pset);

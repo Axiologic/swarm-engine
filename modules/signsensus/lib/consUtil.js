@@ -70,23 +70,26 @@ exports.orderTransactions = function( pset){ //order in place the pset array
     return arr;
 }
 
-function getMajorityFieldInPulses(allPulses, fieldName, extractFieldName, stakeHolders){
-    var allFields = {};
+function getMajorityFieldInPulses(allPulses, fieldName, extractFieldName, stakeHoldersVotingBox){
+    var counterFields = {};
+
+
     var majorityValue;
     var pulse;
+
     for(var  agent in allPulses){
         pulse = allPulses[agent];
         var v = pulse[fieldName];
-        if(allFields[v]){
-            allFields[v]++;
-        } else {
-            allFields[v] = 1;
-        }
+
+        counterFields[v] = stakeHoldersVotingBox.vote(agent, counterFields[v])
+
     }
 
-    for(var i in allFields){
-        if(allFields[i] >= Math.floor(stakeHolders/2) + 1){
-            majorityValue = allFields[i];
+
+    for(var i in counterFields){
+        if(stakeHoldersVotingBox.isMajoritarian(counterFields[i])){
+
+            majorityValue = i;
             if(fieldName == extractFieldName){
                 return majorityValue;
             } else {
@@ -102,21 +105,28 @@ function getMajorityFieldInPulses(allPulses, fieldName, extractFieldName, stakeH
     return "none"; //there is no majority
 }
 
-exports.detectMajoritarianVSD = function (currentPulse, pulsesHistory, stakeHolders){
+exports.detectMajoritarianVSD = function (currentPulse, pulsesHistory, stakeHoldersVotingBox){
     var pulsesCPMinus1 = pulsesHistory[currentPulse - 1];
     if(!pulsesCPMinus1){
         return "none"; //for booting empty spaces
     }
 
-    return getMajorityFieldInPulses(pulsesCPMinus1, "vsd", "vsd", stakeHolders);
+    return getMajorityFieldInPulses(pulsesCPMinus1, "vsd", "vsd", stakeHoldersVotingBox);
 }
 
-exports.detectMajoritarianPTBlock = function(currentPulse, pulsesHistory, stakeHolders){
+/*
+    detect a candidate block
+
+ */
+
+
+exports.detectMajoritarianPTBlock = function(currentPulse, pulsesHistory, stakeHoldersVotingBox){
     var pulsesCPMinus1 = pulsesHistory[currentPulse - 1];
+
     if(!pulsesCPMinus1){
         return []; //there is none...
     }
-    var btBlock = getMajorityFieldInPulses(pulsesCPMinus1,"blockDigest", "ptBlock", stakeHolders);
+    var btBlock = getMajorityFieldInPulses(pulsesCPMinus1,"blockDigest", "ptBlock", stakeHoldersVotingBox);
     if(btBlock != "none"){
         return btBlock;
     }
@@ -134,6 +144,46 @@ exports.makeSetFromBlock = function(knownTransactions, block){
     });
     return result;
 }
+
+
+
+
+exports.setsConcat = function(target, from){
+    for(var d in from){
+        target[d] = from[d];
+    }
+    return target;
+}
+
+
+exports.setsRemoveArray = function(target, arr){
+    arr.forEach(i => delete target[i]);
+    return target;
+}
+
+
+exports.createDemocraticStakeholdersVotingBox = function(shareHoldersCounter){
+
+    return  {
+        vote:function(agent, previosValue){
+            if(!previosValue){
+                previosValue = 0;
+            }
+            return previosValue + 1;
+        },
+        isMajoritarian:function(value){
+            return value >= Math.floor(shareHoldersCounter/2) + 1;
+        }
+    };
+
+}
+
+
+
+
+/*
+unnecessary?, probably will be removed!!!
+*/
 
 exports.detectNextBlockSet = function(currentPulse, pulsesHistory, stakeHolders, pset){
     var pulsesCPMinus1 = pulsesHistory[currentPulse - 1];
@@ -153,7 +203,7 @@ exports.detectNextBlockSet = function(currentPulse, pulsesHistory, stakeHolders,
         var counting = {};
         for(var a in tempPulses){
             var pulse = tempPulses[a];
-            console.log(pulse);
+            //console.log(pulse);
             if(pulse.ptBlock.length < level){
                 var digest = pulse.ptBlock[level];
                 if(counting[digest]){
@@ -182,19 +232,4 @@ exports.detectNextBlockSet = function(currentPulse, pulsesHistory, stakeHolders,
     } while(foundMajoritarian != "none");
 
     return exports.makeSetFromBlock(pset, nextBlock);
-}
-
-
-
-exports.setsConcat = function(target, from){
-    for(var d in from){
-        target[d] = from[d];
-    }
-    return target;
-}
-
-
-exports.setsRemoveArray = function(target, arr){
-    arr.forEach(i => delete target[i] );
-    return target;
 }

@@ -1,4 +1,4 @@
-const cutil   = require("../../../../modules/signsensus/lib/cutil");
+const cutil   = require("../../../../modules/signsensus/lib/consUtil");
 const ssutil  = require("../../../../modules/signsensus/lib/ssutil");
 
 var pset = {};
@@ -11,6 +11,7 @@ var s1 = { swarmName: 'Swarm',
 var t1 = cutil.createTransaction(1, s1)
 
 pset[t1.digest] = t1;
+console.log("T1:", t1.digest, t1.input);
 
 var s2 = { swarmName: 'Swarm',
     input: { testKey: 0},
@@ -20,7 +21,7 @@ var s2 = { swarmName: 'Swarm',
 var t2 = cutil.createTransaction(1, s2);
 
 pset[t2.digest] = t2;
-
+console.log("T2:", t2.digest, t2.input);
 
 var t3 = {};
 
@@ -29,10 +30,11 @@ for(var v in t2){
     t3.nanosecod = t1.nanosecod;
 }
 
-delete this.digest;
+delete t3.digest;
 
 t3.digest     = ssutil.hashValues(t3); //faking t3
 pset[t3.digest] = t3;
+console.log("T3:", t3.digest, t3.input);
 
 
 
@@ -44,6 +46,6 @@ var s4 = { swarmName: 'Swarm',
 var t4 = cutil.createTransaction(2, s4);
 
 pset[t4.digest] = t4;
-
+console.log("T4:", t4.digest, t4.input);
 
 exports.set = pset;

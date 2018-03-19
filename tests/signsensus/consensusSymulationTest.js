@@ -3,7 +3,7 @@ const consensus = require("../../modules/signsensus/lib/consensusManager");
 var cfg = require("./fakes/simulationConfig").config;
 var network = require("./fakes/comunicationFake");
 
-var cutil = require("../../modules/signsensus/lib/cutil");
+var cutil = require("../../modules/signsensus/lib/consUtil");
 
 network.init();
 

@@ -1,21 +1,25 @@
 
-var cutil   = require("./cutil");
+var cutil   = require("./consUtil");
 var ssutil  = require("./ssutil");
 
 
-function Storage(parentStorage, diskPersistence){
+function Storage(parentStorage, diskPersistence){  //TODO: refactoring after unit testing are completed... two classes: one the parent storage and 1 for handlers
 
-    function clone(a) {
+    function clone(a) {  //TODO: better implementation
         return JSON.parse(JSON.stringify(a));
     }
 
-    var cset            = {};
-    var csetVersions    = {};
+    var cset            = {};  // containes all keys in parent storage, contains only keys touched in handlers
+    var csetVersions    = {}; //meaningful only in parent storage
 
-    var readSetVersions         = {};
-    var writeSet        = {};
 
-    var vsd             = undefined;
+
+    var readSetVersions  = {}; //meaningful only in handlers
+
+    var writeSetVersions = {}; // meaningful only in parent storage. Keep version for uncommitted local transactions...
+    var writeSet        = {};   //contains only keys modified in handlers
+
+    var vsd             = undefined; //only for parent storage
 
     var self = this;
 
@@ -44,23 +48,56 @@ function Storage(parentStorage, diskPersistence){
         return k;
     }
 
-    this.getVersion = function(name){
-        var v = csetVersions[name];
+    this.getVersion = function(name, realVersion){
+        if(parentStorage){
+            return parentStorage.getVersion(name, realVersion);
+        }
+        var v ;
+
+        if(realVersion){
+            v = csetVersions[name];
+        } else {
+            v = writeSetVersions[name];
+        }
         if(!v){
-            cset[name] = 0;
-            v = csetVersions[name] = 0;
+            var v = csetVersions[name];
+            if(!v){
+                cset[name] = 0;
+                v = csetVersions[name] = 0;
+            }
         }
         return v;
+    }
+
+    this.incTmpStorage = function(name){
+        if(parentStorage){
+            parentStorage.incTmpStorage(name);
+        }
+        var v = writeSetVersions[name];
+        if(!v){
+            var v = csetVersions[name];
+            if(!v){
+                cset[name] = 0;
+                v = csetVersions[name] = 0;
+                writeSetVersions[name] = 1;
+            } else {
+                writeSetVersions[name]++;
+            }
+        } else {
+            writeSetVersions[name]++;
+        }
+        return  writeSetVersions[name];
     }
 
     this.writeKey = function modifyKey(name, value, incVersion){
         var k = this.readKey(name);
 
         if(!writeSet[name]){
-            writeSet[name] = value;
-        } else {
-
+            if(parentStorage){
+                parentStorage.incTmpStorage(name);
+            }
         }
+
         cset [name] = value;
         writeSet[name] = value;
 
@@ -91,12 +128,12 @@ function Storage(parentStorage, diskPersistence){
         }
     }
 
-    function applyTransaction(t){
+    function applyTransaction(t, checkRealVersion){
         for(var k in t.input){
             var transactionVersion = t.input[k];
-            var currentVersion = self.getVersion(k);
+            var currentVersion = self.getVersion(k, checkRealVersion);
             if(transactionVersion != currentVersion){
-                //console.log(transactionVersion , currentVersion);
+                //console.log(k, transactionVersion , currentVersion);
                 return false;
             }
         }
@@ -115,7 +152,7 @@ function Storage(parentStorage, diskPersistence){
 
         while(i < orderedByTime.length){
             var t = orderedByTime[i];
-            if(applyTransaction(t)){
+            if(applyTransaction(t, false)){
                 validBlock.push(t.digest);
             }
             i++;
@@ -129,7 +166,7 @@ function Storage(parentStorage, diskPersistence){
 
         while(i < orderedByTime.length){
             var t = orderedByTime[i];
-            if(!applyTransaction(t)){ //paranoid check,  fail to work if a majority is corrupted
+            if(!applyTransaction(t, true)){ //paranoid check,  fail to work if a majority is corrupted
                 //pretty bad
                 //throw new Error("Failed to commit an invalid block. This could be a nasty bug or the stakeholders majority is corrupted! It should never happen!");
                 console.log("Failed to commit an invalid block. This could be a nasty bug or the stakeholders majority is corrupted! It should never happen!"); //TODO: replace with better error handling
@@ -137,6 +174,7 @@ function Storage(parentStorage, diskPersistence){
             i++;
         }
         this.getVSD(true);
+        writeSetVersions = clone(csetVersions);
     }
 
     this.getVSD = function(forceCalculation){

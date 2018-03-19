@@ -3,7 +3,7 @@
 
 
 var ssutil = require("./ssutil");
-var cutil = require("./cutil");
+var cutil = require("./consUtil");
 
 
 
@@ -41,6 +41,7 @@ function ConsensusManager(delgatedAgentName, communicationOutlet, pdsAdapter, pu
             //TODO: resync with the majoritarian nodes
             throw new Error("Sync not implemented yet");
         }
+
 
         var nextBlockSet = cutil.detectNextBlockSet(currentPulse,
                      pulsesHistory, stakeHolders, pset);                //step 2

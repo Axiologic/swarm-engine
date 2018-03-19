@@ -1,5 +1,5 @@
 var pdsFake = require("../../../../modules/signsensus/lib/InMemoryPDS");
-const cutil = require("../../../../modules/signsensus/lib/cutil");
+const cutil = require("../../../../modules/signsensus/lib/consUtil");
 
 var pds = pdsFake.newPDS();
 
@@ -33,8 +33,6 @@ console.log(h.getVSD(), "handler should be: 1e18358790dea0c86c7b87ac41abe9eeaa34
 var t = cutil.createTransaction(0, diff);
 var set = {};
 set[t.digest] = t;
-
-
 pds.commit(set);
 
 console.log("After commit:");
