@@ -3,7 +3,7 @@ var cutil   = require("./cutil");
 var ssutil  = require("./ssutil");
 
 
-function Storage(otherStorage, diskPersistence){
+function Storage(parentStorage, diskPersistence){
 
     function clone(a) {
         return JSON.parse(JSON.stringify(a));
@@ -12,7 +12,7 @@ function Storage(otherStorage, diskPersistence){
     var cset            = {};
     var csetVersions    = {};
 
-    var readSet         = {};
+    var readSetVersions         = {};
     var writeSet        = {};
 
     var vsd             = undefined;
@@ -20,55 +20,65 @@ function Storage(otherStorage, diskPersistence){
     var self = this;
 
 
-    if( otherStorage){
-        var tmp      = otherStorage.getInternalValues();
+    if( parentStorage){
+        /* var tmp      = parentStorage.getInternalValues();
         cset         = clone(tmp.cset);
-        csetVersions = clone(tmp.csetVersions);
-        vsd          = tmp.vsd;
+        csetVersions = clone(tmp.csetVersions); */
+        //vsd          = parentStorage.getVSD();
     }
 
     this.readKey = function readKey(name){
         var k = cset [name];
-        if(!k){
-            k = cset[name] = 0;
-            csetVersions[name] = 0;
-        }
-        if(!readSet[name]){
-            readSet[name] = csetVersions[name];
-        }
-        return k;
-    }
-
-    function getVersion(name){
-        var k = csetVersions[name];
-        if(!k){
-            cset[name] = 0;
-            k = csetVersions[name] = 0;
-        }
-        return k;
-    }
-
-    this.writeKey = function modifyKey(name, value){
-        var k = cset [name];
-        if(!k){
-            k = cset[name] = value;
-            csetVersions[name] = 1;
+        if(parentStorage){
+            if(!k){
+                k = parentStorage.readKey(name);
+                cset[name] = k;
+                readSetVersions[name] = parentStorage.getVersion(name);
+            }
         } else {
-            csetVersions[name]++;
-            cset[name] = k;
+            if(!k){
+                k = cset[name] = 0;
+                csetVersions[name] = 0;
+            }
         }
-        if(!readSet[name]){
-            readSet[name] = csetVersions[name];
+        return k;
+    }
+
+    this.getVersion = function(name){
+        var v = csetVersions[name];
+        if(!v){
+            cset[name] = 0;
+            v = csetVersions[name] = 0;
         }
+        return v;
+    }
+
+    this.writeKey = function modifyKey(name, value, incVersion){
+        var k = this.readKey(name);
+
         if(!writeSet[name]){
             writeSet[name] = value;
+        } else {
+
         }
-        return  csetVersions[name];
+        cset [name] = value;
+        writeSet[name] = value;
+
+        if(incVersion){
+            var v = csetVersions[name];
+            if(!v){
+                csetVersions[name] = 1;
+            } else {
+                csetVersions[name] = csetVersions[name] + 1;
+            }
+        }
+
+        return  readSetVersions[name] + 1;
     }
 
     this.getInputOutput = function () {
         return {
-            input: readSet,
+            input: readSetVersions,
             output: writeSet
         }
     }
@@ -84,14 +94,15 @@ function Storage(otherStorage, diskPersistence){
     function applyTransaction(t){
         for(var k in t.input){
             var transactionVersion = t.input[k];
-            var currentVersion = getVersion(k);
+            var currentVersion = self.getVersion(k);
             if(transactionVersion != currentVersion){
+                //console.log(transactionVersion , currentVersion);
                 return false;
             }
         }
 
         for(var k in t.output){
-            self.writeKey(k, t.output[k]);
+            self.writeKey(k, t.output[k], true);
         }
 
         return true;
@@ -115,12 +126,15 @@ function Storage(otherStorage, diskPersistence){
     this.commit = function(blockSet){
         var i = 0;
         var orderedByTime = cutil.orderTransactions(blockSet);
+
         while(i < orderedByTime.length){
             var t = orderedByTime[i];
             if(!applyTransaction(t)){ //paranoid check,  fail to work if a majority is corrupted
                 //pretty bad
-                throw new Error("Failed to commit an invalid block. This could be a nasty bug or the stakeholders majority is corrupted! It should never happen!");
+                //throw new Error("Failed to commit an invalid block. This could be a nasty bug or the stakeholders majority is corrupted! It should never happen!");
+                console.log("Failed to commit an invalid block. This could be a nasty bug or the stakeholders majority is corrupted! It should never happen!"); //TODO: replace with better error handling
             }
+            i++;
         }
         this.getVSD(true);
     }

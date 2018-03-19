@@ -51,9 +51,11 @@ exports.orderTransactions = function( pset){ //order in place the pset array
         for(var d in pset){
             arr.push(pset[d]);
         }
+
     } else {
         arr = pset;
     }
+
     arr.sort(function(t1, t2){
         if(t1.CP < t2.CP ) return -1;
         if(t1.CP > t2.CP ) return 1;
