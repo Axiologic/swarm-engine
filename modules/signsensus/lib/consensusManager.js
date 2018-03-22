@@ -56,7 +56,10 @@ $$.swarms.describe("pulseSwarm", {
                 cutil.setsRemovePtBlockAndPastTransactions(this.pset, ptBlock, this.lastPulseAchievedConsensus); //cleanings
                 this.vsd   = pdsAdapter.computeVSD();
                 this.lastPulseAchievedConsensus = this.currentPulse;
-                this.pset
+                this.pset          = cutil.setsConcat(this.pset, this.dset);
+                this.pset          = cutil.setsConcat(this.pset, this.lset);
+                this.dset          = {};
+
             }//else: try again with the same lastPulseAchievedConsensus, the same pset, etc
 
         } else {
@@ -73,7 +76,7 @@ $$.swarms.describe("pulseSwarm", {
         this.communicationOutlet.broadcastPulse(this.nodeName, newPulse);
         this.recordPulse(this.nodeName, newPulse);
         this.dset          = cutil.setsConcat(this.dset, this.lset);
-        this.lset          = [];
+        this.lset          = {};
 
         this.restartBeat();
     },
@@ -122,9 +125,9 @@ $$.swarms.describe("pulseSwarm", {
 
 
 
-exports.createConsensusManager = function(delegatedAgent, communicationOutlet, pulse, stakeHolders){
+exports.createConsensusManager = function(delegatedAgent, communicationOutlet, pdsAdapter, pulsePeriodicity){
         var swarm = $$.swarms.start("pulseSwarm");
-        swarm.start(delgatedAgentName, communicationOutlet, pdsAdapter, pulsePeriodicity,  stakeHolders);
+        swarm.start(delegatedAgent, communicationOutlet, pdsAdapter, pulsePeriodicity);
     return swarm;
 }
 
