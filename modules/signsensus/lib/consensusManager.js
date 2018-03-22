@@ -5,37 +5,60 @@
 var ssutil = require("./ssutil");
 var cutil = require("./consUtil");
 
+var core = require("../../../engine/core");
+
+$$.swarms.describe("pulseSwarm", {
+    public:{
+
+    },
+    start:function(delgatedAgentName, communicationOutlet, pdsAdapter, pulsePeriodicity){
+        this.delgatedAgentName  = delgatedAgentName;
+        this.communicationOutlet= communicationOutlet;
+        this.pdsAdapter         = pdsAdapter;
+        this.pulsePeriodicity   = pulsePeriodicity;
+        this.votingBox          = pdsAdapter.getShareHoldersVotingBox();
+
+        this.currentPulse       = 0;
+        this.lastPulseAchievedConsensus  = 0;
 
 
-function ConsensusManager(delgatedAgentName, communicationOutlet, pdsAdapter, pulsePeriodicity,  stakeHolders){
+        this.lset               = {}; // digest -> transaction - localy generated set of transactions
 
-    var currentPulse = 0;
-    var self = this;
+        this.dset               = {}; // digest -> transaction - remotely delivered set of transactions that will be  next participate in consensus
 
-    var lset = {}; // digest -> transaction
-    var pset = {}; // digest -> transaction
+        this.pset               = {}; // digest -> transaction  - consensus pending set
 
-    var ptBlock = [];
 
-    var consensuses = [];
+        this.pulsesHistory = {};
 
-    var pulsesHistory = {};
+        this.nodeName = delgatedAgentName;
+        this.vsd = this.pdsAdapter.computeVSD();
 
-    this.nodeName = delgatedAgentName;
-    var  vsd = pdsAdapter.computeVSD();
+        this.beat();
 
-    function pulse(){
+    },
+    beat:function(){
 
-        var majoritatianVSD = cutil.detectMajoritarianVSD(currentPulse,  pulsesHistory, stakeHolders);
+        var ptBlock             = null;
+        var nextConsensusPulse  = this.lastPulseAchievedConsensus + 1;
+
+        var majoritatianVSD = cutil.detectMajoritarianVSD(nextConsensusPulse,  this.pulsesHistory, this.votingBox);
         if(majoritatianVSD == "none"){
             majoritatianVSD = vsd; // we are alone or the network is down ;)
         }
 
         if(vsd == majoritatianVSD){
-            ptBlock = cutil.detectMajoritarianPTBlock(currentPulse, pulsesHistory, stakeHolders);
+            ptBlock         = cutil.detectMajoritarianPTBlock(this.currentPulse, this.pulsesHistory, this.votingBox);
 
-            pdsAdapter.commit(cutil.makeSetFromBlock(pset, ptBlock));   //step 1
-            cutil.setsRemoveArray(pset, ptBlock); //cleanings
+            if(ptBlock.length !=0){
+                pdsAdapter.commit(cutil.makeSetFromBlock(this.pset, ptBlock));
+
+                cutil.setsRemovePtBlockAndPastTransactions(this.pset, ptBlock, this.lastPulseAchievedConsensus); //cleanings
+                this.vsd   = pdsAdapter.computeVSD();
+                this.lastPulseAchievedConsensus = this.currentPulse;
+                this.pset
+            }//else: try again with the same lastPulseAchievedConsensus, the same pset, etc
+
         } else {
             // the node is badly out-of-sync
             //TODO: resync with the majoritarian nodes
@@ -43,58 +66,66 @@ function ConsensusManager(delgatedAgentName, communicationOutlet, pdsAdapter, pu
         }
 
 
-        var nextBlockSet = cutil.detectNextBlockSet(currentPulse,
-                     pulsesHistory, stakeHolders, pset);                //step 2
+        var nextBlockSet    = cutil.detectNextBlockSet(this.currentPulse, this.pulsesHistory, this.votingBox, this.pset);
+        ptBlock             = pdsAdapter.computePTBlock(nextBlockSet);
+        var newPulse        = new Pulse(this.nodeName, this.currentPulse, ptBlock, this.lset, this.vsd);
 
+        this.communicationOutlet.broadcastPulse(this.nodeName, newPulse);
+        this.recordPulse(this.nodeName, newPulse);
+        this.dset          = cutil.setsConcat(this.dset, this.lset);
+        this.lset          = [];
 
-        ptBlock         = pdsAdapter.computePTBlock(nextBlockSet);      //step 3
+        this.restartBeat();
+    },
 
-        vsd             = pdsAdapter.computeVSD();                      //step 4
+    restartBeat:function(){
+        this.currentPulse++;
+        setTimeout(this.beat, this.pulsePeriodicity);
+    },
 
-        var newPulse    = new Pulse(this.nodeName, currentPulse, ptBlock, lset, vsd);
+    dump : function(){
+        console.log("Node:", this.delgatedAgentName, "Current VSD:", this.vsd);
+    },
 
-        communicationOutlet.broadcastPulse(self.nodeName, newPulse);    //step 5
-        self.recordPulse(self.nodeName, newPulse);                      //step 6 (it also moving lset in pset)
-        //pset          = cutil.setsConcat(pset, lset);
-        lset            = [];                                           //step 7
-        currentPulse++;                                                 //step 8
-        setTimeout(pulse, pulsePeriodicity);                            //step 9
-    }
-
-
-
-    this.dump = function(){
-        console.log("Node:", delgatedAgentName, "Consensus history:", consensuses.join(" "));
-    }
-
-    this.createTransactionFromSwarm = function(swarm){
-        var t = cutil.createTransaction(currentPulse, swarm);
+    createTransactionFromSwarm : function(swarm){
+        var t = cutil.createTransaction(this.currentPulse, swarm);
         lset.push(t);
         return t;
-    }
+    },
 
-    this.recordPulse = function(from, pulse){
-
+    recordPulse : function(from, pulse){
         pulse.blockDigest = ssutil.hashValues(pulse.ptBlock);
-        if(!pulsesHistory[pulse.cp]){
-            pulsesHistory[pulse.cp] = {};
-        }
-        pulsesHistory[pulse.cp][from] = pulse;
 
-        //check for delayed pulses that should be ignored ( pulse.cp < CurrentPulse - 2)
-        if(pulse.cp >= currentPulse - 2){
-            for(var d in pulse.lset){
-                pset[d] = pulse.lset[d];
-            }
+        if(!this.pulsesHistory[pulse.currentPulse]){
+            this.pulsesHistory[pulse.currentPulse] = {};
         }
+        this.pulsesHistory[pulse.currentPulse][from] = pulse;
+
+
+        if(this.lastPulseAchievedConsensus >= pulse.currentPulse){
+            if(this.lastPulseAchievedConsensus + 1 <= pulse.currentPulse ){
+                for(var d in pulse.lset){
+                    this.pset[d] = pulse.lset[d];// could still be important for consensus
+                }
+            } else {
+                for(var d in pulse.lset){
+                    this.dset[d] = pulse.lset[d];
+                }
+            }
+
+
+        }//else ignore late pulses that could not contribute to consensus
+
         //TODO: ask for pulses that others received but we failed to receive
     }
+});
 
-    pulse();// TODO: replace with a synchronization process
-}
+
 
 exports.createConsensusManager = function(delegatedAgent, communicationOutlet, pulse, stakeHolders){
-        return new ConsensusManager(delegatedAgent, communicationOutlet, pulse, stakeHolders);
+        var swarm = $$.swarms.start("pulseSwarm");
+        swarm.start(delgatedAgentName, communicationOutlet, pdsAdapter, pulsePeriodicity,  stakeHolders);
+    return swarm;
 }
 
 

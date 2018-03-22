@@ -186,9 +186,13 @@ function Storage(parentStorage, diskPersistence){  //TODO: refactoring after uni
     }
 }
 
-function InMemoryPDS(storage, diskPersistence){
+function InMemoryPDS(storage, diskPersistence, shareHoldersCount){
 
     var mainStorage = new Storage(storage);
+    if(!shareHoldersCount) {
+        console.log("Setting shareHoldersCount to 1")
+        shareHoldersCount = 1;
+    }
 
     this.getHandler = function(){ // a way to work with PDS
         var tempStorage = new Storage(mainStorage);
@@ -215,9 +219,13 @@ function InMemoryPDS(storage, diskPersistence){
     this.computeVSD = function (){
         return mainStorage.getVSD(false);
     }
+
+    this.getShareHoldersVotingBox = function(){
+       return  cutil.createDemocraticVotingBox(shareHoldersCount);
+    }
 }
 
 
-exports.newPDS = function(){
-    return new InMemoryPDS();
+exports.newPDS = function(counter){
+    return new InMemoryPDS(undefined, undefined,counter);
 }

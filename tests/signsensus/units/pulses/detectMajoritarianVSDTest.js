@@ -4,15 +4,15 @@ var lset = require("../pds/utilityCreateSet").set;
 
 var pdsInM = require("../../../../modules/signsensus/lib/InMemoryPDS");
 
-var pdsAdapter = pdsInM.newPDS();
+var pdsAdapter = pdsInM.newPDS(3);
 
 var pulsesHistory = {
 
 };
 var currentPulse = 1;
-var stakeHoldersVotingBox = cutil.createDemocraticStakeholdersVotingBox(3);
+var votingBox = pdsAdapter.getShareHoldersVotingBox();
 
-var majoritarian = cutil.detectMajoritarianVSD(currentPulse, pulsesHistory, stakeHoldersVotingBox);
+var majoritarian = cutil.detectMajoritarianVSD(currentPulse, pulsesHistory, votingBox);
 
 var pset = {};
 var currentVSD = pdsAdapter.computeVSD();
@@ -20,10 +20,10 @@ console.log(majoritarian); // should be none
 
 function recordPulse(from, pulse){
     pulse.blockDigest = ssutil.hashValues(pulse.ptBlock);
-    if(!pulsesHistory[pulse.cp]){
-        pulsesHistory[pulse.cp] = {};
+    if(!pulsesHistory[pulse.currentPulse]){
+        pulsesHistory[pulse.currentPulse] = {};
     }
-    pulsesHistory[pulse.cp][from] = pulse;
+    pulsesHistory[pulse.currentPulse][from] = pulse;
 
     for(var d in pulse.lset){
         pset[d] = pulse.lset[d];
@@ -63,6 +63,6 @@ recordPulse("agent3", p3);
 
 
 currentPulse++;
-var majoritarian = cutil.detectMajoritarianVSD(currentPulse, pulsesHistory, stakeHoldersVotingBox);
+var majoritarian = cutil.detectMajoritarianVSD(currentPulse, pulsesHistory, votingBox);
 
 console.log(majoritarian); //

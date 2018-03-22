@@ -16,7 +16,7 @@ exports.getRandomInt = function (max) {
 
 function Pulse(signer, currentPulseNumber, block, newTransactions, vsd){
     this.signer     = signer;
-    this.cp         = currentPulseNumber;
+    this.currentPulse         = currentPulseNumber;
     this.lset       = newTransactions;  //digest -> transaction
     this.ptBlock    = block;            //array of digests
     this.vsd        = vsd;
@@ -70,7 +70,7 @@ exports.orderTransactions = function( pset){ //order in place the pset array
     return arr;
 }
 
-function getMajorityFieldInPulses(allPulses, fieldName, extractFieldName, stakeHoldersVotingBox){
+function getMajorityFieldInPulses(allPulses, fieldName, extractFieldName, votingBox){
     var counterFields = {};
 
 
@@ -81,13 +81,13 @@ function getMajorityFieldInPulses(allPulses, fieldName, extractFieldName, stakeH
         pulse = allPulses[agent];
         var v = pulse[fieldName];
 
-        counterFields[v] = stakeHoldersVotingBox.vote(agent, counterFields[v])
+        counterFields[v] = votingBox.vote(agent, counterFields[v])
 
     }
 
 
     for(var i in counterFields){
-        if(stakeHoldersVotingBox.isMajoritarian(counterFields[i])){
+        if(votingBox.isMajoritarian(counterFields[i])){
 
             majorityValue = i;
             if(fieldName == extractFieldName){
@@ -105,13 +105,13 @@ function getMajorityFieldInPulses(allPulses, fieldName, extractFieldName, stakeH
     return "none"; //there is no majority
 }
 
-exports.detectMajoritarianVSD = function (currentPulse, pulsesHistory, stakeHoldersVotingBox){
+exports.detectMajoritarianVSD = function (currentPulse, pulsesHistory, votingBox){
     var pulsesCPMinus1 = pulsesHistory[currentPulse - 1];
     if(!pulsesCPMinus1){
         return "none"; //for booting empty spaces
     }
 
-    return getMajorityFieldInPulses(pulsesCPMinus1, "vsd", "vsd", stakeHoldersVotingBox);
+    return getMajorityFieldInPulses(pulsesCPMinus1, "vsd", "vsd", votingBox);
 }
 
 /*
@@ -120,13 +120,13 @@ exports.detectMajoritarianVSD = function (currentPulse, pulsesHistory, stakeHold
  */
 
 
-exports.detectMajoritarianPTBlock = function(currentPulse, pulsesHistory, stakeHoldersVotingBox){
+exports.detectMajoritarianPTBlock = function(currentPulse, pulsesHistory, votingBox){
     var pulsesCPMinus1 = pulsesHistory[currentPulse - 1];
 
     if(!pulsesCPMinus1){
         return []; //there is none...
     }
-    var btBlock = getMajorityFieldInPulses(pulsesCPMinus1,"blockDigest", "ptBlock", stakeHoldersVotingBox);
+    var btBlock = getMajorityFieldInPulses(pulsesCPMinus1,"blockDigest", "ptBlock", votingBox);
     if(btBlock != "none"){
         return btBlock;
     }
@@ -161,8 +161,22 @@ exports.setsRemoveArray = function(target, arr){
     return target;
 }
 
+exports.setsRemovePtBlockAndPastTransactions = function(target, arr, maxPulse){
+    for(var d in target){
+        var t = target[d];
+        if(t.currentPulse <= maxPulse){
+            arr.push(d);
+        }
+    }
 
-exports.createDemocraticStakeholdersVotingBox = function(shareHoldersCounter){
+    arr.forEach(i => delete target[i]);
+
+    return target;
+}
+
+
+
+exports.createDemocraticVotingBox = function(shareHoldersCounter){
 
     return  {
         vote:function(agent, previosValue){
