@@ -50,21 +50,19 @@ Code License: LGPL or MIT.
 //*
 // TODO: detect infinite loops (or very deep propagation) It is possible!?
 
-
 function SoundPubSub(){
+
     /**
      * publish
      * @params target,  message
      * @return
      */
     this.publish = function(target, message){
-        if(channelSubscribers[target] != undefined){
-            //console.log("SPS: Pub for "+ target);
+        if(!invalidChannelName(target) && !invalidMessageType(message) && channelSubscribers[target] != undefined){
             compactAndStore(target, message);
             dispatchNext();
             return channelSubscribers[target].length;
         } else{
-            /*wprint("No one is subscribed to "+ J(target));*/
             return null;
         }
     };
@@ -75,17 +73,16 @@ function SoundPubSub(){
      * @return
      */
     this.subscribe = function(target, callBack, waitForMore, filter){
-        if(!callBack || typeof callBack != "function"){
-            wprint("Can't subscribe with an invalid callback! " + callBack );
-            return;
+        if(!invalidChannelName(target) && !invalidFunction(callBack)){
+
+            var subscriber = {"callBack":callBack, "waitForMore":waitForMore, "filter":filter};
+            var arr = channelSubscribers[target];
+            if(arr == undefined){
+                arr = [];
+                channelSubscribers[target] = arr;
+            }
+            arr.push(subscriber);
         }
-        var subscriber = {"callBack":callBack, "waitForMore":waitForMore, "filter":filter};
-        var arr = channelSubscribers[target];
-        if(arr == undefined){
-            arr = [];
-            channelSubscribers[target] = arr;
-        }
-        arr.push(subscriber);
     };
 
     /**
@@ -94,7 +91,7 @@ function SoundPubSub(){
      * @return
      */
     this.unsubscribe = function(target, callBack, filter){
-        if(callBack){
+        if(!invalidFunction(callBack)){
             var gotit = false;
             if(channelSubscribers[target]){
                 for(var i = 0; i < channelSubscribers[target].length;i++){
@@ -132,9 +129,24 @@ function SoundPubSub(){
 
 
     this.afterAllEvents = function(callBack){
-        afterEventsCalls.push(callBack);
+        if(!invalidFunction(callBack)){
+            afterEventsCalls.push(callBack);
+        }
         this.blockCallBacks();
         this.releaseCallBacks();
+    };
+
+    this.hasChannel = function(channel){
+        if(!invalidChannelName(channel) && channelSubscribers[channel]!=undefined){
+            return true;
+        }
+        return false;
+    };
+
+    this.addChannel = function(channel){
+        if(!invalidChannelName(channel) && !this.hasChannel(channel)){
+            channelSubscribers[channel] = [];
+        }
     };
 
     /* ---------------------------------------- protected stuff ---------------------------------------- */
@@ -155,7 +167,9 @@ function SoundPubSub(){
     //an compactor take a newEvent and and oldEvent and return the one that survives (oldEvent if
     // it can compact the new one or the newEvent if can't be compacted)
     this.registerCompactor = function(type, callBack) {
-        typeCompactor[type] = callBack;
+        if(!invalidFunction(callBack)){
+            typeCompactor[type] = callBack;
+        }
     };
 
     /**
@@ -196,10 +210,12 @@ function SoundPubSub(){
                         delete message.__transmisionIndex;
                         channelsStorage[channelName].shift();
                     } else{
-                        if(subscriber.filter == undefined || subscriber.filter(message)){
+                        if(subscriber.filter == undefined || (!invalidFunction(subscriber.filter) && subscriber.filter(message))){
                             if(!subscriber.forDelete){
                                 subscriber.callBack(message);
-                                if(subscriber.waitForMore && !subscriber.waitForMore(message)){
+                                if(subscriber.waitForMore && !invalidFunction(subscriber.waitForMore) &&
+                                    !subscriber.waitForMore(message)){
+
                                     subscriber.forDelete = true;
                                 }
                             }
@@ -261,18 +277,33 @@ function SoundPubSub(){
         return afterEventsCalls.length;
     };
 
-    this.hasChannel = function(channel){
-        if(channelSubscribers[channel]!=undefined){
-            return true;
+    function invalidChannelName(name){
+        var result = false;
+        if(!name || (typeof name != "string" && typeof name != "number")){
+            result = true;
+            wprint("Invalid channel name: " + name);
         }
-        return false;
-    };
 
-    this.addChannel = function(channel){
-        if(!this.hasChannel(channel)){
-            channelSubscribers[channel] = [];
+        return result;
+    }
+
+    function invalidMessageType(message){
+        var result = false;
+        if(!message || typeof message != "object"){
+            result = true;
+            wprint("Invalid messages types: " + message);
         }
-    };
+        return result;
+    }
+
+    function invalidFunction(callback){
+        var result = false;
+        if(!callback || typeof callback != "function"){
+            result = true;
+            wprint("Expected to be function but is: " + callback);
+        }
+        return result;
+    }
 }
 
 exports.soundPubSub = new SoundPubSub();
