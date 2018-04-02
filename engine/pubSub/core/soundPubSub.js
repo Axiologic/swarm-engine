@@ -6,15 +6,15 @@ Code License: LGPL or MIT.
 
 
 /**
- * *   Usually an event could cause execution of other callback events . We say that is a level 1 event if is causeed by a level 0 event and soon
+ *   Usually an event could cause execution of other callback events . We say that is a level 1 event if is causeed by a level 0 event and soon
  *
- *  SoundPubSub provides intuitive results regarding to asynchronous calls of callbacks and computed values/expressions:
+ *      SoundPubSub provides intuitive results regarding to asynchronous calls of callbacks and computed values/expressions:
  *   we prevent immediate execution of event callbacks to ensure the intuitive final result is guaranteed as level 0 execution
  *   we guarantee that any callback function is "re-entrant"
  *   we are also trying to reduce the number of callback execution by looking in queues at new messages published by
  *   trying to compact those messages (removing duplicate messages, modifying messages, or adding in the history of another event ,etc)
  *
- *  Example of what can be wrong without non-sound asynchronous calls:
+ *      Example of what can be wrong without non-sound asynchronous calls:
 
  *  Step 0: Initial state:
  *   a = 0;
@@ -28,8 +28,8 @@ Code License: LGPL or MIT.
  *   if( a + b == 0) {
  *       CORRECT = false;
  *       notify(...); // act or send a notification somewhere..
- *       } else {
- *   CORRECT = false;
+ *   } else {
+ *      CORRECT = false;
  *   }
  *
  *    Notice that: CORRECT will be true in the end , but meantime, after a notification was sent and CORRECT was wrongly, temporarily false!
@@ -54,8 +54,10 @@ function SoundPubSub(){
 
     /**
      * publish
-     * @params target,  message
-     * @return
+     *      Publish a message {Object} to a list of subscribers on a specific topic
+     *
+     * @params {String|Number} target,  {Object} message
+     * @return number of channel subscribers that will be notified
      */
     this.publish = function(target, message){
         if(!invalidChannelName(target) && !invalidMessageType(message) && channelSubscribers[target] != undefined){
@@ -68,8 +70,18 @@ function SoundPubSub(){
     };
 
     /**
-     * publish
-     * @params target, callBack, filter
+     * subscribe
+     *      Subscribe / add a {Function} callBack on a {String|Number}target channel subscribers list in order to receive
+     *      messages published if the conditions defined by {Function}waitForMore and {Function}filter are passed.
+     *
+     * @params {String|Number}target, {Function}callBack, {Function}waitForMore, {Function}filter
+     *
+     *          target      - channel name to subscribe
+     *          callback    - function to be called when a message was published on the channel
+     *          waitForMore - a intermediary function that will be called after a successfuly message delivery in order
+     *                          to decide if a new messages is expected...
+     *          filter      - a function that receives the message before invocation of callback function in order to allow
+     *                          relevant message before entering in normal callback flow
      * @return
      */
     this.subscribe = function(target, callBack, waitForMore, filter){
@@ -86,8 +98,14 @@ function SoundPubSub(){
     };
 
     /**
-     * publish
-     * @params target, callBack, filter
+     * unsubscribe
+     *      Unsubscribe/remove {Function} callBack from the list of subscribers of the {String|Number} target channel
+     *
+     * @params {String|Number} target, {Function} callBack, {Function} filter
+     *
+     *          target      - channel name to unsubscribe
+     *          callback    - reference of the original function that was used as subscribe
+     *          filter      - reference of the original filter function
      * @return
      */
     this.unsubscribe = function(target, callBack, filter){
@@ -110,11 +128,22 @@ function SoundPubSub(){
         }
     };
 
-
+    /**
+     * blockCallBacks
+     *
+     * @params
+     * @return
+     */
     this.blockCallBacks = function(){
         level++;
     };
 
+    /**
+     * releaseCallBacks
+     *
+     * @params
+     * @return
+     */
     this.releaseCallBacks = function(){
         level--;
         //hack/optimisation to not fill the stack in extreme cases (many events caused by loops in collections,etc)
@@ -127,7 +156,14 @@ function SoundPubSub(){
         }
     };
 
-
+    /**
+     * afterAllEvents
+     *
+     * @params {Function} callback
+     *
+     *          callback - function that needs to be invoked once all events are delivered
+     * @return
+     */
     this.afterAllEvents = function(callBack){
         if(!invalidFunction(callBack)){
             afterEventsCalls.push(callBack);
@@ -136,6 +172,14 @@ function SoundPubSub(){
         this.releaseCallBacks();
     };
 
+    /**
+     * hasChannel
+     *
+     * @params {String|Number} channel
+     *
+     *          channel - name of the channel that need to be tested if present
+     * @return
+     */
     this.hasChannel = function(channel){
         if(!invalidChannelName(channel) && channelSubscribers[channel]!=undefined){
             return true;
@@ -143,6 +187,14 @@ function SoundPubSub(){
         return false;
     };
 
+    /**
+     * addChannel
+     *
+     * @params {String} channel
+     *
+     *          channel - name of a channel that needs to be created and added to soundpubsub repository
+     * @return
+     */
     this.addChannel = function(channel){
         if(!invalidChannelName(channel) && !this.hasChannel(channel)){
             channelSubscribers[channel] = [];
@@ -164,8 +216,20 @@ function SoundPubSub(){
     var executionQueue = [];
     var level = 0;
 
-    //an compactor take a newEvent and and oldEvent and return the one that survives (oldEvent if
-    // it can compact the new one or the newEvent if can't be compacted)
+
+
+    /**
+     * registerCompactor
+     *
+     *       An compactor takes a newEvent and and oldEvent and return the one that survives (oldEvent if
+     *  it can compact the new one or the newEvent if can't be compacted)
+     *
+     * @params {String} type, {Function} callBack
+     *
+     *          type        - channel name to unsubscribe
+     *          callBack    - handler function for that specific event type
+     * @return
+     */
     this.registerCompactor = function(type, callBack) {
         if(!invalidFunction(callBack)){
             typeCompactor[type] = callBack;
@@ -173,6 +237,7 @@ function SoundPubSub(){
     };
 
     /**
+     * dispatchNext
      *
      * @param fromReleaseCallBacks: hack to prevent too many recursive calls on releaseCallBacks
      * @return {Boolean}
