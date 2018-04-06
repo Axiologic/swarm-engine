@@ -114,7 +114,7 @@ function SoundPubSub(){
             if(channelSubscribers[target]){
                 for(var i = 0; i < channelSubscribers[target].length;i++){
                     var subscriber =  channelSubscribers[target][i];
-                    if(subscriber.callBack == callBack && (filter == undefined || subscriber.filter == filter )){
+                    if(subscriber.callBack === callBack && (filter == undefined || subscriber.filter === filter )){
                         gotit = true;
                         subscriber.forDelete = true;
                         subscriber.callBack = null;
@@ -147,7 +147,7 @@ function SoundPubSub(){
     this.releaseCallBacks = function(){
         level--;
         //hack/optimisation to not fill the stack in extreme cases (many events caused by loops in collections,etc)
-        while( level == 0 && dispatchNext(true)){
+        while(level == 0 && dispatchNext(true)){
             //nothing
         }
 
@@ -181,10 +181,7 @@ function SoundPubSub(){
      * @return
      */
     this.hasChannel = function(channel){
-        if(!invalidChannelName(channel) && channelSubscribers[channel]!=undefined){
-            return true;
-        }
-        return false;
+        return !invalidChannelName(channel) && channelSubscribers[channel] != undefined ? true : false;
     };
 
     /**
@@ -252,7 +249,9 @@ function SoundPubSub(){
             try{
                 var message = channelsStorage[channelName][0];
                 if(message == undefined){
-                    wprint("Can't use as message in a pub/sub channel this object: " + message);
+                    if(channelsStorage[channelName].length > 0){
+                        wprint("Can't use as message in a pub/sub channel this object: " + message);
+                    }
                     executionQueue.shift();
                 } else {
                     if(message.__transmisionIndex == undefined){
@@ -340,7 +339,7 @@ function SoundPubSub(){
             callBack();
         }
         return afterEventsCalls.length;
-    };
+    }
 
     function invalidChannelName(name){
         var result = false;
