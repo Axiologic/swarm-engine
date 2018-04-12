@@ -132,6 +132,12 @@ exports.createForObject = function(valueObject, thisObject, localId){
         return SwarmDescription;
     }
 
+    function ensureLocalId(){
+        if(!valueObject.localId){
+            valueObject.localId = valueObject.meta.swarmTypeName + "-" + localId;
+            localId++;
+        }
+    }
 
     function observe(callback, waitForMore, filter){
         if(!waitForMore){
@@ -140,10 +146,8 @@ exports.createForObject = function(valueObject, thisObject, localId){
             }
         }
 
-        if(!valueObject.localId){
-            valueObject.localId = valueObject.meta.swarmTypeName + "-" + localId;
-            localId++;
-        }
+        ensureLocalId();
+
         $$.PSK_PubSub.subscribe(valueObject.localId, callback, waitForMore, filter);
     }
 
@@ -165,6 +169,7 @@ exports.createForObject = function(valueObject, thisObject, localId){
         if(!event){
             event = valueObject;
         }
+        ensureLocalId();
         $$.PSK_PubSub.publish(valueObject.localId, event);
     }
 
