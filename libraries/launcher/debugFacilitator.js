@@ -18,8 +18,8 @@ function prepareDebugPortOnFork(execArgv){
 function argumentsMakeover(args){
     if(process.debugPort>0){
         //ensure that args 1 and 2 are defined
-        args[1] = Array.apply(this, args[1]);
-        args[2] = Object.apply(this, args[2]);
+        args[1] = Array.apply(this, [args[1]]);
+        args[2] = Object.apply(this, [args[2]]);
 
         //increase debug port for child process
         var execArgv = prepareDebugPortOnFork(args[2].execArgv || process.execArgv);
