@@ -10,16 +10,17 @@ exports.getRandomInt = function (max) {
         max = 1000;
     }
     var n = Math.floor(Math.random() * max);
-    return 1;
+    return n;
 }
 
 
-function Pulse(signer, currentPulseNumber, block, newTransactions, vsd){
-    this.signer     = signer;
-    this.currentPulse         = currentPulseNumber;
-    this.lset       = newTransactions;  //digest -> transaction
-    this.ptBlock    = block;            //array of digests
-    this.vsd        = vsd;
+function Pulse(signer, currentPulseNumber, block, newTransactions, vsd, top){
+    this.signer         = signer;
+    this.currentPulse   = currentPulseNumber;
+    this.lset           = newTransactions;  //digest -> transaction
+    this.ptBlock        = block;            //array of digests
+    this.vsd            = vsd;
+    this.top            = top;
 }
 
 
@@ -40,8 +41,8 @@ exports.createTransaction = function(currentPulse, swarm){
     return new Transaction(currentPulse, swarm);
 }
 
-exports.createPulse = function(signer, currentPulseNumber, block, newTransactions, vsd){
-    return new Pulse(signer, currentPulseNumber, block, newTransactions, vsd);
+exports.createPulse = function(signer, currentPulseNumber, block, newTransactions ,vsd, last){
+    return new Pulse(signer, currentPulseNumber, block, newTransactions, vsd, last);
 }
 
 exports.orderTransactions = function( pset){ //order in place the pset array
@@ -105,43 +106,34 @@ function getMajorityFieldInPulses(allPulses, fieldName, extractFieldName, voting
     return "none"; //there is no majority
 }
 
-exports.detectMajoritarianVSD = function (currentPulse, pulsesHistory, votingBox){
-    var pulsesCPMinus1 = pulsesHistory[currentPulse - 1];
-    if(!pulsesCPMinus1){
-        return "none"; //for booting empty spaces
-    }
-
-    return getMajorityFieldInPulses(pulsesCPMinus1, "vsd", "vsd", votingBox);
+exports.detectMajoritarianVSD = function (pulse, pulsesHistory, votingBox){
+    if(pulse == 0) return "none";
+    var pulses = pulsesHistory[pulse];
+    return getMajorityFieldInPulses(pulses, "vsd", "vsd", votingBox);
 }
 
 /*
     detect a candidate block
-
  */
 
 
-exports.detectMajoritarianPTBlock = function(currentPulse, pulsesHistory, votingBox){
-    var pulsesCPMinus1 = pulsesHistory[currentPulse - 1];
-
-    if(!pulsesCPMinus1){
-        return []; //there is none...
-    }
-    var btBlock = getMajorityFieldInPulses(pulsesCPMinus1,"blockDigest", "ptBlock", votingBox);
-    if(btBlock != "none"){
-        return btBlock;
-    }
-    return [];
+exports.detectMajoritarianPTBlock = function(pulse, pulsesHistory, votingBox){
+    if(pulse == 0) return "none";
+    var pulses = pulsesHistory[pulse];
+    var btBlock = getMajorityFieldInPulses(pulses,"blockDigest", "ptBlock", votingBox);
+    return btBlock;
 }
 
 
 exports.makeSetFromBlock = function(knownTransactions, block){
     var result = {};
-    block.forEach(function(item){
+    for(var i = 0 ; i < block.length; i++ ){
+        var item = block[i];
         result[item] = knownTransactions[item];
-        if(!result[item]){
-            throw new Error("Do not give unknown transaction digests to makeSetFromBlock");
+        if(!result.hasOwnProperty(item)){
+            throw new Error("Do not give unknown transaction digests to makeSetFromBlock " + item);
         }
-    });
+    }
     return result;
 }
 
@@ -162,15 +154,17 @@ exports.setsRemoveArray = function(target, arr){
 }
 
 exports.setsRemovePtBlockAndPastTransactions = function(target, arr, maxPulse){
+
+    var toBeRemoved = [];
     for(var d in target){
-        var t = target[d];
-        if(t.currentPulse <= maxPulse){
-            arr.push(d);
-        }
+            for(var i=0; i<arr.length; i++){
+                if(arr[i] == d || target[d].CP <= maxPulse){
+                    toBeRemoved.push(d);
+                }
+            }
     }
 
-    arr.forEach(i => delete target[i]);
-
+    toBeRemoved.forEach(i => delete target[i]);
     return target;
 }
 
@@ -193,57 +187,3 @@ exports.createDemocraticVotingBox = function(shareHoldersCounter){
 }
 
 
-
-
-/*
-unnecessary?, probably will be removed!!!
-*/
-
-exports.detectNextBlockSet = function(currentPulse, pulsesHistory, stakeHolders, pset){
-    var pulsesCPMinus1 = pulsesHistory[currentPulse - 1];
-    if(!pulsesCPMinus1){
-        return {}; //for booting empty spaces
-    }
-    //
-
-    var nextBlock = [];
-
-    var tempPulses = {};
-    for(var v in pulsesCPMinus1){
-        tempPulses[v] = pulsesCPMinus1;
-    }
-
-    function majoritarianAtLevel(level){
-        var counting = {};
-        for(var a in tempPulses){
-            var pulse = tempPulses[a];
-            //console.log(pulse);
-            if(pulse.ptBlock.length < level){
-                var digest = pulse.ptBlock[level];
-                if(counting[digest]){
-                    counting[digest]++
-                }    else {
-                    counting[digest] = 1;
-                }
-            }
-        }
-
-        for(var d in counting){
-            if(counting[d] >= math.floor(stakeHolders/2) + 1){
-                return d;
-            }
-        }
-
-        return "none";
-    }
-
-    var foundMajoritarian;
-    var level = 0;
-    do {
-        foundMajoritarian = majoritarianAtLevel(level);
-        nextBlock.push(foundMajoritarian);
-        level++;
-    } while(foundMajoritarian != "none");
-
-    return exports.makeSetFromBlock(pset, nextBlock);
-}

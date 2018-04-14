@@ -190,7 +190,7 @@ function InMemoryPDS(storage, diskPersistence, shareHoldersCount){
 
     var mainStorage = new Storage(storage);
     if(!shareHoldersCount) {
-        console.log("Setting shareHoldersCount to 1")
+        //console.log("Setting shareHoldersCount to 1")
         shareHoldersCount = 1;
     }
 
