@@ -15,11 +15,7 @@ var votingBox = cutil.createDemocraticVotingBox(3);
 
 var pset = {};
 var currentVSD = pdsAdapter.computeVSD();
-
 function recordPulse(from, pulse){
-    if( !pulse.ptBlock){
-        pulse.ptBlock = [];
-    }
     pulse.blockDigest = ssutil.hashValues(pulse.ptBlock);
     if(!pulsesHistory[pulse.currentPulse]){
         pulsesHistory[pulse.currentPulse] = {};
@@ -31,7 +27,6 @@ function recordPulse(from, pulse){
     }
 
 }
-
 var transactions1  = lset;
 var transactions2  = lset;
 var transactions3  = lset;
@@ -60,12 +55,13 @@ p1 = cutil.createPulse("agent1", currentPulse, block1, {}, currentVSD);
 p2 = cutil.createPulse("agent2", currentPulse, block2, {}, currentVSD);
 p3 = cutil.createPulse("agent3", currentPulse, block3, {}, currentVSD);
 
+
 recordPulse("agent1", p1);
 recordPulse("agent2", p2);
 recordPulse("agent3", p3);
 
 
 currentPulse++;
-var majoritarian = cutil.detectMajoritarianPTBlock(currentPulse, pulsesHistory, votingBox);
 
-console.log(majoritarian);
+var res = cutil.detectNextBlockSet(currentPulse,pulsesHistory,votingBox,pset);
+console.log(res);

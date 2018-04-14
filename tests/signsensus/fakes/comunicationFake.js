@@ -61,5 +61,5 @@ exports.generateRandomTransaction = function() {
 }
 
 exports.dumpVSDs = function(){
-    nodes.forEach( node => console.log(node.dump()));
+    nodes.forEach( node => node.dump());
 }

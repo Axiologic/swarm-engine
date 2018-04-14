@@ -8,15 +8,27 @@ var cutil = require("../../modules/signsensus/lib/consUtil");
 network.init();
 
 
-var numberTransactions = 15;
+var numberTransactions = cfg.MAX_TRANSACTIONS;
+
+
 
 while(numberTransactions > 0){
-    setTimeout(function(){
+    setTimeout(function () {
         network.generateRandomTransaction();
-    }, cutil.getRandomInt(cfg.SIMULATION_TIMEOUT));
+        //console.log("New transaction!");
+    }, cutil.getRandomInt(cfg.MAX_TRANSACTION_TIME));
     numberTransactions--;
 }
 
+// setTimeout(function(){
+//     network.generateRandomTransaction();
+// }, 5);
+// setTimeout(function(){
+//     network.generateRandomTransaction()
+// },6);
+
+
+//network.generateRandomTransaction();
 setTimeout(function(){
     network.dumpVSDs();
     process.exit();
