@@ -110,6 +110,7 @@ $$.flow.describe("pulseSwarm", {
                         this.dset = {};
                         this.lastPulseAchievedConsensus = this.currentPulse;
                         this.topPulseConsensus = nextConsensusPulse;
+                        this.print("\t\tEmpty " + " at: " + nextConsensusPulse );
                         break;
                     }
                 }
