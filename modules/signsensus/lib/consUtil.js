@@ -14,13 +14,14 @@ exports.getRandomInt = function (max) {
 }
 
 
-function Pulse(signer, currentPulseNumber, block, newTransactions, vsd, top){
+function Pulse(signer, currentPulseNumber, block, newTransactions, vsd, top, last){
     this.signer         = signer;
     this.currentPulse   = currentPulseNumber;
     this.lset           = newTransactions;  //digest -> transaction
     this.ptBlock        = block;            //array of digests
     this.vsd            = vsd;
     this.top            = top;
+    this.last           = last;
 }
 
 
@@ -41,8 +42,8 @@ exports.createTransaction = function(currentPulse, swarm){
     return new Transaction(currentPulse, swarm);
 }
 
-exports.createPulse = function(signer, currentPulseNumber, block, newTransactions ,vsd, last){
-    return new Pulse(signer, currentPulseNumber, block, newTransactions, vsd, last);
+exports.createPulse = function(signer, currentPulseNumber, block, newTransactions ,vsd, top, last){
+    return new Pulse(signer, currentPulseNumber, block, newTransactions, vsd, top, last);
 }
 
 exports.orderTransactions = function( pset){ //order in place the pset array
@@ -180,6 +181,7 @@ exports.createDemocraticVotingBox = function(shareHoldersCounter){
             return previosValue + 1;
         },
         isMajoritarian:function(value){
+            //console.log(value , Math.floor(shareHoldersCounter/2) + 1);
             return value >= Math.floor(shareHoldersCounter/2) + 1;
         }
     };

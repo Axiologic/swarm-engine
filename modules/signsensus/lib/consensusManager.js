@@ -113,9 +113,10 @@ $$.flow.describe("pulseSwarm", {
             }
             nextConsensusPulse++;
         }
+        //daca nu a reusit,ar trebui sa vada daca nu exista un alt last majoritar
 
         ptBlock             = this.pdsAdapter.computePTBlock(this.pset);
-        var newPulse        = cutil.createPulse(this.nodeName, this.currentPulse, ptBlock, this.lset, this.vsd, this.topPulseConsensus);
+        var newPulse        = cutil.createPulse(this.nodeName, this.currentPulse, ptBlock, this.lset, this.vsd, this.topPulseConsensus, this.lastPulseAchievedConsensus);
         //console.log("\t\tPulse", this.nodeName, this.vsd.slice(0,8) );
         this.print("Pulse" );
         this.recordPulse(this.nodeName, newPulse);
