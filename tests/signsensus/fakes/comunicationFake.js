@@ -20,7 +20,7 @@ var com = {
 
 exports.init = function(){
     for(var i = 0; i < cfg.MAX_NODES; i++){
-        var np = pds.newPDS();
+        var np = pds.newPDS(cfg.MAX_NODES);
         PDSFakes.push(np);
         nodes.push(consensus.createConsensusManager("Node"+i, com, np , cfg.PULSE_PERIODICITY, cfg.MAX_NODES));
     }

@@ -35,7 +35,7 @@ var cfgPath = basePath + "psk.config";
 
 var codeFolder =  path.normalize(__dirname + "/../");
 
-$$.container = require("../modules/safebox").newContainer($$.errorHandler);
+$$.container = require("../modules/dicontainer").newContainer($$.errorHandler);
 
 $$.PSK_PubSub = require("./pubSub/launcherPubSub.js").create(basePath, codeFolder);
 

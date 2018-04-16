@@ -107,7 +107,7 @@ registerResetCallback = function(callBack){
 }
 
 
-var container = require('safebox/lib/container').container;
+var container = require('dicontainer/lib/container').container;
 
 container.service("resetCallBacks", ['swarmingIsWorking'], function(outOfService, swarming){
     if(!outOfService){

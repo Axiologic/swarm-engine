@@ -69,7 +69,7 @@ exports.short_uuid = function(callback) {
     but keeping a sense of synchronicity/simplicity in code where is possible
         Generating uuids synchronously is possible but it could create performance issues
 
-        Warning: In a large majority of cases do not use this method!!  swarm workflow or safebox dependency injection should be used and not this workaround!!!!
+        Warning: In a large majority of cases do not use this method!!  swarm workflow or dicontainer dependency injection should be used and not this workaround!!!!
  */
 
 exports.wait_for_condition = function wait_for_condition(condition, callback, tries){

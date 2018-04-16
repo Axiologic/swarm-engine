@@ -15,14 +15,9 @@ $$.swarm.describe("subSwarm",{
 
 var f = $$.swarm.create("simpleSwarm", {
     begin:function(a1,a2){
-
-        /*var newSwarm = flow.startSwarm("subSwarm");
-        newSwarm.swarm("agent", "doSomething", a1,a2);
-        */
-        $$.swarm.start("subSwarm", "agent", "doSomething", a1,a2).onReturn(this.afterExecution);
-
-        //this.wait(this.afterExecution, newSwarm, this.keepAlive);
-
+        var subSwarm = $$.swarm.create("subSwarm");
+        subSwarm.swarm("agent", "doSomething","system", "begin", a1, a2);
+        subSwarm.onReturn(this.afterExecution);
     },
     afterExecution: function(err, res, wholeSwarm){
         var newSwarm = $$.swarm.restart("subSwarm", wholeSwarm);
@@ -32,6 +27,5 @@ var f = $$.swarm.create("simpleSwarm", {
     }
 });
 
-for(var i = 0; i<=2; i++){
-    $$.swarm.start("simpleSwarm","system", "begin", 1, 2);
-}
+$$.swarm.start("masterSwarm","system", "begin", 1, 2);
+

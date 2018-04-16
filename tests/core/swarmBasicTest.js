@@ -34,3 +34,17 @@ f.begin(1,2);
 
 //check f.result;
 //assert to check swarmAliveInstances
+
+var s = $$.swarm.create("swarmingHelloWorld", {
+    start:function(msg){
+        this.swarm(SecurityContext, "hello", msg);
+    },
+    hello:function(msg){
+        console.log(msg)
+    }
+});
+
+s.start("Hello World!")
+
+Pornirea unui swarm se face folosind functia start:   $$.flow.start("simplestSwarm").
+

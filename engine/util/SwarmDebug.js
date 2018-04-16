@@ -62,7 +62,7 @@ logger.record = function(record){
     }
 }
 
-var container = require("safebox").container;
+var container = require("dicontainer").container;
 
 container.service("swarmLoggingMonitor", ["swarmingIsWorking", "swarmComImpl"], function(outOfService,swarming, swarmComImpl){
 

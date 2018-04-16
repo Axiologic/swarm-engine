@@ -26,6 +26,7 @@ function sortedDigests(set){
 
 }
 
+//var detailedDebug = true;
 var detailedDebug = false;
 
 
@@ -76,20 +77,16 @@ $$.flow.describe("pulseSwarm", {
     beat:function(){
         var ptBlock             = null;
         var nextConsensusPulse  = this.topPulseConsensus + 1;
-        /*
-        if (majoritarianVSD == "none") {
-                majoritarianVSD = this.vsd; // we are alone or the network is down ;)
-            }
-         */
+        var majoritarianVSD = "none";
 
         while(nextConsensusPulse <= this.currentPulse) {
             ptBlock = cutil.detectMajoritarianPTBlock(nextConsensusPulse, this.pulsesHistory, this.votingBox);
-            if (ptBlock != "none") {
-                var majoritarianVSD = cutil.detectMajoritarianVSD(nextConsensusPulse, this.pulsesHistory, this.votingBox);
+            majoritarianVSD = cutil.detectMajoritarianVSD(nextConsensusPulse, this.pulsesHistory, this.votingBox);
 
-                //this.print("Trying ptblock " + this.dumpPtBlock(ptBlock) + " majoritarianVSD "+ majoritarianVSD.slice(0,8));
 
-                if (ptBlock.length && this.vsd == majoritarianVSD /*&& this.hasAllTransactions(ptBlock)*/) {
+            if (ptBlock != "none" && this.vsd == majoritarianVSD) {
+                //console.log(this.nodeName, ptBlock.length,this.vsd, majoritarianVSD, nextConsensusPulse);
+                if (ptBlock.length /*&& this.hasAllTransactions(ptBlock)*/) {
                         this.pset = cutil.setsConcat(this.pset, this.dset);
                         this.dset = {};
                         this.pdsAdapter.commit(cutil.makeSetFromBlock(this.pset, ptBlock));
@@ -100,19 +97,18 @@ $$.flow.describe("pulseSwarm", {
                         this.vsd = this.pdsAdapter.computeVSD();
 
                         this.lastPulseAchievedConsensus = this.currentPulse;
-                        this.topPulseConsensus = nextConsensusPulse;
+                        //this.topPulseConsensus = nextConsensusPulse;
 
-                        this.print("\t\tBlock " + this.dumpPtBlock(ptBlock) + " at: " + nextConsensusPulse + " at VSD:" + oldVsd.slice(0,8));
+                        this.print("\t\tBlock [" + this.dumpPtBlock(ptBlock) + "] at pulse " + nextConsensusPulse + " and VSD " + oldVsd.slice(0,8));
                     break;
                 } else {
-                    if(this.vsd == majoritarianVSD){
-                        this.pset = cutil.setsConcat(this.pset, this.dset);
-                        this.dset = {};
-                        this.lastPulseAchievedConsensus = this.currentPulse;
-                        this.topPulseConsensus = nextConsensusPulse;
-                        this.print("\t\tEmpty " + " at: " + nextConsensusPulse );
-                        break;
-                    }
+                    this.pset = cutil.setsConcat(this.pset, this.dset);
+                    this.dset = {};
+                    this.lastPulseAchievedConsensus = this.currentPulse;
+                    this.topPulseConsensus = nextConsensusPulse;
+                    this.print("\t\tEmpty " + " at: " + nextConsensusPulse );
+                    console.log("\t\tmajoritarian ", majoritarianVSD.slice(0,8) , nextConsensusPulse);
+                    break;
                 }
             }
             nextConsensusPulse++;
@@ -120,6 +116,7 @@ $$.flow.describe("pulseSwarm", {
 
         ptBlock             = this.pdsAdapter.computePTBlock(this.pset);
         var newPulse        = cutil.createPulse(this.nodeName, this.currentPulse, ptBlock, this.lset, this.vsd, this.topPulseConsensus);
+        //console.log("\t\tPulse", this.nodeName, this.vsd.slice(0,8) );
         this.print("Pulse" );
         this.recordPulse(this.nodeName, newPulse);
         var self = this;
