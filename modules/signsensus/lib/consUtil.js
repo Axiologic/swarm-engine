@@ -132,7 +132,7 @@ exports.makeSetFromBlock = function(knownTransactions, block){
         var item = block[i];
         result[item] = knownTransactions[item];
         if(!knownTransactions.hasOwnProperty(item)){
-            throw new Error("Do not give unknown transaction digests to makeSetFromBlock " + item);
+            console.log(new Error("Do not give unknown transaction digests to makeSetFromBlock " + item));
         }
     }
     return result;

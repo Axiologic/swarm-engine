@@ -31,9 +31,9 @@ exports.init = function(){
 
 toalGeneratedCounter = 0 ;
 exports.generateRandomTransaction = function() {
-    var i = cutil.getRandomInt(cfg.MAX_NODES);
-    var node = nodes[i];
-    var pdsHanlder = PDSFakes[i].getHandler();
+    var nodeNumber = cutil.getRandomInt(cfg.MAX_NODES);
+    var node = nodes[nodeNumber];
+    var pdsHanlder = PDSFakes[nodeNumber].getHandler();
 
     var swarm = {
         swarmName: "Swarm:" + toalGeneratedCounter
@@ -57,7 +57,7 @@ exports.generateRandomTransaction = function() {
         }
     }
 
-    PDSFakes[i].computeSwarmTransactionDiff(swarm, pdsHanlder);
+    PDSFakes[nodeNumber].computeSwarmTransactionDiff(swarm, pdsHanlder);
     node.createTransactionFromSwarm(swarm);
     toalGeneratedCounter++;
 }
