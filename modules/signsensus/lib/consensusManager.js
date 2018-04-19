@@ -71,11 +71,9 @@ $$.flow.describe("pulseSwarm", {
         this.vsd = this.pdsAdapter.getVSD();
 
         this.level = 0;
+        this.commitCounter = 0;
 
         this.beat();
-    },
-    advance: function(){
-
     },
     beat:function(){
         var ptBlock             = null;
@@ -93,9 +91,12 @@ $$.flow.describe("pulseSwarm", {
                     this.pset = cutil.setsConcat(this.pset, this.dset);
                     this.dset = {};
                     var resultSet = cutil.makeSetFromBlock(this.pset, ptBlock)
+
+                    this.commitCounter+= ptBlock.length;
+
                     this.pdsAdapter.commit(resultSet);
                     this.level++;
-                    fs.writeFileSync(this.level+"-"+this.vsd+"-"+this.nodeName, JSON.stringify(resultSet));
+                    //fs.writeFileSync(this.level+"-"+this.vsd+"-"+this.nodeName, JSON.stringify(resultSet));
                     var topDigest = ptBlock[ptBlock.length - 1];
                     this.topPulseConsensus = this.pset[topDigest].CP;
                     cutil.setsRemovePtBlockAndPastTransactions(this.pset, ptBlock, this.topPulseConsensus); //cleanings
@@ -105,15 +106,15 @@ $$.flow.describe("pulseSwarm", {
                     this.lastPulseAchievedConsensus = this.currentPulse;
                     //this.topPulseConsensus = nextConsensusPulse;
 
-                    this.print("\t\tBlock [" + this.dumpPtBlock(ptBlock) + "] at pulse " + nextConsensusPulse + " and VSD " + oldVsd.slice(0,8));
+                    //this.print("\t\tBlock [" + this.dumpPtBlock(ptBlock) + "] at pulse " + nextConsensusPulse + " and VSD " + oldVsd.slice(0,8));
                     break;
                 } else {
                     this.pset = cutil.setsConcat(this.pset, this.dset);
                     this.dset = {};
                     this.lastPulseAchievedConsensus = this.currentPulse;
                     this.topPulseConsensus = nextConsensusPulse;
-                    this.print("\t\tEmpty " + " at: " + nextConsensusPulse );
-                    console.log("\t\tmajoritarian ", majoritarianVSD.slice(0,8) , nextConsensusPulse);
+                    //this.print("\t\tEmpty " + " at: " + nextConsensusPulse );
+                    //console.log("\t\tmajoritarian ", majoritarianVSD.slice(0,8) , nextConsensusPulse);
                     break;
                 }
             }
@@ -124,7 +125,7 @@ $$.flow.describe("pulseSwarm", {
         ptBlock             = this.pdsAdapter.computePTBlock(this.pset);
         var newPulse        = cutil.createPulse(this.nodeName, this.currentPulse, ptBlock, this.lset, this.vsd, this.topPulseConsensus, this.lastPulseAchievedConsensus);
         //console.log("\t\tPulse", this.nodeName, this.vsd.slice(0,8) );
-        this.print("Pulse" );
+        //this.print("Pulse" );
         this.recordPulse(this.nodeName, newPulse);
         var self = this;
         self.communicationOutlet.broadcastPulse(self.nodeName, newPulse);
@@ -163,7 +164,10 @@ $$.flow.describe("pulseSwarm", {
             return l;
         }
 
-        console.log( this.nodeName, " | ", str, " | ", "currentPulse:",this.currentPulse,"top:",this.topPulseConsensus,"LPAC:",this.lastPulseAchievedConsensus, "VSD:", this.vsd.slice(0,8), " | ", countSet(this.pset), countSet(this.dset), countSet(this.lset));
+        console.log( this.nodeName, " | ", str, " | ",
+            "currentPulse:",this.currentPulse,"top:",this.topPulseConsensus,"LPAC:",this.lastPulseAchievedConsensus, "VSD:", this.vsd.slice(0,8),
+            " | ", countSet(this.pset), countSet(this.dset), countSet(this.lset),
+            " | ", this.commitCounter, toalGeneratedCounter);
 
     },
     createTransactionFromSwarm : function(swarm){
