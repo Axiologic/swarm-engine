@@ -14,7 +14,7 @@ var votingBox = cutil.createDemocraticVotingBox(3);
 
 
 var pset = {};
-var currentVSD = pdsAdapter.computeVSD();
+var currentVSD = pdsAdapter.getVSD();
 
 function recordPulse(from, pulse){
     if( !pulse.ptBlock){

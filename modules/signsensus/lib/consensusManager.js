@@ -4,6 +4,7 @@
 
 var ssutil = require("./ssutil");
 var cutil = require("./consUtil");
+var fs = require("fs");
 require("../../../engine/core").enableTesting();
 
 var fs = require("fs");
@@ -35,12 +36,12 @@ $$.flow.describe("pulseSwarm", {
 
     },
     printState:function(){
-      console.log(this.nodeName,",",this.currentPulse,",",this.vsd);
+        console.log(this.nodeName,",",this.currentPulse,",",this.vsd);
     },
     printPset: function(){
         var arr=[this.nodeName, this.currentPulse, this.topPulseConsensus,this.lastPulseAchievedConsensus, sortedDigests(this.pset), sortedDigests(this.dset),sortedDigests(this.lset), this.vsd];
         appendToCSV("data.csv",arr);
-       // console.log(this.nodeName,",",this.currentPulse,",",Object.keys(this.pset).length);
+        // console.log(this.nodeName,",",this.currentPulse,",",Object.keys(this.pset).length);
     },
 
     start:function(delegatedAgentName, communicationOutlet, pdsAdapter, pulsePeriodicity){
@@ -67,7 +68,9 @@ $$.flow.describe("pulseSwarm", {
             max:0
         };
         this.nodeName = delegatedAgentName;
-        this.vsd = this.pdsAdapter.computeVSD();
+        this.vsd = this.pdsAdapter.getVSD();
+
+        this.level = 0;
 
         this.beat();
     },
@@ -87,19 +90,22 @@ $$.flow.describe("pulseSwarm", {
             if (ptBlock != "none" && this.vsd == majoritarianVSD) {
                 //console.log(this.nodeName, ptBlock.length,this.vsd, majoritarianVSD, nextConsensusPulse);
                 if (ptBlock.length /*&& this.hasAllTransactions(ptBlock)*/) {
-                        this.pset = cutil.setsConcat(this.pset, this.dset);
-                        this.dset = {};
-                        this.pdsAdapter.commit(cutil.makeSetFromBlock(this.pset, ptBlock));
-                        var topDigest = ptBlock[ptBlock.length - 1];
-                        this.topPulseConsensus = this.pset[topDigest].CP;
-                        cutil.setsRemovePtBlockAndPastTransactions(this.pset, ptBlock, this.topPulseConsensus); //cleanings
-                        var oldVsd = this.vsd;
-                        this.vsd = this.pdsAdapter.computeVSD();
+                    this.pset = cutil.setsConcat(this.pset, this.dset);
+                    this.dset = {};
+                    var resultSet = cutil.makeSetFromBlock(this.pset, ptBlock)
+                    this.pdsAdapter.commit(resultSet);
+                    this.level++;
+                    fs.writeFileSync(this.level+"-"+this.vsd+"-"+this.nodeName, JSON.stringify(resultSet));
+                    var topDigest = ptBlock[ptBlock.length - 1];
+                    this.topPulseConsensus = this.pset[topDigest].CP;
+                    cutil.setsRemovePtBlockAndPastTransactions(this.pset, ptBlock, this.topPulseConsensus); //cleanings
+                    var oldVsd = this.vsd;
+                    this.vsd = this.pdsAdapter.getVSD();
 
-                        this.lastPulseAchievedConsensus = this.currentPulse;
-                        //this.topPulseConsensus = nextConsensusPulse;
+                    this.lastPulseAchievedConsensus = this.currentPulse;
+                    //this.topPulseConsensus = nextConsensusPulse;
 
-                        this.print("\t\tBlock [" + this.dumpPtBlock(ptBlock) + "] at pulse " + nextConsensusPulse + " and VSD " + oldVsd.slice(0,8));
+                    this.print("\t\tBlock [" + this.dumpPtBlock(ptBlock) + "] at pulse " + nextConsensusPulse + " and VSD " + oldVsd.slice(0,8));
                     break;
                 } else {
                     this.pset = cutil.setsConcat(this.pset, this.dset);
@@ -179,15 +185,15 @@ $$.flow.describe("pulseSwarm", {
 
         //console.log(pulse.top, from);
         /*var h =  this.pulsesHistory[pulse.top];
-        if(h){
-            var p = [from];
-            if(p){
-                p.vsd = pulse.vsd;
-            } else {
-                console.log("-----------------------",pulse.top, from);
-                this.pulsesHistory[pulse.top][from] = pulse;
-            }
-        } */
+         if(h){
+         var p = [from];
+         if(p){
+         p.vsd = pulse.vsd;
+         } else {
+         console.log("-----------------------",pulse.top, from);
+         this.pulsesHistory[pulse.top][from] = pulse;
+         }
+         } */
 
         if(pulse.currentPulse >= this.topPulseConsensus) {
             if (pulse.currentPulse <= this.lastPulseAchievedConsensus ) {
@@ -207,9 +213,7 @@ $$.flow.describe("pulseSwarm", {
 
 
 exports.createConsensusManager = function(delegatedAgent, communicationOutlet, pdsAdapter, pulsePeriodicity){
-        var swarm = $$.flow.start("pulseSwarm");
-        swarm.start(delegatedAgent, communicationOutlet, pdsAdapter, pulsePeriodicity);
+    var swarm = $$.flow.start("pulseSwarm");
+    swarm.start(delegatedAgent, communicationOutlet, pdsAdapter, pulsePeriodicity);
     return swarm;
 }
-
-

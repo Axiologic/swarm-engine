@@ -95,17 +95,17 @@ exports.hashStringArray = function hashStringArray(counter, arr, payloadSize){
 
 
 function dumpMember(obj){
-    var type = typeof obj;
-    if(obj == null){
+    var type = Array.isArray(obj) ? "array" : typeof obj;
+    if(obj === null){
         return "null";
     }
-    if(obj == undefined){
+    if(obj === undefined){
         return "undefined";
     }
 
     switch(type){
         case "number":
-        case "string":return obj.toString(16); break;
+        case "string":return obj.toString(); break;
         case "object": return exports.dumpObjectForHashing(obj); break;
         case "boolean": return  obj? "true": "false"; break;
         case "array":
@@ -125,10 +125,10 @@ function dumpMember(obj){
 exports.dumpObjectForHashing = function(obj){
     var result = "";
 
-    if(obj == null){
+    if(obj === null){
         return "null";
     }
-    if(obj == undefined){
+    if(obj === undefined){
         return "undefined";
     }
 
@@ -139,7 +139,8 @@ exports.dumpObjectForHashing = function(obj){
         "string"    : true,
         "object"    : false
     }
-    var type = typeof obj;
+
+    var type = Array.isArray(obj) ? "array" : typeof obj;
     if( basicTypes[type]){
         return dumpMember(obj);
     }

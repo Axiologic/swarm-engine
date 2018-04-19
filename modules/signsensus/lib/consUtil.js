@@ -131,7 +131,7 @@ exports.makeSetFromBlock = function(knownTransactions, block){
     for(var i = 0 ; i < block.length; i++ ){
         var item = block[i];
         result[item] = knownTransactions[item];
-        if(!result.hasOwnProperty(item)){
+        if(!knownTransactions.hasOwnProperty(item)){
             throw new Error("Do not give unknown transaction digests to makeSetFromBlock " + item);
         }
     }

@@ -1,0 +1,133 @@
+{
+  "aec9757c2eb187b738ca70209b0bfc7d6597526322ac65cd77a38e8d4e31bccb": {
+    "input": {
+      "key4": 0
+    },
+    "output": {},
+    "swarm": {
+      "swarmName": "Swarm:0",
+      "input": {
+        "key4": 0
+      },
+      "output": {}
+    },
+    "second": 3115112,
+    "nanosecod": 817322403,
+    "CP": 1,
+    "digest": "aec9757c2eb187b738ca70209b0bfc7d6597526322ac65cd77a38e8d4e31bccb"
+  },
+  "f73dccd71493ce574e900dd7cc3e280c97ab608bbc39c899933c08c08d841e40": {
+    "input": {
+      "key3": 0
+    },
+    "output": {},
+    "swarm": {
+      "swarmName": "Swarm:6",
+      "input": {
+        "key3": 0
+      },
+      "output": {}
+    },
+    "second": 3115112,
+    "nanosecod": 919769004,
+    "CP": 1,
+    "digest": "f73dccd71493ce574e900dd7cc3e280c97ab608bbc39c899933c08c08d841e40"
+  },
+  "e2e81d9bec30b6ec1322665f65bcd287189ab1c484ab733e6ee2f35f0f2d4f02": {
+    "input": {
+      "key4": 0
+    },
+    "output": {},
+    "swarm": {
+      "swarmName": "Swarm:7",
+      "input": {
+        "key4": 0
+      },
+      "output": {}
+    },
+    "second": 3115113,
+    "nanosecod": 61508322,
+    "CP": 2,
+    "digest": "e2e81d9bec30b6ec1322665f65bcd287189ab1c484ab733e6ee2f35f0f2d4f02"
+  },
+  "7e89aa5f3acf9fba668ad7c4c29bdd7b7b3e01fec47cc65894d283632d286808": {
+    "input": {
+      "key6": 0,
+      "key4": 0
+    },
+    "output": {},
+    "swarm": {
+      "swarmName": "Swarm:8",
+      "input": {
+        "key6": 0,
+        "key4": 0
+      },
+      "output": {}
+    },
+    "second": 3115113,
+    "nanosecod": 89827581,
+    "CP": 2,
+    "digest": "7e89aa5f3acf9fba668ad7c4c29bdd7b7b3e01fec47cc65894d283632d286808"
+  },
+  "fc1c6898690a8df6553e83d6738da06b5596eca09dcb6bd08fb9ef43c7a4a71c": {
+    "input": {
+      "key6": 0,
+      "key4": 0
+    },
+    "output": {},
+    "swarm": {
+      "swarmName": "Swarm:8",
+      "input": {
+        "key6": 0,
+        "key4": 0
+      },
+      "output": {}
+    },
+    "second": 3115113,
+    "nanosecod": 89972327,
+    "CP": 2,
+    "digest": "fc1c6898690a8df6553e83d6738da06b5596eca09dcb6bd08fb9ef43c7a4a71c"
+  },
+  "6dd78008c5c20738b065a018fc47636d3ef43fcfbf89ba47429c420d319d1866": {
+    "input": {
+      "key6": 0,
+      "key4": 0
+    },
+    "output": {},
+    "swarm": {
+      "swarmName": "Swarm:8",
+      "input": {
+        "key6": 0,
+        "key4": 0
+      },
+      "output": {}
+    },
+    "second": 3115113,
+    "nanosecod": 90071195,
+    "CP": 2,
+    "digest": "6dd78008c5c20738b065a018fc47636d3ef43fcfbf89ba47429c420d319d1866"
+  },
+  "d224fbdfedf3e67fc4db2057def9dbdcb6c4c412a26038ef0d2e12b3a31cad8a": {
+    "input": {
+      "key0": 0,
+      "key8": 0
+    },
+    "output": {
+      "key8": 7164
+    },
+    "swarm": {
+      "swarmName": "Swarm:11",
+      "input": {
+        "key0": 0,
+        "key8": 0
+      },
+      "output": {
+        "key8": 7164
+      }
+    },
+    "second": 3115113,
+    "nanosecod": 93282440,
+    "CP": 2,
+    "digest": "d224fbdfedf3e67fc4db2057def9dbdcb6c4c412a26038ef0d2e12b3a31cad8a"
+  }
+}

@@ -15,7 +15,7 @@ var votingBox = pdsAdapter.getShareHoldersVotingBox();
 var majoritarian = cutil.detectMajoritarianVSD(currentPulse, pulsesHistory, votingBox);
 
 var pset = {};
-var currentVSD = pdsAdapter.computeVSD();
+var currentVSD = pdsAdapter.getVSD();
 console.log(majoritarian); // should be none
 
 function recordPulse(from, pulse){
