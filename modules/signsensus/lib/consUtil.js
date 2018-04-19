@@ -159,7 +159,7 @@ exports.setsRemovePtBlockAndPastTransactions = function(target, arr, maxPulse){
     var toBeRemoved = [];
     for(var d in target){
             for(var i=0; i<arr.length; i++){
-                if(arr[i] == d || target[d].CP <= maxPulse){
+                if(arr[i] == d || target[d].CP < maxPulse){
                     toBeRemoved.push(d);
                 }
             }
