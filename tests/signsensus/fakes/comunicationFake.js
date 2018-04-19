@@ -11,7 +11,9 @@ var com = {
     broadcastPulse: function(from, pulse){
         nodes.forEach( function(n){
                 if(n.nodeName != from) {
-                    n.recordPulse(from, pulse);
+                    setTimeout(function(){
+                        n.recordPulse(from, pulse);
+                    }, cutil.getRandomInt(100));
                 }
         });
     }
@@ -53,11 +55,11 @@ exports.generateRandomTransaction = function() {
         } else {
             pdsHanlder.writeKey(keyName, cutil.getRandomInt(10000));
         }
-
-        PDSFakes[i].computeSwarmTransactionDiff(swarm, pdsHanlder);
-        node.createTransactionFromSwarm(swarm);
-        toalGeneratedCounter++;
     }
+
+    PDSFakes[i].computeSwarmTransactionDiff(swarm, pdsHanlder);
+    node.createTransactionFromSwarm(swarm);
+    toalGeneratedCounter++;
 }
 
 exports.dumpVSDs = function(){
