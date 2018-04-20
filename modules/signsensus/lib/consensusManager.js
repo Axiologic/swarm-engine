@@ -147,8 +147,12 @@ $$.flow.describe("pulseSwarm", {
         }
         return true;
     },
+	exportStatistics: function(){
+    return {"numberOfTransactions": this.commitCounter / GLOBAL_MAX_TRANSACTION_TIME,
+        "numberOfPulses":this.currentPulse};
+    },
     dump : function(){
-        this.print("Final");
+       // this.print("Final");
     },
     print: function(str){
         if(!str){

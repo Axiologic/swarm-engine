@@ -20,7 +20,11 @@ var com = {
 }
 
 
-exports.init = function(){
+exports.init = function(config){
+    if(config){
+        console.log("default config overwritten");
+        cfg = config;
+    }
     for(var i = 0; i < cfg.MAX_NODES; i++){
         var np = pds.newPDS(cfg.MAX_NODES);
         PDSFakes.push(np);
@@ -64,4 +68,28 @@ exports.generateRandomTransaction = function() {
 
 exports.dumpVSDs = function(){
     nodes.forEach( node => node.dump());
+}
+
+exports.exportStatistics = function(){
+    var results = [];
+    nodes.forEach( node => {
+        results.push(node.exportStatistics());
+	});
+
+    if(results.length<0){
+        return {};
+    }
+
+    var stat = {};
+    var indicators = Object.keys(results[0]);
+    for(var i=0; i<indicators.length; i++){
+        var ind = indicators[i];
+        var value = 0;
+        for(var j=0; j<nodes.length; j++){
+            value +=results[j][ind];
+        }
+        value = value/nodes.length;
+        stat[ind] = value;
+    }
+    return stat;
 }
