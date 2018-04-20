@@ -152,7 +152,7 @@ $$.flow.describe("pulseSwarm", {
         "numberOfPulses":this.currentPulse};
     },
     dump : function(){
-       // this.print("Final");
+        this.print("Final");
     },
     print: function(str){
         if(!str){

@@ -22,9 +22,3 @@ while(numberTransactions > 0){
 
 console.log(cfg.MAX_TRANSACTIONS,numberTransactions);
 
-//network.generateRandomTransaction();
-setTimeout(function(){
-    network.dumpVSDs();
-    process.exit();
-}, cfg.SIMULATION_TIMEOUT + 1000);
-

@@ -7,6 +7,13 @@ var pds = require("../../../modules/signsensus/lib/InMemoryPDS");
 var cutil = require("../../../modules/signsensus/lib/consUtil");
 var consensus = require("../../../modules/signsensus/lib/consensusManager");
 
+
+var maxPulse = cfg.MAX_TRANSACTION_TIME/cfg.PULSE_PERIODICITY + 1;
+
+var afterFinish = {
+
+};
+
 var com = {
     broadcastPulse: function(from, pulse){
         nodes.forEach( function(n){
@@ -14,10 +21,28 @@ var com = {
                     setTimeout(function(){
                         n.recordPulse(from, pulse);
                     }, cutil.getRandomInt(100));
+                } else {
+                    if(pulse.currentPulse > maxPulse){
+                        afterFinish[from] = true;
+                    }
                 }
         });
+
+
+        if(Object.keys(afterFinish).length >= cfg.MAX_NODES){
+            console.log(Object.keys(afterFinish).length , cfg.MAX_NODES);
+            setTimeout(terminate, 1);
+        }
     }
 }
+
+//network.generateRandomTransaction();
+function terminate(){
+    exports.dumpVSDs();
+    console.log(exports.exportStatistics());
+    process.exit();
+}
+
 
 
 exports.init = function(config){
