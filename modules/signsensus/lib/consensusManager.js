@@ -171,8 +171,7 @@ $$.flow.describe("pulseSwarm", {
         console.log( this.nodeName, " | ", str, " | ",
             "currentPulse:",this.currentPulse,"top:",this.topPulseConsensus,"LPAC:",this.lastPulseAchievedConsensus, "VSD:", this.vsd.slice(0,8),
             " | ", countSet(this.pset), countSet(this.dset), countSet(this.lset),
-            " | ", this.commitCounter, toalGeneratedCounter,
-            " | ", this.commitCounter / GLOBAL_MAX_TRANSACTION_TIME, " tranzactii pe secunda");
+            " | ", this.commitCounter / GLOBAL_MAX_TRANSACTION_TIME, " tranzactii pe secunda. Total tranzactii comise:", this.commitCounter);
 
     },
     createTransactionFromSwarm : function(swarm){

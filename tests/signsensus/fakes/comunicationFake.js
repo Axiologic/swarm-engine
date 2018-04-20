@@ -20,9 +20,9 @@ var com = {
                 if(n.nodeName != from) {
                     setTimeout(function(){
                         n.recordPulse(from, pulse);
-                    }, cutil.getRandomInt(100));
+                    }, cutil.getRandomInt(cfg.NETWORK_DELAY));
                 } else {
-                    if(pulse.currentPulse > maxPulse){
+                    if(pulse.currentPulse > 2 * maxPulse){
                         afterFinish[from] = true;
                     }
                 }
