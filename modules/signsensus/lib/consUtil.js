@@ -6,7 +6,7 @@ var ssutil = require("./ssutil");
 
 exports.getRandomInt = function (max) {
     if(!max){
-        console.log("getRandomInt with undefined argument. Defaulting to 1000");
+        console.log("getRandomInt with undefined argument. Defaulting to 1000", new Error());
         max = 1000;
     }
     var n = Math.floor(Math.random() * max);

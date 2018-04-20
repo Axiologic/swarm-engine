@@ -1,7 +1,3 @@
-
-
-
-
 var ssutil = require("./ssutil");
 var cutil = require("./consUtil");
 var fs = require("fs");
@@ -68,6 +64,7 @@ $$.flow.describe("pulseSwarm", {
             max:0
         };
         this.nodeName = delegatedAgentName;
+        global["Tranzactions_Time"] = 0;
         this.vsd = this.pdsAdapter.getVSD();
 
         this.level = 0;
@@ -86,11 +83,15 @@ $$.flow.describe("pulseSwarm", {
 
 
             if (ptBlock != "none" && this.vsd == majoritarianVSD) {
+            	if(!this.hasAllTransactions(ptBlock)){
+            		console.log("breaking...");
+					break;
+				}
                 //console.log(this.nodeName, ptBlock.length,this.vsd, majoritarianVSD, nextConsensusPulse);
                 if (ptBlock.length /*&& this.hasAllTransactions(ptBlock)*/) {
                     this.pset = cutil.setsConcat(this.pset, this.dset);
                     this.dset = {};
-                    var resultSet = cutil.makeSetFromBlock(this.pset, ptBlock)
+                    var resultSet = cutil.makeSetFromBlock(this.pset, ptBlock);
 
                     this.commitCounter+= ptBlock.length;
 
@@ -148,11 +149,14 @@ $$.flow.describe("pulseSwarm", {
         return true;
     },
 	exportStatistics: function(){
-    return {"numberOfTransactions": this.commitCounter / GLOBAL_MAX_TRANSACTION_TIME,
-        "numberOfPulses":this.currentPulse};
+    return {
+			"NUMBER_OF_TRANZACTIONS_PER_SEC": this.commitCounter / GLOBAL_MAX_TRANSACTION_TIME,
+			"NUMBER_OF_PULSES":this.currentPulse,
+			"TIME_TO_COMMIT_TRANZACTION": global["Tranzactions_Time"]/this.commitCounter
+    	};
     },
     dump : function(){
-        this.print("Final");
+       // this.print("Final");
     },
     print: function(str){
         if(!str){

@@ -100,7 +100,13 @@ function Storage(parentStorage){
             self.writeKey(k, t.output[k]);
         }
 
-        return true;
+		var arr = process.hrtime();
+		var current_second = arr[0];
+		var diff = current_second-t.second;
+
+		global["Tranzactions_Time"]+=diff;
+
+		return true;
     }
 
     this.computePTBlock = function(nextBlockSet){   //make a transactions block from nextBlockSet by removing invalid transactions from the key versions point of view

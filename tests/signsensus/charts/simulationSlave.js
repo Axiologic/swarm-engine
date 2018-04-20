@@ -33,9 +33,9 @@ while(numberTransactions > 0){
 	numberTransactions--;
 }
 
-setTimeout(function(){
+/*setTimeout(function(){
 	process.send({pid: process.pid, stats: network.exportStatistics()});
 	network.dumpVSDs();
 	process.exit();
-}, cfg.SIMULATION_TIMEOUT + 1000);
+}, cfg.SIMULATION_TIMEOUT + 1000);*/
 

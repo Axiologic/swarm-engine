@@ -8,11 +8,9 @@ var cutil = require("../../../modules/signsensus/lib/consUtil");
 var consensus = require("../../../modules/signsensus/lib/consensusManager");
 
 
-var maxPulse = cfg.SIMULATION_TIMEOUT/cfg.PULSE_PERIODICITY + 1;
+var maxPulse;
 
-var afterFinish = {
-
-};
+var afterFinish = {};
 
 var com = {
     broadcastPulse: function(from, pulse){
@@ -38,8 +36,8 @@ var com = {
 
 //network.generateRandomTransaction();
 function terminate(){
+	process.send({pid: process.pid, stats: exports.exportStatistics()})
     exports.dumpVSDs();
-    console.log(exports.exportStatistics());
     process.exit();
 }
 
@@ -50,6 +48,7 @@ exports.init = function(config){
         console.log("default config overwritten");
         cfg = config;
     }
+    maxPulse = cfg.SIMULATION_TIMEOUT/cfg.PULSE_PERIODICITY + 1;
     for(var i = 0; i < cfg.MAX_NODES; i++){
         var np = pds.newPDS(cfg.MAX_NODES);
         PDSFakes.push(np);
@@ -108,13 +107,13 @@ exports.exportStatistics = function(){
     var stat = {};
     var indicators = Object.keys(results[0]);
     for(var i=0; i<indicators.length; i++){
-        var ind = indicators[i];
-        var value = 0;
+        let ind = indicators[i];
+        let value = 0;
         for(var j=0; j<nodes.length; j++){
-            value +=results[j][ind];
+            var newValue = results[j][ind];
+            value += newValue;
         }
-        value = value/nodes.length;
-        stat[ind] = value;
+        stat[ind] = value/nodes.length;
     }
     return stat;
 }

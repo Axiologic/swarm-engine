@@ -33,6 +33,7 @@
     }
   ],
   "dependencies": {
+    "combos": "^0.2.0",
     "secp256k1": "^3.5.0"
   }
 }
