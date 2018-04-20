@@ -8,7 +8,7 @@ var cutil = require("../../../modules/signsensus/lib/consUtil");
 var consensus = require("../../../modules/signsensus/lib/consensusManager");
 
 
-var maxPulse = cfg.MAX_TRANSACTION_TIME/cfg.PULSE_PERIODICITY + 1;
+var maxPulse = cfg.SIMULATION_TIMEOUT/cfg.PULSE_PERIODICITY + 1;
 
 var afterFinish = {
 
