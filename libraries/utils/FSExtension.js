@@ -54,7 +54,7 @@ function FSExtention(){
         var isWin = (os.platform() === 'win32');
         var cmd = isWin ? "mkdir " : "mkdir -p ";
 
-        child_process.execSync(cmd + dir, {stdio:[0,1,2]});
+        child_process.execSync(cmd + "\""+dir+"\"", {stdio:[0,1,2]});
     }
 
     /**
