@@ -2,11 +2,20 @@ const fs = require("fs")
 const actionsRegistry = require("./ActionsRegistry")
 
 const TAG = "[Deployer]";
-
 $$.callflow.describe("Deployer", {
+    /**
+     * run
+     *
+     * @param configFileOrObject
+     * @param callback
+     */
     run: function(configFileOrObject, callback) {
-        this.callback = callback;
 
+        if(typeof callback !== "function") {
+            throw "Callback provided is not a function!";
+        }
+
+        this.callback = callback;
         try{
             this.__init(configFileOrObject);
             console.info(TAG, "Start checking dependencies...");
@@ -34,7 +43,21 @@ $$.callflow.describe("Deployer", {
             this.configJson = config;
             this.dependencies = config.dependencies;
         }
+
+        if(this.configJson.workDir) {
+            this.actionsRegistry.setWorkDir(this.configJson.workDir);
+        }
     },
+    /**
+     *__checkConfig
+     *    CheckConfig takes {Object/File path}configFileOrObject as a parameter ,if it
+     *    is a file it reads the .JSON file, creates and validates an Object containing an Array of dependencies.
+     *    Object.dependencies should be an Array anything else is rejected
+     *
+     * @param {Object|File}configFileOrObject
+     * @returns {{}} config
+     *@private__checkConfig
+     */
     __checkConfig: function(configFileOrObject) {
         if(!configFileOrObject) {
             throw "Config file path or config object not provided!";
@@ -55,19 +78,33 @@ $$.callflow.describe("Deployer", {
             throw "Dependencies prop is not Array!";
         }
 
-        for(var c in config.dependencies) {
-            let dep = config.dependencies[c];
+        for(let i = 0, len = config.dependencies.length; i< len; i++) {
+            let dep = config.dependencies[i];
             if(!dep.actions || !Array.isArray(dep.actions) || dep.actions.length == 0){
-                throw `No actions available for ${dep.name} dependecy or wrong format.`;
+                throw `No actions available for ${dep.name} dependency or wrong format.`;
             }
         }
-
         return config;
     },
+    /**
+     *  __readConfig
+     *  ReadConfig function that takes a .JSON file path, creates and  returns an Object.
+     *
+     * @param {File path}configFilePath
+     * @returns {*}
+     *@private __readConfig
+     */
     __readConfig: function(configFilePath){
         let config = require(configFilePath);
         return config;
     },
+    /**
+     *__runDependency
+     *
+     * RunDependency checks if all the dependencies have been deployed, if not it deploys the next dependency
+     * @param {Number}index
+     *@private __runDependency
+     */
     __runDependency: function(index) {
 
         // done with all dependencies
@@ -84,6 +121,13 @@ $$.callflow.describe("Deployer", {
         console.info(TAG, "Running dependency: [" + index + "] " + dep.name);
         this.__runAction(index, 0);
     },
+    /**
+     * __runAction
+     *
+     * @param {Number}depIndex
+     * @param {Number}actionIndex
+     * @private__runAction
+     */
     __runAction: function(depIndex, actionIndex) {
 
         var self = this;
@@ -94,7 +138,9 @@ $$.callflow.describe("Deployer", {
                     self.callback(error, null);
                 }
             } else {
-                console.log(JSON.stringify(result));
+                if(result){
+                    console.log("depIndex:", depIndex, "actionIndex:", actionIndex, "result:", JSON.stringify(result));
+                }
                 actionIndex++;
                 if(actionIndex < dep.actions.length){
                     self.__runAction(depIndex, actionIndex);

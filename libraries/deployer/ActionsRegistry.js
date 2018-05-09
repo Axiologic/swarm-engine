@@ -6,15 +6,28 @@ const urlUtil = require('url');
 const http = require('http');
 const https = require('https');
 
-const fsExt = require('../utils/FSExtension').fsExt;
+const fsExt = require('../utils/FSExtension').fsExt
 
 const accessSync = fs.accessSync;
 const constants = fs.constants || fs;
 
+/**
+ * Contains default actions
+ * @constructor
+ */
 function ActionsRegistry(){
     var actions = {};
-    
+
     // default actions
+    /**
+     *install
+     *Install function that installs a dependency from a source(npm or URL package)
+     *
+     * @param {String} action
+     * @param {Object} dependency: has attributes: src that can be either npm or a Git Repository, name of the package,
+     * and workDir (optional) where the package will be installed
+     * @param {Function} callback
+     */
     actions.install = function(action, dependency, callback){
         if(!dependency || !dependency.src){
             throw  "No source (src) attribute found on: " + JSON.stringify(dependency);
@@ -26,12 +39,30 @@ function ActionsRegistry(){
             target = dependency.name;
         }
 
+        let commandOpts = {stdio:[0, "pipe", "pipe"]};
+        if(dependency.workDir) {
+            commandOpts.cwd = dependency.workDir;
+        }
+
         console.log("npm install " + target);
-        child_process.execSync("npm install " + target, {stdio:[0,1,2]});
+        let error = null;
+        let response = `Finished install action on dependency ${dependency.name}`;
+        try {
+            child_process.execSync("npm install " + target, commandOpts);
+        } catch(e) {
+            error = e;
+            response = null
+        }
 
-        callback(null, `Finished install action on dependency ${dependency.name}`);
+        callback(error, response);
     };
-
+    /**
+     *download
+     *Download function, downloads from a source dependency.src to a target action.target
+     * @param {Object}action
+     * @param {Object}dependency
+     * @param {Function}callback
+     */
     actions.download = function(action, dependency, callback){
 
         if(!dependency || !dependency.src){
@@ -51,11 +82,10 @@ function ActionsRegistry(){
     }
 
     var _downloadAsync = function(url, dest, callback) {
-        var file = fs.createWriteStream(dest);
 
-        performRequest(url, file, callback);
+        performRequest(url, dest, callback);
 
-        function performRequest(url, file, callback) {
+        function performRequest(url, dest, callback) {
             var maxNumRedirects = 5;
 
             function doRequest(url, callback, redirectCount) {
@@ -64,7 +94,7 @@ function ActionsRegistry(){
                 }
 
                 var protocol = resolveProtocol(url);
-                if(typeof protocol === "string") {
+                if(typeof protocol === "string" || protocol == null) {
                     throw "URL Protocol " + protocol + " not supported! Supported protocols are http and https!"
                 }
 
@@ -85,13 +115,15 @@ function ActionsRegistry(){
 
                     } else {
                         // no redirect; capture the response as normal and invoke the success callback
+                        var file = fs.createWriteStream(dest);
                         res.pipe(file);
                         file.on('finish', function() {
                             file.close(callback);  // async
+                        }).on('error', function(error) {
+                            fs.unlink(dest, callback); // async
                         });
                     }
                 }).on('error', function(error) {
-                    fs.unlink(dest); // async
                     callback(error, null);
                 });
             }
@@ -112,10 +144,17 @@ function ActionsRegistry(){
             }
         }
     };
-
+    /**
+     * move
+     * Moves file or directory from actions.src to action.target
+     * @param {Object}action. The available options are:
+     * - overwrite <boolean>: overwrite existing file or directory, default is false. Note that the move operation will silently fail if you set this to true and the destination exists.
+     * @param {Object}dependency
+     * @param {Function}callback
+     */
     actions.move = function(action, dependency, callback){
         if(!action.src){
-           throw "No source (src) attribute found on: " + JSON.stringify(action);
+            throw "No source (src) attribute found on: " + JSON.stringify(action);
         }
 
         var target = os.tmpdir();
@@ -123,10 +162,21 @@ function ActionsRegistry(){
             target = action.target;
         }
 
-        console.log(`Start moving ${action.src} to ${target}`);
-        fsExt.move(action.src, target, callback);
-    }
+        let options = action.options || {};
+        options.overwrite =  options.overwrite ? options.overwrite : false;
 
+        console.log(`Start moving ${action.src} to ${target}`);
+        fsExt.move(action.src, target, options, callback);
+    }
+    /**
+     *clone
+     * Clone function used to make a git clone of repo dependency.src in a specific location action.target
+     * Optional clone options can be specified in {Object}action.options
+     * Optional credentials: username and password can be specified in {Object}dependency.credentials
+     * @param {Object}action
+     * @param {Object}dependency
+     * @param {Function}callback
+     */
     actions.clone = function(action, dependency, callback) {
         if(!dependency || !dependency.src){
             throw "No source (src) attribute found on: " + JSON.stringify(dependency);
@@ -137,16 +187,24 @@ function ActionsRegistry(){
             target =  fsExt.resolvePath(path.join(action.target, dependency.name));
         }
 
+        // the target if exists, should be empty
+        if(fs.existsSync(target) && fs.readdirSync(target).length > 0) {
+            throw `Destination path (target) ${target} already exists and is not an empty directory.`;
+        }
+
         var options = {};
         if(action && typeof action.options === "object") {
             options = action.options;
         }
 
-        _cloneSync(dependency.src, target, options);
-        callback(null, `Finished clone action on dependency ${dependency.name}`);
+        _clone(dependency.src, target, options, dependency.credentials, function(err, res){
+            if(!err){
+                callback(err, `Finished clone action on dependency "${dependency.name}"`);
+            }
+        });
     }
 
-    var _cloneSync = function (remote, tmp, options) {
+    var _clone = function (remote, tmp, options, credentials, callback) {
         var commandExists = _commandExistsSync("git");
         if(!commandExists) {
             throw "git command does not exist! Please install git and run again the program!"
@@ -157,9 +215,155 @@ function ActionsRegistry(){
             optionsCmd += " --" + op + "=" + options[op];
         }
 
+        remote = _parseRemoteHttpUrl(remote, credentials);
+
         let cmd = "git clone" + optionsCmd + " " + remote + " " + tmp;
         console.log(`Running command ${cmd}`);
-        child_process.execSync(cmd, {stdio:[0,1,2]});
+        var errorHandlers = {
+            "warning: You appear to have cloned an empty repository": function(){
+                console.log("Empty repo. Nothing to worry. Continue...")
+                return true;
+            }
+        };
+        child_process.exec(cmd,{stdio:[0, "pipe", "pipe"]}, function(err, stdout, stderr){
+            var next = true;
+            if(err){
+                for (var prop in errorHandlers){
+                    if(stdout && stdout.indexOf(prop) != -1 || stderr && stderr.indexOf(prop) != -1){
+                        next = errorHandlers[prop]();
+                        if(!next){
+                            callback(err, "");
+                            break;
+                        }
+                    }
+                }
+            }
+            if(next){
+                callback(null, "");
+            }
+        });
+    }
+
+    var _parseRemoteHttpUrl = function(remote, credentials) {
+
+        // if credentials are given, add them in the URL
+        if(credentials && credentials.username && credentials.password) {
+
+            const parsedUrl = urlUtil.parse(remote);
+            if(parsedUrl.protocol == "http:" || parsedUrl.protocol == "https:") {
+
+                // clean existing username, if any
+                let currentUsername = "";
+                let endOfUsername = remote.indexOf("@");
+
+                if(endOfUsername != -1) {
+                    currentUsername = remote.slice(parsedUrl.protocol.length + 2, endOfUsername +1); // + 2 for // and + 1 for @
+                }
+
+                let encodedUsername= encodeURIComponent(credentials.username);
+                let encodedPassword = encodeURIComponent(credentials.password);
+
+                let urlCredentials = `${parsedUrl.protocol}//${encodedUsername}:${encodedPassword}@`;
+                remote = remote.replace(`${parsedUrl.protocol}//${currentUsername}`, urlCredentials);
+            }
+        }
+
+        return remote;
+    }
+
+    /**
+     * commit
+     * Commit function used to make a git add -A, commit and push into a repo dependency.src in a specific location action.target
+     * Optional clone options can be specified in {Object}action.options
+     * Optional credentials: username and password can be specified in {Object}dependency.credentials
+     * @param {Object}action
+     * @param {Object}dependency
+     * @param {Function}callback
+     */
+    actions.commit = function(action, dependency, callback) {
+        if(!dependency || !dependency.src){
+            throw "No source (src) attribute found on: " + JSON.stringify(dependency);
+        }
+
+        if(!action || !action.target){
+            throw "No target attribute found on: " + JSON.stringify(action);
+        }
+
+        if(!action.message){
+            throw "No message attribute found on: " + JSON.stringify(action);
+        }
+
+        var commandExists = _commandExistsSync("git");
+        if(!commandExists) {
+            throw "git command does not exist! Please install git and run again the program!"
+        }
+
+        _commit(dependency.src, action.target, action.message, dependency.credentials, action.options.branch, callback);
+    }
+
+    var _commit = function(remote, workDir, message, credentials, branch, callback) {
+
+        var errorHandlers = {
+            "nothing to commit, working directory clean": function(){
+                console.log("Nothing to commit.");
+                return false;
+            },
+            "push.default is unset": function(){
+                console.log("You can define options.branch in order to fix this");
+                return true;
+            }
+        };
+
+        remote = _parseRemoteHttpUrl(remote, credentials);
+
+        var commands = [];
+
+        if(credentials){
+            let username = credentials.username || "unassigned";
+            let email = credentials.email || "unassigned";
+
+            commands.push("git config user.username "+username);
+            commands.push("git config user.email "+email);
+        }
+
+        commands.push("git status");
+        commands.push("git add .");
+        commands.push(`git commit -m "${message}"`);
+        if(!branch){
+            commands.push("git push");
+        }else{
+            commands.push(`git push origin ${branch}`);
+        }
+
+        function executeCommand(cmd){
+            child_process.exec(cmd,{cwd: path.resolve(workDir), stdio:[0, "pipe", "pipe"]}, function(err, stdout, stderr){
+                var next = true;
+                if(err){
+                    console.log("Commit command encountered next error", err);
+                }
+                for (var prop in errorHandlers){
+                    if(stdout && stdout.indexOf(prop) != -1 || stderr && stderr.indexOf(prop) != -1){
+                        next = errorHandlers[prop]();
+                    }
+                }
+                if(next){
+                    execute();
+                }else{
+                    callback(err);
+                }
+            });
+        }
+
+        function execute(){
+            if(commands.length>0){
+                executeCommand(commands.shift());
+            }else{
+                callback(null, "Commit done.");
+            }
+        }
+
+        execute();
+
     }
 
     var _commandExistsSync = function(commandName) {
@@ -190,23 +394,38 @@ function ActionsRegistry(){
             return false;
         }
     }
-
+    /**
+     * copy
+     * Copy a file or a directory, from{String}dependency.src to {String}action.target
+     * NOTE: If src is a directory it will copy everything inside of the directory, not the entire directory itself.
+     * NOTE: If src is a file, target cannot be a directory.
+     * @param {Object} action. The available options are:
+     * - overwrite <boolean>: overwrite existing file or directory, default is true. Note that the copy operation will silently fail if you set this to false and the destination exists.
+     * @param {Object} dependency.
+     * @param {Function}callback
+     */
     actions.copy = function (action, dependency, callback) {
         if(!dependency.src){
-           throw "No source (src) attribute found on: " + JSON.stringify(dependency);
+            throw "No source (src) attribute found on: " + JSON.stringify(dependency);
         }
 
         if(!action.target){
             throw "No target attribute found on: " + JSON.stringify(action);
         }
 
-        let src = path.join(dependency.src, dependency.name);
-        let target = path.join(action.target, dependency.name);
+        let options = action.options || {};
+        options.overwrite =  !!options.overwrite;
 
-        console.log("Start copying " + src + " to folder " + target);
-        fsExt.copy(src, target, callback);
+        console.log("Start copying " + dependency.src + " to folder " + action.target);
+        fsExt.copy(dependency.src, action.target, options, callback);
     }
-
+    /**
+     *remove
+     * Remove, remove a file/directory from  a specified path {String}action.target;
+     * @param {Object}action
+     * @param {Object}dependency
+     * @param {Function}callback
+     */
     actions.remove = function (action, dependency, callback) {
         if(!action.target){
             throw "No target attribute found on: " + JSON.stringify(action);
@@ -214,10 +433,16 @@ function ActionsRegistry(){
 
         fsExt.remove(action.target, callback);
     }
-
+    /**
+     *extract
+     * Extracts a .zip file from a source path {String}action.src to a specific path {String}action.target
+     * @param {Object}action
+     * @param {Object}dependency
+     * @param {Function}callback
+     */
     actions.extract = function(action, dependency, callback) {
         if(!action.src || !action.target){
-           throw "No source (src) or target attribute found on: " + JSON.stringify(action);
+            throw "No source (src) or target attribute found on: " + JSON.stringify(action);
         }
 
         let src = fsExt.resolvePath(action.src);
@@ -250,7 +475,16 @@ function ActionsRegistry(){
 
         child_process.execSync(cmd);
     }
-
+    /**
+     *checksum
+     * Checksum, used to calculate the checksum of a specific file/Dir {String}action.src and compare the result with
+     * a pre-recorded attribute action.expectedChecksum
+     * The checksum can be calculated with specific options {String}action.algorithm, {String}action.encoding
+     *
+     * @param {Object}action
+     * @param {OBject}dependency
+     * @param {Function}callback
+     */
     actions.checksum = function(action, dependency, callback) {
         if(!action.src){
             throw "No source (src) attribute found on: " + JSON.stringify(action);
@@ -270,14 +504,14 @@ function ActionsRegistry(){
         callback(null, `Finished checksum action on dependency ${dependency.name}`);
     }
 
-    
+
     this.registerActionHandler = function(name, handler, overwrite) {
         if(!name){
-           throw "No action name provided!";
+            throw "No action name provided!";
         }
 
         if(!handler){
-           throw "Trying to register an action without any handler!";
+            throw "Trying to register an action without any handler!";
         }
 
         if(actions[name]){
@@ -293,11 +527,11 @@ function ActionsRegistry(){
 
     this.getActionHandler = function(name, logIfMissing) {
         if(!name){
-           throw "No action name provided!";
+            throw "No action name provided!";
         }
 
         if(logIfMissing && !actions[name]){
-           throw "No handler found for action: " + name;
+            throw "No handler found for action: " + name;
         }
 
 
@@ -312,6 +546,10 @@ function ActionsRegistry(){
         }
 
         return wrapper;
+    }
+
+    this.setWorkDir = function(wd) {
+        fsExt.setBasePath(wd);
     }
 
 }
