@@ -182,8 +182,13 @@ function FSExtention(){
                 __rmFile(src);
             }
         } catch (err) {
-            log(err, true);
-            callback();
+            if(err.code && err.code === "ENOENT"){
+                //ignoring errors like "file/directory does not exist"
+                err = null;
+            }else{
+                log(err, true);
+            }
+            callback(err);
             return;
         }
 

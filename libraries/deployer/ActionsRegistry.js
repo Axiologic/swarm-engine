@@ -217,7 +217,7 @@ function ActionsRegistry(){
 
         remote = _parseRemoteHttpUrl(remote, credentials);
 
-        let cmd = "git clone" + optionsCmd + " " + remote + " " + tmp;
+        let cmd = "git clone" + optionsCmd + " " + remote + " \"" + tmp+"\"";
         console.log(`Running command ${cmd}`);
         var errorHandlers = {
             "warning: You appear to have cloned an empty repository": function(){
