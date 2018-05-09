@@ -61,7 +61,7 @@ var config = {
             "actions": [
                 {
                     "type": "remove",
-                    "target": "node_modules/double-check"
+                    "target": "modules/double-check"
                 },
                 {
                     "type": "clone",
@@ -69,25 +69,7 @@ var config = {
                         "depth": "1",
                         "branch": "master"
                     },
-                    "target": "node_modules"
-                }
-            ]
-        },
-        {
-            "name": "combos",
-            "src": "https://github.com/jfairbank/combos.git",
-            "actions": [
-                {
-                    "type": "remove",
-                    "target": "node_modules/combos"
-                },
-                {
-                    "type": "clone",
-                    "options": {
-                        "depth": "1",
-                        "branch": "master"
-                    },
-                    "target": "node_modules"
+                    "target": "modules"
                 }
             ]
         },
@@ -97,7 +79,7 @@ var config = {
             "actions": [
                 {
                     "type": "remove",
-                    "target": "node_modules/whys"
+                    "target": "modules/whys"
                 },
                 {
                     "type": "clone",
@@ -105,7 +87,95 @@ var config = {
                         "depth": "1",
                         "branch": "master"
                     },
-                    "target": "node_modules"
+                    "target": "modules"
+                }
+            ]
+        },
+        {
+            "name": "psk-integration-testing",
+            "src": "https://github.com/PrivateSky/psk-integration-testing.git",
+            "actions": [
+                {
+                    "type": "remove",
+                    "target": "tests/psk-integration-testing"
+                },
+                {
+                    "type": "clone",
+                    "options": {
+                        "depth": "1",
+                        "branch": "master"
+                    },
+                    "target": "tests"
+                }
+            ]
+        },
+        {
+            "name": "psk-smoke-testing",
+            "src": "https://github.com/PrivateSky/psk-smoke-testing.git",
+            "actions": [
+                {
+                    "type": "remove",
+                    "target": "tests/psk-smoke-testing"
+                },
+                {
+                    "type": "clone",
+                    "options": {
+                        "depth": "1",
+                        "branch": "master"
+                    },
+                    "target": "tests"
+                }
+            ]
+        },
+        {
+            "name": "psk-unit-testing",
+            "src": "https://github.com/PrivateSky/psk-unit-testing.git",
+            "actions": [
+                {
+                    "type": "remove",
+                    "target": "tests/psk-unit-testing"
+                },
+                {
+                    "type": "clone",
+                    "options": {
+                        "depth": "1",
+                        "branch": "master"
+                    },
+                    "target": "tests"
+                },
+                {
+                    "type": "move",
+                    "src" : "tests/psk-unit-testing/core/testSwarms",
+                    "target": "libraries/testSwarms",
+                    "options": {
+                        "overwrite" : true
+                    }
+                }
+            ]
+        },
+        {
+            "name": "combos",
+            "src": "https://github.com/jfairbank/combos.git",
+            "actions": [
+                {
+                    "type": "remove",
+                    "target": "modules/combos"
+                },
+                {
+                    "type": "clone",
+                    "options": {
+                        "depth": "1",
+                        "branch": "master"
+                    },
+                    "target": "modules"
+                },
+                {
+                    "type": "move",
+                    "src" : "modules/combos/src",
+                    "target": "modules/combos/lib",
+                    "options": {
+                        "overwrite" : true
+                    }
                 }
             ]
         }
