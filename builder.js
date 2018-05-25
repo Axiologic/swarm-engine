@@ -182,10 +182,10 @@ var config = {
     ]
 }
 
-require("./engine/core").enableTesting();
-var deployer = $$.loadLibrary("deployer", "./libraries/deployer");
+//require("./engine/core").enableTesting();
+var deployer = require("./libraries/deployer/Deployer.js");
 
-$$.callflow.start("deployer.Deployer").run(config, function (error, result) {
+deployer.run(config, function (error, result) {
     if(error){
         console.log("[Deployer - Error]", error);
     }else{

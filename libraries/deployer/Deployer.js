@@ -1,53 +1,58 @@
-const fs = require("fs")
-const actionsRegistry = require("./ActionsRegistry")
+const fs = require("fs");
+const actionsRegistry = require("./ActionsRegistry");
 
 const TAG = "[Deployer]";
-$$.callflow.describe("Deployer", {
+
+function Deployer() {
+
+    var self = {};
     /**
      * run
      *
      * @param configFileOrObject
      * @param callback
      */
-    run: function(configFileOrObject, callback) {
+    self.run = function (configFileOrObject, callback) {
 
-        if(typeof callback !== "function") {
+        if (typeof callback !== "function") {
             throw "Callback provided is not a function!";
         }
 
         this.callback = callback;
-        try{
-            this.__init(configFileOrObject);
+        try {
+            __init(configFileOrObject);
             console.info(TAG, "Start checking dependencies...");
-            console.info(TAG, `Found ${this.dependencies.length} dependencies...`);
-            if(this.dependencies.length > 0) {
-                this.__runDependency(0);
+            console.info(TAG, `Found ${self.dependencies.length} dependencies...`);
+            if (self.dependencies.length > 0) {
+                __runDependency(0);
             } else {
                 let response = "No dependency to process!";
-                if(this.callback) {
-                    this.callback(null, response);
+                if (self.callback) {
+                    self.callback(null, response);
                 }
             }
-        } catch(error) {
-            if(this.callback)
-                this.callback(error, null);
+        } catch (error) {
+            if (self.callback)
+                self.callback(error, null);
         }
-    },
-    __init: function(configFileOrObject) {
-        this.actionsRegistry = actionsRegistry.getRegistry();
-        this.configJson = {};
-        this.dependencies = [];
+    };
 
-        var config = this.__checkConfig(configFileOrObject);
-        if(config) {
-            this.configJson = config;
-            this.dependencies = config.dependencies;
+    function __init(configFileOrObject) {
+        self.actionsRegistry = actionsRegistry.getRegistry();
+        self.configJson = {};
+        self.dependencies = [];
+
+        var config = __checkConfig(configFileOrObject);
+        if (config) {
+            self.configJson = config;
+            self.dependencies = config.dependencies;
         }
 
-        if(this.configJson.workDir) {
-            this.actionsRegistry.setWorkDir(this.configJson.workDir);
+        if (self.configJson.workDir) {
+            self.actionsRegistry.setWorkDir(self.configJson.workDir);
         }
-    },
+    }
+
     /**
      *__checkConfig
      *    CheckConfig takes {Object/File path}configFileOrObject as a parameter ,if it
@@ -58,34 +63,35 @@ $$.callflow.describe("Deployer", {
      * @returns {{}} config
      *@private__checkConfig
      */
-    __checkConfig: function(configFileOrObject) {
-        if(!configFileOrObject) {
+    function __checkConfig(configFileOrObject) {
+        if (!configFileOrObject) {
             throw "Config file path or config object not provided!";
         }
 
         let config = {};
-        if(typeof configFileOrObject === "object") {
+        if (typeof configFileOrObject === "object") {
             config = configFileOrObject;
         } else {
-            config = this.__readConfig(configFileOrObject)
+            config = __readConfig(configFileOrObject)
         }
 
-        if(!config.dependencies){
+        if (!config.dependencies) {
             throw "No dependencies found!";
         }
 
-        if(!Array.isArray(config.dependencies)){
+        if (!Array.isArray(config.dependencies)) {
             throw "Dependencies prop is not Array!";
         }
 
-        for(let i = 0, len = config.dependencies.length; i< len; i++) {
+        for (let i = 0, len = config.dependencies.length; i < len; i++) {
             let dep = config.dependencies[i];
-            if(!dep.actions || !Array.isArray(dep.actions) || dep.actions.length == 0){
+            if (!dep.actions || !Array.isArray(dep.actions) || dep.actions.length === 0) {
                 throw `No actions available for ${dep.name} dependency or wrong format.`;
             }
         }
         return config;
-    },
+    }
+
     /**
      *  __readConfig
      *  ReadConfig function that takes a .JSON file path, creates and  returns an Object.
@@ -94,10 +100,10 @@ $$.callflow.describe("Deployer", {
      * @returns {*}
      *@private __readConfig
      */
-    __readConfig: function(configFilePath){
-        let config = require(configFilePath);
-        return config;
-    },
+    function __readConfig(configFilePath) {
+        return require(configFilePath);
+    }
+
     /**
      *__runDependency
      *
@@ -105,22 +111,23 @@ $$.callflow.describe("Deployer", {
      * @param {Number}index
      *@private __runDependency
      */
-    __runDependency: function(index) {
+    function __runDependency(index) {
 
         // done with all dependencies
-        if(index >= this.dependencies.length){
+        if (index >= self.dependencies.length) {
             let response = "Finishing checking dependencies...";
-            if(this.callback) {
-                this.callback(null, response);
+            if (self.callback) {
+                self.callback(null, response);
             }
             return;
         }
 
         // deploying dependency
-        var dep = this.dependencies[index];
+        var dep = self.dependencies[index];
         console.info(TAG, "Running dependency: [" + index + "] " + dep.name);
-        this.__runAction(index, 0);
-    },
+        __runAction(index, 0);
+    }
+
     /**
      * __runAction
      *
@@ -128,39 +135,43 @@ $$.callflow.describe("Deployer", {
      * @param {Number}actionIndex
      * @private__runAction
      */
-    __runAction: function(depIndex, actionIndex) {
+    function __runAction(depIndex, actionIndex) {
 
-        var self = this;
+        //var self = this;
 
-        function next(error, result){
-            if(error) {
-                if(self.callback) {
+        function next(error, result) {
+            if (error) {
+                if (self.callback) {
                     self.callback(error, null);
                 }
             } else {
-                if(result){
+                if (result) {
                     console.log("depIndex:", depIndex, "actionIndex:", actionIndex, "result:", JSON.stringify(result));
                 }
                 actionIndex++;
-                if(actionIndex < dep.actions.length){
-                    self.__runAction(depIndex, actionIndex);
-                }else{
-                    if(depIndex < self.dependencies.length){
-                        self.__runDependency(++depIndex);
+                if (actionIndex < dep.actions.length) {
+                    __runAction(depIndex, actionIndex);
+                } else {
+                    if (depIndex < self.dependencies.length) {
+                        __runDependency(++depIndex);
                     }
                 }
             }
         }
 
-        let dep =  this.dependencies[depIndex];
+        let dep = self.dependencies[depIndex];
         let action = dep.actions[actionIndex];
         let actionName = typeof action === "object" ? action.type : action;
-        let handler = this.actionsRegistry.getActionHandler(actionName, true);
+        let handler = self.actionsRegistry.getActionHandler(actionName, true);
 
-        if(handler){
+        if (handler) {
             handler(action, dep, next);
-        }else{
+        } else {
             next("No handler");
         }
     }
-});
+
+    return self;
+}
+
+module.exports = new Deployer();
