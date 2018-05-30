@@ -29,12 +29,10 @@ function ParallelJoinPoint(swarm, callback, args){
         }
     }
 
-
     if(typeof callback !== "function"){
         $$.errorHandler.syntaxError("invalid join",swarm, "invalid function at join in swarm");
         return;
     }
-
 
     $$.PSK_PubSub.subscribe(channelId,function(forExecution){
         if(stopOtherExecution){
@@ -49,7 +47,6 @@ function ParallelJoinPoint(swarm, callback, args){
             //console.log(err);
             //$$.errorHandler.syntaxError("__internal__",swarm, "exception in the execution of the join function of a parallel task");
         }
-
     });
 
     function incCounter(){
@@ -90,7 +87,6 @@ function ParallelJoinPoint(swarm, callback, args){
 
     var inner = swarm.getInnerValue();
 
-
     function defaultProgressReport(err, res){
         if(err) {
             throw err;
@@ -102,7 +98,6 @@ function ParallelJoinPoint(swarm, callback, args){
             currentResult:res
         };
     }
-
 
     function mkFunction(name){
         return function(){
@@ -123,16 +118,14 @@ function ParallelJoinPoint(swarm, callback, args){
             return mkFunction(prop);
         }
         return swarm[prop];
-    }
+    };
 
     var __proxyObject;
 
     this.__setProxyObject = function(p){
         __proxyObject = p;
     }
-
 }
-
 
 exports.createJoinPoint = function(swarm, callback, args){
     var jp = new ParallelJoinPoint(swarm, callback, args);
@@ -140,4 +133,4 @@ exports.createJoinPoint = function(swarm, callback, args){
     var p = new Proxy(inner, jp);
     jp.__setProxyObject(p);
     return p;
-}
+};

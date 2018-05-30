@@ -1,22 +1,14 @@
-
-
-var swarmInstancesManager = require("./swarmInstancesManager");
-
-function SwarmSpace(swarmType) {
-    require("./safe-uuid");
+function SwarmSpace(swarmType, utils) {
 
     var beesHealer = require("./beesHealer");
-
-
 
     function getFullName(shortName){
         var fullName;
         if(shortName && shortName.includes(".")) {
             fullName = shortName;
         } else {
-            fullName = $$.libraryPrefix + "." + shortName;//TODO: check more about . !?
+            fullName = $$.libraryPrefix + "." + shortName; //TODO: check more about . !?
         }
-        //console.log("getFullName:", $$.libraryPrefix, shortName, fullName );
         return fullName;
     }
 
@@ -121,9 +113,6 @@ function SwarmSpace(swarmType) {
             return result;
         };
 
-
-
-
         this.initialiseFunctions = function(valueObject, thisObject){
 
             for(var v in myFunctions){
@@ -131,11 +120,9 @@ function SwarmSpace(swarmType) {
             };
 
             localId++;
-            valueObject.utilityFunctions = require("./utilityFunctions").createForObject(valueObject, thisObject, localId);
+            valueObject.utilityFunctions = utils.createForObject(valueObject, thisObject, localId);
 
         }
-
-
 
         this.get = function(target, property, receiver){
 
@@ -200,22 +187,20 @@ function SwarmSpace(swarmType) {
 
         var self = this;
 
-
         this.isExtensible = function(target) {
             return false;
-        }
+        };
 
         this.has = function(target, prop) {
             if(target.publicVars[prop] || target.protectedVars[prop]) {
                 return true;
             }
             return false;
-        }
+        };
 
         this.ownKeys = function(target) {
             return Reflect.ownKeys(target.publicVars);
-        }
-
+        };
 
         return function(serialisedValues){
             var valueObject = self.initialise(serialisedValues);
@@ -229,16 +214,11 @@ function SwarmSpace(swarmType) {
                     valueObject.utilityFunctions.notify();
                 });
             }
-
             return result;
         }
     }
 
-
-    var descriptions = {
-
-    }
-
+    var descriptions = {};
 
     this.describe = function describeSwarm(swarmTypeName, description){
         swarmTypeName = getFullName(swarmTypeName);
@@ -257,8 +237,9 @@ function SwarmSpace(swarmType) {
 
         descriptions[swarmTypeName] = description;
 
-
-        $$.registerSwarmDescription(libraryName, shortName, swarmTypeName);
+        if($$){
+			$$.registerSwarmDescription(libraryName, shortName, swarmTypeName);
+        }
         return description;
     }
 
@@ -283,7 +264,8 @@ function SwarmSpace(swarmType) {
         if(desc){
             return desc(initialValues);
         } else {
-            $$.errorHandler.syntaxError(swarmTypeName,initialValues, "Failed to restart a swarm with type " + swarmTypeName + "\n Maybe diffrent swarm space (used flow instead of swarm!?)");
+            $$.errorHandler.syntaxError(swarmTypeName,initialValues,
+                "Failed to restart a swarm with type " + swarmTypeName + "\n Maybe diffrent swarm space (used flow instead of swarm!?)");
         }
     }
 
@@ -306,14 +288,11 @@ function SwarmSpace(swarmType) {
 
         return res;
     }
-
-
 }
 
-
-
-
-exports.createSwarmEngine = function(swarmType){
-    return new SwarmSpace(swarmType);
-}
-
+exports.createSwarmEngine = function(swarmType, utils){
+    if(typeof utils == "undefined"){
+        utils = require("./utilityFunctions");
+    }
+    return new SwarmSpace(swarmType, utils);
+};
