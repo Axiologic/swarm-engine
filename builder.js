@@ -106,6 +106,14 @@ var config = {
                         "branch": "master"
                     },
                     "target": "tests"
+                },
+                {
+                    "type": "move",
+                    "src" : "tests/psk-integration-testing/core/testSwarms",
+                    "target": "libraries/testSwarms",
+                    "options": {
+                        "overwrite" : true
+                    }
                 }
             ]
         },
@@ -142,14 +150,6 @@ var config = {
                         "branch": "master"
                     },
                     "target": "tests"
-                },
-                {
-                    "type": "move",
-                    "src" : "tests/psk-integration-testing/core/testSwarms",
-                    "target": "libraries/testSwarms",
-                    "options": {
-                        "overwrite" : true
-                    }
                 }
             ]
         },
