@@ -145,7 +145,7 @@ var config = {
                 },
                 {
                     "type": "move",
-                    "src" : "tests/psk-unit-testing/core/testSwarms",
+                    "src" : "tests/psk-integration-testing/core/testSwarms",
                     "target": "libraries/testSwarms",
                     "options": {
                         "overwrite" : true
