@@ -1,5 +1,5 @@
 var beesHealer = require("./beesHealer");
-var swarmDebug = require("../util/SwarmDebug");
+var swarmDebug = require("./SwarmDebug");
 
 
 exports.createForObject = function(valueObject, thisObject, localId){

@@ -370,4 +370,4 @@ function SoundPubSub(){
     }
 }
 
-exports.soundPubSub = new SoundPubSub();
+module.exports = new SoundPubSub();

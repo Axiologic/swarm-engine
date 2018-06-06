@@ -230,14 +230,14 @@ function SwarmSpace(swarmType, utils) {
             libraryName = "global";
         }
 
-        var description = new SwarmDescription(swarmTypeName, description)
+        var description = new SwarmDescription(swarmTypeName, description);
         if(descriptions[swarmTypeName] != undefined){
             $$.errorHandler.warning("Duplicate swarm description "+ swarmTypeName);
         }
 
         descriptions[swarmTypeName] = description;
 
-        if($$){
+        if($$.registerSwarmDescription){
 			$$.registerSwarmDescription(libraryName, shortName, swarmTypeName);
         }
         return description;

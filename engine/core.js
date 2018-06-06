@@ -5,7 +5,15 @@ Code License: LGPL or MIT.
 */
 
 var path = require("path");
-var callflowModule = require("modules/callflow");
+var callflowModule = require("./../modules/callflow");
+
+$$.securityContext = "system";
+$$.libraryPrefix = "global";
+$$.libraries = {
+    global:{
+
+    }
+};
 
 $$.registerSwarmDescription =  function(libraryName,shortName, description){
     if(!$$.libraries[libraryName]){
@@ -16,16 +24,16 @@ $$.registerSwarmDescription =  function(libraryName,shortName, description){
 
 var utils = require("./choreographies/utilityFunctions");
 
-$$.callflows        = callflowModule.createSwarmEngine("callflow");
-$$.callflow         = $$.callflows;
-$$.flow             = $$.callflows;
-$$.flows            = $$.callflows;
 $$.swarms           = callflowModule.createSwarmEngine("swarm", utils);
 $$.swarm            = $$.swarms;
 $$.contracts        = callflowModule.createSwarmEngine("contract", utils);
 $$.contract         = $$.contracts;
 
 $$.loadLibrary      = require("./util/loadLibrary").loadLibrary;
+
+exports.enableTesting = function() {
+    require("./fakes/dummyVM");
+}
 
 var loadedModules = {};
 
