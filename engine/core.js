@@ -31,6 +31,8 @@ $$.contract         = $$.contracts;
 
 $$.loadLibrary      = require("./util/loadLibrary").loadLibrary;
 
+require("./choreographies/swarmInstancesManager");
+
 exports.enableTesting = function() {
     require("./fakes/dummyVM");
 }
@@ -43,6 +45,7 @@ $$.requireModule = function(name){
         var absolutePath = path.resolve( __dirname + "/../modules/" + name);
         existingModule = require(absolutePath);
         loadedModules[name] = existingModule;
+        return existingModule;
     } else {
         return existingModule;
     }
