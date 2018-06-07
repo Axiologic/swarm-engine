@@ -108,7 +108,7 @@ var config = {
                     "target": "tests"
                 },
                 {
-                    "type": "move",
+                    "type": "copy",
                     "src" : "tests/psk-integration-testing/core/testSwarms",
                     "target": "libraries/testSwarms",
                     "options": {
