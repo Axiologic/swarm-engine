@@ -15,6 +15,25 @@ $$.libraries = {
     }
 };
 
+var loadedModules = {};
+
+$$.requireModule = function(name){
+    var existingModule = loadedModules[name];
+    if(!existingModule){
+        var absolutePath = path.resolve( __dirname + "/../modules/" + name);
+        existingModule = require(absolutePath);
+        loadedModules[name] = existingModule;
+        return existingModule;
+    } else {
+        return existingModule;
+    }
+};
+
+$$.requireLibrary = function(name){
+    var absolutePath = path.resolve( __dirname + "/../libraries/" + name);
+    return $$.loadLibrary(name,absolutePath);
+};
+
 $$.registerSwarmDescription =  function(libraryName,shortName, description){
     if(!$$.libraries[libraryName]){
         $$.libraries[libraryName] = {};
@@ -36,26 +55,6 @@ require("./choreographies/swarmInstancesManager");
 exports.enableTesting = function() {
     require("./fakes/dummyVM");
 }
-
-var loadedModules = {};
-
-$$.requireModule = function(name){
-    var existingModule = loadedModules[name];
-    if(!existingModule){
-        var absolutePath = path.resolve( __dirname + "/../modules/" + name);
-        existingModule = require(absolutePath);
-        loadedModules[name] = existingModule;
-        return existingModule;
-    } else {
-        return existingModule;
-    }
-};
-
-$$.requireLibrary = function(name){
-    var absolutePath = path.resolve( __dirname + "/../libraries/" + name);
-    return $$.loadLibrary(name,absolutePath);
-};
-
 
 var core = $$.requireLibrary("core");
 

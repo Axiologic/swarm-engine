@@ -20,6 +20,24 @@ var config = {
             ]
         },
         {
+            "name": "callflow",
+            "src": "https://github.com/PrivateSky/callflow.git",
+            "actions": [
+                {
+                    "type": "remove",
+                    "target": "modules/callflow"
+                },
+                {
+                    "type": "clone",
+                    "options": {
+                        "depth": "1",
+                        "branch": "master"
+                    },
+                    "target": "modules"
+                }
+            ]
+        },
+        {
             "name": "signsensus",
             "src": "https://github.com/PrivateSky/signsensus.git",
             "actions": [
