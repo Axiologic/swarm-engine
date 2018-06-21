@@ -42,8 +42,8 @@ $$.PSK_PubSub = require("./pubSub/launcherPubSub.js").create(basePath, codeFolde
 
 $$.loadLibrary("crl", __dirname+"/../libraries/crl");
 $$.loadLibrary("pds", __dirname+"/../libraries/pds");
-var launcher = $$.loadLibrary("launcher", __dirname + "/../libraries/launcher");
 
+var launcher = $$.loadLibrary("launcher", __dirname + "/../libraries/launcher");
 
 $$.container.declareDependency("nimic", [$$.DI_components.sandBoxReady], function(fail, ready){
     if(!fail){
@@ -52,13 +52,10 @@ $$.container.declareDependency("nimic", [$$.DI_components.sandBoxReady], functio
             $$.container.resolve($$.DI_components.configLoaded, true);
         });
     }
-})
-
-
+});
 
 $$.container.declareDependency($$.DI_components.swarmIsReady, [$$.DI_components.configLoaded, $$.DI_components.sandBoxReady], function(fail, x, y ){
     if(!fail){
         console.log("Node launching...");
     }
 });
-

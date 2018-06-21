@@ -1,4 +1,4 @@
-var pubSub = require("./core/soundPubSub").soundPubSub;
+var pubSub = $$.requireModule("soundpubsub").soundPubSub;
 
 exports.create = function(folder, codeFolder ){
 

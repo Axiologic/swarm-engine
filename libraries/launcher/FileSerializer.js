@@ -1,12 +1,9 @@
-
 var launcher = $$.loadLibrary("launcher");
 var fs = require("fs");
 
 $$.jsonReadable = function(obj){
     return JSON.stringify(obj, null, 2);
 };
-
-
 
 launcher.callflow.describe("FileSerializer", {
 

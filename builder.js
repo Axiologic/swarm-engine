@@ -2,6 +2,24 @@ var config = {
     "workDir": ".",
     "dependencies": [
         {
+            "name": "soundpubsub",
+            "src": "https://github.com/PrivateSky/soundpubsub.git",
+            "actions": [
+                {
+                    "type": "remove",
+                    "target": "modules/soundpubsub"
+                },
+                {
+                    "type": "clone",
+                    "options": {
+                        "depth": "1",
+                        "branch": "master"
+                    },
+                    "target": "modules"
+                }
+            ]
+        },
+        {
             "name": "signsensus",
             "src": "https://github.com/PrivateSky/signsensus.git",
             "actions": [
