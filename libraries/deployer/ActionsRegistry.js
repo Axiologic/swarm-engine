@@ -56,6 +56,7 @@ function ActionsRegistry(){
 
         callback(error, response);
     };
+
     /**
      *download
      *Download function, downloads from a source dependency.src to a target action.target
@@ -79,7 +80,7 @@ function ActionsRegistry(){
 
         console.info(`Start downloading ${src} to folder ${target}`);
         _downloadAsync(src, target, callback);
-    }
+    };
 
     var _downloadAsync = function(url, dest, callback) {
 
@@ -144,6 +145,7 @@ function ActionsRegistry(){
             }
         }
     };
+
     /**
      * move
      * Moves file or directory from actions.src to action.target
@@ -167,7 +169,8 @@ function ActionsRegistry(){
 
         console.log(`Start moving ${action.src} to ${target}`);
         fsExt.move(action.src, target, options, callback);
-    }
+    };
+
     /**
      *clone
      * Clone function used to make a git clone of repo dependency.src in a specific location action.target
@@ -192,17 +195,22 @@ function ActionsRegistry(){
             throw `Destination path (target) ${target} already exists and is not an empty directory.`;
         }
 
-        var options = {};
+        var options = {
+            "depth": "1",
+            "branch": "master"
+        };
         if(action && typeof action.options === "object") {
             options = action.options;
         }
+
+        global.collectLog = action.collectLog || false;
 
         _clone(dependency.src, target, options, dependency.credentials, function(err, res){
             if(!err){
                 callback(err, `Finished clone action on dependency "${dependency.name}"`);
             }
         });
-    }
+    };
 
     var _clone = function (remote, tmp, options, credentials, callback) {
         var commandExists = _commandExistsSync("git");
@@ -218,13 +226,16 @@ function ActionsRegistry(){
         remote = _parseRemoteHttpUrl(remote, credentials);
 
         let cmd = "git clone" + optionsCmd + " " + remote + " \"" + tmp+"\"";
+
         console.log(`Running command ${cmd}`);
+
         var errorHandlers = {
             "warning: You appear to have cloned an empty repository": function(){
                 console.log("Empty repo. Nothing to worry. Continue...")
                 return true;
             }
         };
+
         child_process.exec(cmd,{stdio:[0, "pipe", "pipe"]}, function(err, stdout, stderr){
             var next = true;
             if(err){
@@ -238,11 +249,31 @@ function ActionsRegistry(){
                     }
                 }
             }
-            if(next){
+            if(next && global.collectLog){
+                cmd = "git log --max-count=1";
+
+                child_process.exec(cmd,{cwd: path.resolve(tmp), stdio:[0, "pipe", "pipe"]}, function(err, stdout, stderr){
+                    if(!err){
+                        var index = stdout.indexOf("\n\n");
+                        if(index!=-1){
+                            index+=2;
+                        }
+                        msg = stdout.substring(index);
+
+                        if(!global.msgs || !Array.isArray(global.msgs)){
+                            global.msgs = [msg];
+                        }else{
+                            global.msgs.push(msg);
+                        }
+                    }
+
+                    callback(null, "");
+                });
+            }else{
                 callback(null, "");
             }
         });
-    }
+    };
 
     var _parseRemoteHttpUrl = function(remote, credentials) {
 
@@ -269,7 +300,7 @@ function ActionsRegistry(){
         }
 
         return remote;
-    }
+    };
 
     /**
      * commit
@@ -290,7 +321,13 @@ function ActionsRegistry(){
         }
 
         if(!action.message){
-            throw "No message attribute found on: " + JSON.stringify(action);
+            if(!global.msgs){
+                throw "No message attribute found on: " + JSON.stringify(action);
+            }else{
+                console.log("Using compact messages for " + JSON.stringify(action));
+            }
+            action.message = global.msgs.toString();
+            global.msgs = undefined;
         }
 
         var commandExists = _commandExistsSync("git");
@@ -299,7 +336,7 @@ function ActionsRegistry(){
         }
 
         _commit(dependency.src, action.target, action.message, dependency.credentials, action.options.branch, callback);
-    }
+    };
 
     var _commit = function(remote, workDir, message, credentials, branch, callback) {
 
@@ -364,7 +401,7 @@ function ActionsRegistry(){
 
         execute();
 
-    }
+    };
 
     var _commandExistsSync = function(commandName) {
         var isWin = (os.platform() === 'win32');
@@ -384,7 +421,7 @@ function ActionsRegistry(){
 
         return _localExecutableSync(commandName);
 
-    }
+    };
 
     var _localExecutableSync = function(commandName){
         try{
@@ -393,7 +430,8 @@ function ActionsRegistry(){
         }catch(e){
             return false;
         }
-    }
+    };
+
     /**
      * copy
      * Copy a file or a directory, from{String}dependency.src to {String}action.target
@@ -405,7 +443,7 @@ function ActionsRegistry(){
      * @param {Function}callback
      */
     actions.copy = function (action, dependency, callback) {
-        if(!dependency.src){
+        if(!action.src){
             throw "No source (src) attribute found on: " + JSON.stringify(dependency);
         }
 
@@ -416,9 +454,10 @@ function ActionsRegistry(){
         let options = action.options || {};
         options.overwrite =  !!options.overwrite;
 
-        console.log("Start copying " + dependency.src + " to folder " + action.target);
-        fsExt.copy(dependency.src, action.target, options, callback);
-    }
+        console.log("Start copying " + action.src + " to folder " + action.target);
+        fsExt.copy(action.src, action.target, options, callback);
+    };
+
     /**
      *remove
      * Remove, remove a file/directory from  a specified path {String}action.target;
@@ -432,7 +471,8 @@ function ActionsRegistry(){
         }
 
         fsExt.remove(action.target, callback);
-    }
+    };
+
     /**
      *extract
      * Extracts a .zip file from a source path {String}action.src to a specific path {String}action.target
@@ -451,7 +491,7 @@ function ActionsRegistry(){
         console.info(`Start extracting ${src} to folder ${target}`);
         _extractSync(src, target);
         callback(null, `Finished extract action on dependency ${dependency.name}`);
-    }
+    };
 
     var _extractSync = function(src, dest) {
         if(!fs.existsSync(src)) {
@@ -474,7 +514,8 @@ function ActionsRegistry(){
         }
 
         child_process.execSync(cmd);
-    }
+    };
+
     /**
      *checksum
      * Checksum, used to calculate the checksum of a specific file/Dir {String}action.src and compare the result with
@@ -502,8 +543,24 @@ function ActionsRegistry(){
         }
 
         callback(null, `Finished checksum action on dependency ${dependency.name}`);
-    }
+    };
 
+    actions.execute = function(action, dependency, callback) {
+        if(!action.cmd){
+            throw "No command given";
+        }
+        try{
+            console.log("Running command:", action.cmd, "with opts:", action.options);
+            child_process.execSync(action.cmd, action.options);
+        }catch(err){
+            if(callback){
+                callback(err);
+            }
+        }
+        if(callback){
+            callback();
+        }
+    };
 
     this.registerActionHandler = function(name, handler, overwrite) {
         if(!name){
@@ -523,7 +580,7 @@ function ActionsRegistry(){
             actions[name] = handler;
             console.log("Action " + name + " was registered.");
         }
-    }
+    };
 
     this.getActionHandler = function(name, logIfMissing) {
         if(!name){
@@ -546,7 +603,7 @@ function ActionsRegistry(){
         }
 
         return wrapper;
-    }
+    };
 
     this.setWorkDir = function(wd) {
         fsExt.setBasePath(wd);
@@ -558,4 +615,4 @@ var defaultActionsRegistry = new ActionsRegistry();
 
 exports.getRegistry = function(){
     return defaultActionsRegistry;
-}
+};

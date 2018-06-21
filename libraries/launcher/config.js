@@ -11,7 +11,6 @@ $$.callflows.describe("Agent", {
     }
 });
 
-
 $$.callflows.describe("Config", {
     public:{
         nodeAgent:launcher.Agent,

@@ -61,36 +61,3 @@ exports.short_uuid = function(callback) {
         callback(null, encode(buf));
     });
 }
-
-/*
-        //NOT USED, OBSOLETE.. prone to evil race conditions...
-    A bit hacky but trying to do the simplest workaround against asynchronous calls in the core. Created to avoid other dependencies or performance issues in the core
-        This function should be used to wait for  UUIDs  that are not yet ready (or other predictable sucessful but still asynchronous calls)
-    but keeping a sense of synchronicity/simplicity in code where is possible
-        Generating uuids synchronously is possible but it could create performance issues
-
-        Warning: In a large majority of cases do not use this method!!  swarm workflow or dicontainer dependency injection should be used and not this workaround!!!!
- */
-
-exports.wait_for_condition = function wait_for_condition(condition, callback, tries){
-    if(tries == undefined){
-        tries  = 1024;
-    }
-    if(condition(tries)) {
-        setTimeout(function(){ //ensure that all the asynchronous calls in the current phase took place
-            return callback();
-        },1);
-    }
-    else {
-        tries--;
-        if(tries <=0){
-            throw new Error("__wait_for_condition");
-        }
-        else {
-            setTimeout(function(){
-                wait_for_condition(condition, callback, tries);
-            },10)
-        }
-        //else  setImmediate(__wait_for_condition, condition, tries, callback);
-    }
-}

@@ -1,7 +1,8 @@
 
-var beesHealer = require("../../choreographies/beesHealer");
 var fs = require("fs");
 var path = require("path");
+var beesHealer = $$.requireModule("callflow").beesHealer;
+
 //TODO: prevent a class of race condition type of errors by signaling with files metadata to the watcher when it is safe to consume
 
 function FolderMQ(folder, callback = () => {}){

@@ -13,7 +13,7 @@ function wrapCall(original, prefixName){
         var previousPrefix = $$.libraryPrefix;
         $$.libraryPrefix = prefixName;
         try{
-            var ret = original.apply(this,arguments);
+            var ret = original.apply(this, arguments);
             $$.libraryPrefix = previousPrefix ;
         }catch(err){
             $$.libraryPrefix = previousPrefix ;
@@ -23,12 +23,10 @@ function wrapCall(original, prefixName){
     }
 }
 
-
-
 function SwarmLibrary(prefixName, folder){
     $$.libraries[prefixName] = this; // so other calls for loadLibrary will return inside of the files
     var prefixedRequire = wrapCall(function(path){
-        require(path);
+        return require(path);
     }, prefixName);
 
     function includeAllInRoot(folder, prefixName) {
@@ -52,8 +50,8 @@ function SwarmLibrary(prefixName, folder){
 
     function wrapSwarmRelatedFunctions(space, prefixName){
         var ret = {};
-        var names = ["create","describe", "start", "restart"];
-        for(var i = 0;i<names.length;i++ ){
+        var names = ["create", "describe", "start", "restart"];
+        for(var i = 0; i<names.length; i++ ){
             ret[names[i]] = wrapCall(space[names[i]], prefixName);
         }
         return ret;
@@ -76,46 +74,3 @@ exports.loadLibrary = function(prefixName, folder){
     var absolutePath = path.resolve(folder);
     return new SwarmLibrary(prefixName, absolutePath);
 }
-
-/*
-
-includeInAdapters = function(arrayOfAdapterNames){
-    function adapterIncluded(){
-        return arrayOfAdapterNames.some(function(adapterName){
-            return adapterName===thisAdapter.mainGroup
-        })
-    }
-    if(!adapterIncluded()){
-        throw new Error("Not included in adapter");
-    }
-}
-
-excludeFromAdapters = function(arrayOfAdapterNames){
-    function adapterExcluded(adapter){
-        if(thisAdapter.mainGroup===adapter){
-            throw new Error("Not included in adapter");
-        }
-    }
-    arrayOfAdapterNames.forEach(adapterExcluded)
-}
-
-
-var resetCallBacks = [];
-
-registerResetCallback = function(callBack){
-    resetCallBacks.push(callBack);
-}
-
-
-var container = require('dicontainer/lib/container').container;
-
-container.service("resetCallBacks", ['swarmingIsWorking'], function(outOfService, swarming){
-    if(!outOfService){
-        resetCallBacks.forEach(function(c){
-            c();
-        })
-    }
-});
-
-includeRec(process.env.SWARM_PATH+"/autolib/");
-*/

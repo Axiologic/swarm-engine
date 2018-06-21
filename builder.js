@@ -2,6 +2,42 @@ var config = {
     "workDir": ".",
     "dependencies": [
         {
+            "name": "soundpubsub",
+            "src": "https://github.com/PrivateSky/soundpubsub.git",
+            "actions": [
+                {
+                    "type": "remove",
+                    "target": "modules/soundpubsub"
+                },
+                {
+                    "type": "clone",
+                    "options": {
+                        "depth": "1",
+                        "branch": "master"
+                    },
+                    "target": "modules"
+                }
+            ]
+        },
+        {
+            "name": "callflow",
+            "src": "https://github.com/PrivateSky/callflow.git",
+            "actions": [
+                {
+                    "type": "remove",
+                    "target": "modules/callflow"
+                },
+                {
+                    "type": "clone",
+                    "options": {
+                        "depth": "1",
+                        "branch": "master"
+                    },
+                    "target": "modules"
+                }
+            ]
+        },
+        {
             "name": "signsensus",
             "src": "https://github.com/PrivateSky/signsensus.git",
             "actions": [
@@ -106,6 +142,14 @@ var config = {
                         "branch": "master"
                     },
                     "target": "tests"
+                },
+                {
+                    "type": "copy",
+                    "src" : "tests/psk-integration-testing/core/testSwarms",
+                    "target": "libraries/testSwarms",
+                    "options": {
+                        "overwrite" : true
+                    }
                 }
             ]
         },
@@ -142,14 +186,6 @@ var config = {
                         "branch": "master"
                     },
                     "target": "tests"
-                },
-                {
-                    "type": "move",
-                    "src" : "tests/psk-unit-testing/core/testSwarms",
-                    "target": "libraries/testSwarms",
-                    "options": {
-                        "overwrite" : true
-                    }
                 }
             ]
         },
