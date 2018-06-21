@@ -120,9 +120,8 @@ $$.requireModule = function(name){
         var absolutePath = path.resolve( __dirname + "/../modules/" + name);
         existingModule = require(absolutePath);
         loadedModules[name] = existingModule;
-    } else {
-        return existingModule;
     }
+    return existingModule;
 }
 
 $$.requireLibrary = function(name){
