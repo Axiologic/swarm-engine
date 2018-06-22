@@ -56,7 +56,6 @@ exports.enableTesting = function() {
 
 var core = $$.requireLibrary("core");
 
-
 $$.ensureFolderExists = function(folder, callback){
 
     var flow = $$.flow.start(core.mkDirRec);
