@@ -214,6 +214,20 @@ var config = {
                     }
                 }
             ]
+        },
+        {
+            "name": "virtualmq",
+            "src": "https://github.com/PrivateSky/virtualmq.git",
+            "actions": [
+                {
+                    "type": "remove",
+                    "target": "modules/virtualmq"
+                },
+                {
+                    "type": "clone",
+                    "target": "modules"
+                }
+            ]
         }
     ]
 }
