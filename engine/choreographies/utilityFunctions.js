@@ -1,4 +1,4 @@
-var beesHealer = $$.requireModule("callflow").beesHealer;
+var beesHealer = $$.requireModule("soundpubsub").beesHealer;
 var swarmDebug = require("../util/SwarmDebug");
 
 

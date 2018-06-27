@@ -1,6 +1,6 @@
 var pubSub = $$.requireModule("soundpubsub").soundPubSub;
 
-var mq = require("./core/folderMQ");
+var mq = $$.requireModule("soundpubsub").folderMQ;
 
 
 exports.create = function(folder, core){
