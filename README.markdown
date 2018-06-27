@@ -17,6 +17,6 @@ For security and code quality reasons all the integration here and releases will
 The stable releases will be merged periodically  https://github.com/Axiologic/swarm-engine or will be branched.
 https://github.com/PrivateSky/privatesky  is unstable and is developed in master branch. Use it just as a preview for the newer releases.
 
-The documentation is not ready for large public (only for partners)  but if you want access,please send an email to abss@axiologic.ro
+The documentation is not ready for public (only for partners)  but if you want access, please send an email to abss@axiologic.ro
 
-Current Release: 0.1.0 (Unstable)
+Current Release: 0.1.0 (Unstable and incomplete) The first public release (0.2.0 as a preview for the the whole architecture) is scheduled on 1 August 2018.

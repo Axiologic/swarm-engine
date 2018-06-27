@@ -4,51 +4,10 @@
  Code License: LGPL or MIT.
  */
 
-var path = require("path");
+
 var callflowModule = require("./../modules/callflow");
 
-$$.securityContext = "system";
-$$.libraryPrefix = "global";
-$$.libraries = {
-    global:{
 
-    }
-};
-
-var loadedModules = {};
-
-$$.requireModule = function(name){
-    var existingModule = loadedModules[name];
-    if(!existingModule){
-        var absolutePath = path.resolve( __dirname + "/../modules/" + name);
-        existingModule = require(absolutePath);
-        loadedModules[name] = existingModule;
-    }
-    return existingModule;
-};
-
-$$.requireLibrary = function(name){
-    var absolutePath = path.resolve( __dirname + "/../libraries/" + name);
-    return $$.loadLibrary(name,absolutePath);
-};
-
-$$.registerSwarmDescription =  function(libraryName,shortName, description){
-    if(!$$.libraries[libraryName]){
-        $$.libraries[libraryName] = {};
-    }
-    $$.libraries[libraryName][shortName] = description;
-}
-
-var utils = require("./choreographies/utilityFunctions");
-
-$$.swarms           = callflowModule.createSwarmEngine("swarm", utils);
-$$.swarm            = $$.swarms;
-$$.contracts        = callflowModule.createSwarmEngine("contract", utils);
-$$.contract         = $$.contracts;
-
-$$.loadLibrary      = require("./util/loadLibrary").loadLibrary;
-
-require("./choreographies/swarmInstancesManager");
 
 exports.enableTesting = function() {
     require("./fakes/dummyVM");
@@ -56,6 +15,8 @@ exports.enableTesting = function() {
 
 var core = $$.requireLibrary("core");
 
+
+//TODO: SHOULD be moved in $$.__globals
 $$.ensureFolderExists = function(folder, callback){
 
     var flow = $$.flow.start(core.mkDirRec);
