@@ -3,129 +3,31 @@ var config = {
     "dependencies": [
         {
             "name": "soundpubsub",
-            "src": "https://github.com/PrivateSky/soundpubsub.git",
-            "actions": [
-                {
-                    "type": "remove",
-                    "target": "modules/soundpubsub"
-                },
-                {
-                    "type": "clone",
-                    "options": {
-                        "depth": "1",
-                        "branch": "master"
-                    },
-                    "target": "modules"
-                }
-            ]
+            "src": "https://github.com/PrivateSky/soundpubsub.git"
         },
         {
             "name": "callflow",
-            "src": "https://github.com/PrivateSky/callflow.git",
-            "actions": [
-                {
-                    "type": "remove",
-                    "target": "modules/callflow"
-                },
-                {
-                    "type": "clone",
-                    "options": {
-                        "depth": "1",
-                        "branch": "master"
-                    },
-                    "target": "modules"
-                }
-            ]
+            "src": "https://github.com/PrivateSky/callflow.git"
         },
         {
             "name": "signsensus",
-            "src": "https://github.com/PrivateSky/signsensus.git",
-            "actions": [
-                {
-                    "type": "remove",
-                    "target": "modules/signsensus"
-                },
-                {
-                    "type": "clone",
-                    "options": {
-                        "depth": "1",
-                        "branch": "master"
-                    },
-                    "target": "modules"
-                }
-            ]
+            "src": "https://github.com/PrivateSky/signsensus.git"
         },
         {
             "name": "dicontainer",
-            "src": "https://github.com/PrivateSky/dicontainer.git",
-            "actions": [
-                {
-                    "type": "remove",
-                    "target": "modules/dicontainer"
-                },
-                {
-                    "type": "clone",
-                    "options": {
-                        "depth": "1",
-                        "branch": "master"
-                    },
-                    "target": "modules"
-                }
-            ]
+            "src": "https://github.com/PrivateSky/dicontainer.git"
         },
         {
             "name": "pskcrypto",
-            "src": "https://github.com/PrivateSky/pskcrypto.git",
-            "actions": [
-                {
-                    "type": "remove",
-                    "target": "modules/pskcrypto"
-                },
-                {
-                    "type": "clone",
-                    "options": {
-                        "depth": "1",
-                        "branch": "master"
-                    },
-                    "target": "modules"
-                }
-            ]
+            "src": "https://github.com/PrivateSky/pskcrypto.git"
         },
         {
             "name": "double-check",
-            "src": "https://github.com/PrivateSky/double-check.git",
-            "actions": [
-                {
-                    "type": "remove",
-                    "target": "modules/double-check"
-                },
-                {
-                    "type": "clone",
-                    "options": {
-                        "depth": "1",
-                        "branch": "master"
-                    },
-                    "target": "modules"
-                }
-            ]
+            "src": "https://github.com/PrivateSky/double-check.git"
         },
         {
             "name": "whys",
-            "src": "https://github.com/PrivateSky/whys.git",
-            "actions": [
-                {
-                    "type": "remove",
-                    "target": "modules/whys"
-                },
-                {
-                    "type": "clone",
-                    "options": {
-                        "depth": "1",
-                        "branch": "master"
-                    },
-                    "target": "modules"
-                }
-            ]
+            "src": "https://github.com/PrivateSky/whys.git"
         },
         {
             "name": "psk-integration-testing",
@@ -137,10 +39,6 @@ var config = {
                 },
                 {
                     "type": "clone",
-                    "options": {
-                        "depth": "1",
-                        "branch": "master"
-                    },
                     "target": "tests"
                 },
                 {
@@ -163,10 +61,6 @@ var config = {
                 },
                 {
                     "type": "clone",
-                    "options": {
-                        "depth": "1",
-                        "branch": "master"
-                    },
                     "target": "tests"
                 }
             ]
@@ -181,10 +75,6 @@ var config = {
                 },
                 {
                     "type": "clone",
-                    "options": {
-                        "depth": "1",
-                        "branch": "master"
-                    },
                     "target": "tests"
                 }
             ]
@@ -217,17 +107,7 @@ var config = {
         },
         {
             "name": "virtualmq",
-            "src": "https://github.com/PrivateSky/virtualmq.git",
-            "actions": [
-                {
-                    "type": "remove",
-                    "target": "modules/virtualmq"
-                },
-                {
-                    "type": "clone",
-                    "target": "modules"
-                }
-            ]
+            "src": "https://github.com/PrivateSky/virtualmq.git"
         }
     ]
 }

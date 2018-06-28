@@ -53,6 +53,32 @@ function Deployer() {
         }
     }
 
+	/**
+	 *__setDefaultActions
+	 *    Set default actions for deps that don't have
+	 *
+	 * @param {Object}dependency
+	 * @returns
+	 *@private __setDefaultActions
+	 */
+	function __setDefaultActions(dep){
+		const defaultActions = [
+			{
+				"type": "remove",
+				"target": "modules/"+dep.name
+			},
+			{
+				"type": "clone",
+				"target": "modules"
+			}];
+
+		if(!dep.actions){
+			dep.actions = defaultActions;
+		}else{
+			dep.actions.concat(defaultActions);
+		}
+	}
+
     /**
      *__checkConfig
      *    CheckConfig takes {Object/File path}configFileOrObject as a parameter ,if it
@@ -86,7 +112,9 @@ function Deployer() {
         for (let i = 0, len = config.dependencies.length; i < len; i++) {
             let dep = config.dependencies[i];
             if (!dep.actions || !Array.isArray(dep.actions) || dep.actions.length === 0) {
-                throw `No actions available for ${dep.name} dependency or wrong format.`;
+                //throw `No actions available for ${dep.name} dependency or wrong format.`;
+				console.log(`No actions available for ${dep.name} dependency. Setting a default action...`);
+				__setDefaultActions(dep);
             }
         }
         return config;
