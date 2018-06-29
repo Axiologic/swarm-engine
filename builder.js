@@ -108,7 +108,12 @@ var config = {
         {
             "name": "virtualmq",
             "src": "https://github.com/PrivateSky/virtualmq.git"
-        }
+        },
+        {
+			"name": "vm2",
+			"src": "https://github.com/patriksimek/vm2.git"
+		}
+
     ]
 }
 
