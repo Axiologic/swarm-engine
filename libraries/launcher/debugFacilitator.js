@@ -1,5 +1,5 @@
 var child_process = require("child_process");
-var debugArg = (process.platform == 'win32') ? "--inspect-brk=" : "--debug-brk=";
+var debugArg = (process.platform == 'win32') ? "--inspect=" : "--debug-brk=";
 var multiplier = 0;
 function prepareDebugPortOnFork(execArgv){
     multiplier++;

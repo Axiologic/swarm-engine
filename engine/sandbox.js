@@ -16,7 +16,9 @@ if (process.argv.length < 3) {
 }
 
 console.log("Booting sandbox:", spaceName);
-
+//TODO
+// ??? why we need this? what changed?
+process.chdir(path.join(process.env.PRIVATESKY_TMP, "sandboxes", spaceName));
 
 function isPathToOwnAgentSpace(pathToTest) {
 	if (!pathToTest || pathToTest === '') {
@@ -117,10 +119,9 @@ Object.defineProperty(fsProxyHandler, 'allowedMethods', {
 	value: Object.freeze(Object.keys(fsProxyHandler.customValidatorsDefinition))
 });
 
-
 const fsProxy = new Proxy(fs, fsProxyHandler);
+const VM = require("../modules/vm2").NodeVM;
 
-const VM = new $$.requireModule("vm2").NodeVM;
 const vm = new VM({
 	require: {
 		external: true,
@@ -128,8 +129,8 @@ const vm = new VM({
 		root: process.cwd(), // needs further tests
 		context: 'sandbox',
 		mock: {
-			fs: fsProxy,
-			whys: require('whys')
+			fs: fsProxy/*,
+			whys: require('whys')*/
 		}
 	},
 	sandbox: {
@@ -140,20 +141,18 @@ const vm = new VM({
 	wrapper: 'none'
 });
 
+console.log("dirname outter", __dirname);
+
 vm.run(`
         'strict mode';
         // console.error('entering sandbox');
-        
+        console.log("dirname", __dirname);
         global.$$ = require('./code/engine/core.js');
         
-        // const sandboxPubSub = requireModule('code/engine/pubSub/sandboxPubSub.js'); // loads index not the file itself
+        const sand = require('./code/engine/pubSub/sandboxPubSub');
+        console.log(sand);
         
-        // const PSK_PubSub = sandboxPubSub.create();
-        
-        const sand = require('./code/engine/pubSub/sandboxPubSub.js')
-        // console.log(sand);
-        
-        global.$$.PSK_PubSub = sand.create();
+        //global.$$.PSK_PubSub = sand.create();
         
         // Object.freeze(global.$$);
         
