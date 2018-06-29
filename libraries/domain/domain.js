@@ -1,34 +1,68 @@
-$$.contract.describe("domainConstitution", {
+$$.flow.describe("Constitution", {
     public:{
         pdsInstance: "native",
-        shares      :"contract",
-        agents      :"contract",
-        stakeHolders:"contract"
+        crlInstance: "native",
     },
-    create:function(pdsInstance){
+    create:function(pdsInstance, crlInstance){
+        this.pdsInstance = pdsInstance;
+        this.crlInstance = crlInstance;
     },
-    getContract:function(name){
+    reviveContract:function(key){
 
     },
-    saveTransaction:function(){
+    saveTransaction:function(transaction){
+        $$.pds.save(transaction);
+    },
+    setPublicDescription:{
 
     }
 });
 
-var domainReplicaAPIs = $$.contract.create("domainConstitution");
+$$.contract.describe("domainInfo", {
+    public:{
+        parents:    "json",
+        children:   "json",
+        description: "string",
+        adminAgent: "string",
+    },
+    addParent:function(newparrent){
+        this.parents[newparrent] = pdsInstance;
+        this.crlInstance = crlInstance;
+    },
+    setDescription:function(newDesc){
+        this.description = newDesc;
+    },
+    allows:function(transaction, action, args){
+        return this.assert(transaction.signer == this.adminAgent);
+    }
+});
+
 
 $$.transaction.describe("domainTransaction", {
     public:{
-        contractInstace:"contract"
+        contractKey:"string",
+        contract:"contract"
     },
-    create:function(contractName, action, args){
+    determineInput:function(){
+        return this.declareInput([this.contractKey]);
+    },
+    determineOutput:function(){
+        return this.declareOutput([this.contractKey]);
+    },
+    execute:function(key, action, args){
+        this.contractKey        = key;
+        this.action             = action;
+        this.args               = args;
+        var contract            = this.reviveContract(key);
+        this.contract           = contract;
 
-        var smc = domainReplicaAPIs.getContract(contractName);
-        smc.transaction = this;
-        smc.domain = currentDomain;
-        smc[action].apply(args);
+        if(contract.allows(action, args)){
+            contract[action].apply(args);
+            this.setOutput(key, this.contract)
+        }
     },
-    save:function(){
-        domainReplicaAPIs.saveTransaction(this);
+    check:function(){               //executed in all nodes.
+        this.previous = $$.reviveContract(this.contractKey);
+        return this.contract.allows(this, this.action, this.args);
     }
 });

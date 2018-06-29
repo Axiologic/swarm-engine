@@ -1,7 +1,25 @@
 $$.contract.describe("agents", {
     public:{
-        value:"int"
+        id:"int"
     },
     create:function(ammount){
+    }
+});
+
+$$.contract.describe("agentList", {
+    public:{
+        list:"json"
+    },
+    create:function(ammount){
+    }
+});
+
+
+$$.contract.describe("stakeHolders", {
+    public:{
+        list:"json"
+    },
+    add:function(agent, hashPublicKey){
+        list[agent] = hashPublicKey;
     }
 });
