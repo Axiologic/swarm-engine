@@ -125,7 +125,7 @@ const VM = require("../modules/vm2").NodeVM;
 const vm = new VM({
 	require: {
 		external: true,
-		builtin: ['path', 'util', 'crypto'],
+		builtin: ['path', 'util', 'crypto', 'child_process'],
 		root: process.cwd(), // needs further tests
 		context: 'sandbox',
 		mock: {
@@ -141,20 +141,17 @@ const vm = new VM({
 	wrapper: 'none'
 });
 
-console.log("dirname outter", __dirname);
-
 vm.run(`
         'strict mode';
         // console.error('entering sandbox');
-        console.log("dirname", __dirname);
-        global.$$ = require('./code/engine/core.js');
+        require('./code/engine/core.js');
         
-        const sand = require('./code/engine/pubSub/sandboxPubSub');
-        console.log(sand);
+        //const sand = require('./code/engine/pubSub/sandboxPubSub');
+        //console.log(sand);
         
         //global.$$.PSK_PubSub = sand.create();
         
         // Object.freeze(global.$$);
-        
-        global.$$.loadLibrary('testSwarms', 'code/libraries/testSwarms');
+
+        $$.loadLibrary('testSwarms', 'code/libraries/testSwarms');
 `, process.cwd() + "/test.js");
