@@ -7,4 +7,4 @@ function dummyVM(name){
 	console.log("Creating a fake execution context...");
 }
 
-vm = dummyVM($$.CONSTANTS.SWARM_FOR_EXECUTION);
+global.vm = dummyVM($$.CONSTANTS.SWARM_FOR_EXECUTION);

@@ -145,13 +145,14 @@ vm.run(`
         'strict mode';
         // console.error('entering sandbox');
         require('./code/engine/core.js');
+
+		$$.requireModule("callflow").swarmInstanceManager;
         
-        //const sand = require('./code/engine/pubSub/sandboxPubSub');
-        //console.log(sand);
+        const sand = require('./code/engine/pubSub/sandboxPubSub');
         
-        //global.$$.PSK_PubSub = sand.create();
-        
-        // Object.freeze(global.$$);
+        global.$$.PSK_PubSub = sand.create(__dirname);
 
         $$.loadLibrary('testSwarms', 'code/libraries/testSwarms');
+		
+		console.log("Sandbox [${spaceName}] is running and waiting for swarms.");
 `, process.cwd() + "/test.js");

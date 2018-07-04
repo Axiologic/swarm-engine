@@ -39,7 +39,7 @@ var bootSandBox = $$.flow.describe("PrivateSky.swarm.engine.bootInLauncher", {
     },
     runCode: function(err, res){
         if(!err){
-            var mainFile = this.folder + "/code/engine/sandbox.js";
+            var mainFile = path.join(this.folder, "/code/engine/sandbox.js");
             var args = [this.spaceName];
             console.log("Running: ", mainFile, args);
             var child = child_process.fork(mainFile, args);
