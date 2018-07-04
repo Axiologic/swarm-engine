@@ -135,7 +135,10 @@ const vm = new VM({
 	},
 	sandbox: {
 		process: {
-			env: {} // needed for RUN_WITH_WHYS
+			env: {}, // needed for RUN_WITH_WHYS
+			cwd: function(){
+				return process.cwd()
+			}
 		}
 	},
 	wrapper: 'none'
