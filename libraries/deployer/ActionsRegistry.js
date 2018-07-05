@@ -443,7 +443,8 @@ function ActionsRegistry(){
      * @param {Function}callback
      */
     actions.copy = function (action, dependency, callback) {
-        if(!action.src){
+        var src = action.src || dependency.src;
+        if(!src){
             throw "No source (src) attribute found on: " + JSON.stringify(dependency);
         }
 
@@ -454,8 +455,8 @@ function ActionsRegistry(){
         let options = action.options || {};
         options.overwrite =  !!options.overwrite;
 
-        console.log("Start copying " + action.src + " to folder " + action.target);
-        fsExt.copy(action.src, action.target, options, callback);
+        console.log("Start copying " + src + " to folder " + action.target);
+        fsExt.copy(src, action.target, options, callback);
     };
 
     /**
