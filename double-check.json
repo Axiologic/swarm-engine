@@ -1,0 +1,6 @@
+{
+  "confFileName": "double-check.json",
+  "fileExt": ".js",
+  "matchDirs": ["test", "tests"],
+  "ignore": ["*.js"]
+}
