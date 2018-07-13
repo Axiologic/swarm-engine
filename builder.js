@@ -109,6 +109,10 @@ var config = {
             "name": "virtualmq",
             "src": "https://github.com/PrivateSky/virtualmq.git"
         },
+		{
+			"name": "psk-http-client",
+			"src": "https://github.com/PrivateSky/psk-http-client.git"
+		},
         {
 			"name": "vm2",
 			"src": "https://github.com/patriksimek/vm2.git"
