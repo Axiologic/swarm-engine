@@ -1,5 +1,7 @@
 /* define functions for working with the local node*/
 
+var ss = requireModule("signsensus");
+
 $$.flow.describe("localNode", {
     public:{
         pdsCfgInstance: "native",
@@ -9,14 +11,14 @@ $$.flow.describe("localNode", {
         var self = this;
         this.pdsCfgInstance = new Pds();
 
-        $$.container.declareDependency($$.DI_components.locatorReady, [$$.DI_components.sandBoxReady], function(fail, ready){
+        $$.container.declareDependency($$.DI_components.localNodeAPIs, [$$.DI_components.sandBoxReady], function(fail, ready){
             if(!fail){
-                $$.container.resolve($$.DI_components.locatorReady, self);
+                $$.container.resolve($$.DI_components.localNodeAPIs, self);
             }
         });
 
     },
-    getAgentsForDomain:function(domain, callflow){        //give a list of agents for nodes replicating a domain
+    getAgentsForDomain:function(domain, callflow){        //give the list of replication agents for a domain
         var d = domainCache[d];
         if(d){
             callflow(null, d.getReplicas());
@@ -25,10 +27,10 @@ $$.flow.describe("localNode", {
         }
 
     },
-    replicateDomain:function(domain){           // start replication for this domain
+    replicateDomain:function(domain, callflow){        // start replication for this domain
 
     },
-    addRemoteVMQTopic:function(address){     //add a VirtualMQ topic for the current domain
+    addRemoteEndPoint:function(address, callflow){     //add a VirtualMQ topic for the current node
 
     }
 

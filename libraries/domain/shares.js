@@ -7,11 +7,10 @@ $$.contract.describe("shares", {
         whoGives:"agent"
     },
     allocate:function(ammount){
-        var currentAgent = this.transaction.getSignatoryAgent();
+        var currentAgent = this.transaction.signer;
         if(!total){
             this.total  = ammount;
             this.shares[currentAgent] = ammount;
-            this.transaction.save();
         } else {
             if(this.domain.hasMajority(currentAgent)){
             var diff = ammount - this.total;
@@ -23,7 +22,7 @@ $$.contract.describe("shares", {
         }
     },
     give:function(toWhom, amount){
-        var currentAgent = this.signer;
+        var currentAgent = this.transaction.signer;
         var currentAmmount = this.shares[currentAgent];
         this.ammount = ammount;
         this.toWhom = ammount;
