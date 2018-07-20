@@ -4,7 +4,7 @@ var child_process = require("child_process");
 
 var bootSandBox = $$.flow.describe("PrivateSky.swarm.engine.bootInLauncher", {
     boot:function(sandBox, spaceName, folder, codeFolder, callback){
-        //console.log("Booting in ", folder, " context ", spaceName);
+        // console.log("Booting in ", folder, " context ", spaceName);
 
         this.callback   = callback;
         this.folder     = folder;
@@ -14,9 +14,9 @@ var bootSandBox = $$.flow.describe("PrivateSky.swarm.engine.bootInLauncher", {
 
         var task = this.serial(this.ensureFoldersExists);
 
-        task.folderShouldExist(this.folder + "/mq/",    task.progress);
-        task.folderShouldExist(this.folder + "/code/",  task.progress);
-        task.folderShouldExist(this.folder + "/tmp/",   task.progress);
+        task.folderShouldExist(path.join(this.folder, "mq"),    task.progress);
+        task.folderShouldExist(path.join(this.folder, "code"),  task.progress);
+        task.folderShouldExist(path.join(this.folder, "tmp"),   task.progress);
     },
     folderShouldExist:  function(path, progress){
         $$.ensureFolderExists(path, progress);
@@ -29,17 +29,17 @@ var bootSandBox = $$.flow.describe("PrivateSky.swarm.engine.bootInLauncher", {
             console.log(err);
         } else {
             var task = this.parallel(this.runCode);
-            task.linkShouldExist(this.codeFolder + "/engine/",      this.folder + "/code/engine",       task.progress );
-            task.linkShouldExist(this.codeFolder + "/modules/",     this.folder + "/code/modules",      task.progress );
-            task.linkShouldExist(this.codeFolder + "/libraries/",   this.folder + "/code/libraries",    task.progress );
-            this.sandBox.inbound = mq.getFolderQueue(this.folder + "/mq/inbound/", task.progress);
-            this.sandBox.outbound = mq.getFolderQueue(this.folder + "/mq/outbound/", task.progress);
+            task.linkShouldExist(path.join(this.codeFolder, "engine"),      path.join(this.folder, "code/engine"),       task.progress );
+            task.linkShouldExist(path.join(this.codeFolder, "modules"),     path.join(this.folder, "code/modules"),      task.progress );
+            task.linkShouldExist(path.join(this.codeFolder, "libraries"),   path.join(this.folder, "code/libraries"),    task.progress );
+            this.sandBox.inbound = mq.getFolderQueue(path.join(this.folder, "mq/inbound"), task.progress);
+            this.sandBox.outbound = mq.getFolderQueue(path.join(this.folder, "mq/outbound"), task.progress);
         }
 
     },
     runCode: function(err, res){
         if(!err){
-            var mainFile = path.join(this.folder, "/code/engine/sandbox.js");
+            var mainFile = path.join(this.folder, "code/engine/sandbox.js");
             var args = [this.spaceName];
             console.log("Running: ", mainFile, args);
             var child = child_process.fork(mainFile, args);
@@ -121,7 +121,7 @@ function SandBoxManager(sandboxesFolder, codeFolder, callback){
 
 
     function startSandBox(spaceName){
-        var sandBox = new SandBoxHandler(spaceName, sandboxesFolder + "/" + spaceName, codeFolder);
+        var sandBox = new SandBoxHandler(spaceName, path.join(sandboxesFolder, spaceName), codeFolder);
         sandBoxes[spaceName] = sandBox;
         return sandBox;
     }
