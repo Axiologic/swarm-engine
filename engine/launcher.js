@@ -46,7 +46,7 @@ $$.loadLibrary("pds", __dirname+"/../libraries/localNode");
 
 var launcher = $$.loadLibrary("launcher", __dirname + "/../libraries/launcher");
 
-$$.container.declareDependency($$.DI_components.swarmIsReady, [$$.DI_components.sandBoxReady, $$.DI_components.localNodeAPIs], function(fail, sReady, localNodeAPIs){
+$$.container.declareDependency($$.DI_components.swarmIsReady, [$$.DI_components.sandBoxReady, /*$$.DI_components.localNodeAPIs*/], function(fail, sReady, localNodeAPIs){
     if(!fail){
         console.log("Node launching...");
         $$.localNodeAPIs = localNodeAPIs;

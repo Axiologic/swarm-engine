@@ -6,7 +6,7 @@ exports.create = function(folder, core){
     var inbound = mq.getFolderQueue(path.join(folder, "/mq/inbound/"), $$.defaultErrorHandlingImplementation);
     var outbound = mq.getFolderQueue(path.join(folder, "/mq/outbound/"), $$.defaultErrorHandlingImplementation).getHandler();
 
-    inbound.registerConsumer(function(swarm){
+    inbound.registerConsumer(function(err, swarm){
        //restore and execute this tasty swarm
         global.$$.swarmsInstancesManager.revive_swarm(swarm);
     });
