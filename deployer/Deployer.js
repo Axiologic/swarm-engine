@@ -1,11 +1,73 @@
 const fs = require("fs");
 const actionsRegistry = require("./ActionsRegistry");
-
+const path = require("path");
 const TAG = "[Deployer]";
 
 function Deployer() {
 
     var self = {};
+
+	/**
+	 * runBasicConfig
+	 * Creates from minimal configObject a normal configuration to be run by Deployer
+	 * Needs source folder to be specified and targetFolder is taken from process.cwd();
+	 *
+	 * @param sourceFolder
+	 * @param configFileOrObject
+	 * @param callback
+	 */
+    self.runBasicConfig = function(sourceFolder, configFileOrObject, callback){
+		__minimalDepsConversion(configFileOrObject, function(err, deps){
+        	var config = {
+				"workDir": sourceFolder || "." ,
+				"dependencies": deps
+        	};
+			self.run(config, callback);
+        });
+    };
+
+    function __minimalDepsConversion(configFileOrObject, callback){
+
+		function createCopyDep(type, dependecyName){
+			let sourceFolder = path.join(type, dependecyName);
+			let targetFolder = path.join(process.cwd(), type, dependecyName);
+
+			return {
+				"name": dependecyName,
+				"actions": [
+					{
+						"type": "remove",
+						"target": targetFolder
+					},
+					{
+						"type": "copy",
+						"src": sourceFolder,
+						"target": targetFolder,
+						"options": {
+							"overwrite": true
+						}
+					}
+				]
+			};
+		}
+
+
+		let config = __basicConfigTest(configFileOrObject);
+		let newConfig = [];
+		let err;
+		if(config){
+			function iterateOverDeps(type){
+				for(let i=0; i < config[type].length; i++){
+					newConfig.push(createCopyDep(type, config[type][i]));
+				}
+			}
+
+			iterateOverDeps("modules");
+			iterateOverDeps("libraries");
+        }
+		callback(err, newConfig);
+	}
+
     /**
      * run
      *
@@ -79,6 +141,21 @@ function Deployer() {
 		}
 	}
 
+	function __basicConfigTest(configFileOrObject){
+		if (!configFileOrObject) {
+			throw "Config file path or config object not provided!";
+		}
+
+		let config = {};
+		if (typeof configFileOrObject === "object") {
+			config = configFileOrObject;
+		} else {
+			config = __readConfig(configFileOrObject)
+		}
+
+		return config;
+	}
+
     /**
      *__checkConfig
      *    CheckConfig takes {Object/File path}configFileOrObject as a parameter ,if it
@@ -90,16 +167,8 @@ function Deployer() {
      *@private__checkConfig
      */
     function __checkConfig(configFileOrObject) {
-        if (!configFileOrObject) {
-            throw "Config file path or config object not provided!";
-        }
 
-        let config = {};
-        if (typeof configFileOrObject === "object") {
-            config = configFileOrObject;
-        } else {
-            config = __readConfig(configFileOrObject)
-        }
+        let config = __basicConfigTest(configFileOrObject);
 
         if (!config.dependencies) {
             throw "No dependencies found!";

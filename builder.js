@@ -122,7 +122,7 @@ var config = {
 }
 
 //require("./engine/core").enableTesting();
-var deployer = require("./libraries/deployer/Deployer.js");
+var deployer = require("./deployer/Deployer.js");
 
 deployer.run(config, function (error, result) {
     if(error){

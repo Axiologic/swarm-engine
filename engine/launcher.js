@@ -35,6 +35,10 @@ var cfgPath = basePath + "psk.config";
 
 var codeFolder =  path.normalize(__dirname + "/../");
 
+if(!process.env.PRIVATESKY_ROOT_FOLDER){
+	process.env.PRIVATESKY_ROOT_FOLDER = codeFolder;
+}
+
 $$.container = require("../modules/dicontainer").newContainer($$.errorHandler);
 
 $$.PSK_PubSub = require("./pubSub/launcherPubSub.js").create(basePath, codeFolder);

@@ -6,7 +6,7 @@ const urlUtil = require('url');
 const http = require('http');
 const https = require('https');
 
-const fsExt = require('../utils/FSExtension').fsExt
+const fsExt = require('../libraries/utils/FSExtension').fsExt
 
 const accessSync = fs.accessSync;
 const constants = fs.constants || fs;
