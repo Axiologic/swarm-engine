@@ -116,6 +116,22 @@ var config = {
         {
 			"name": "vm2",
 			"src": "https://github.com/patriksimek/vm2.git"
+		},
+		{
+			"name": "yazl",
+			"src": "https://github.com/PrivateSky/yazl.git"
+		},
+		{
+			"name": "yauzl",
+			"src": "https://github.com/PrivateSky/yauzl.git"
+		},
+		{
+			"name": "buffer-crc32",
+			"src": "https://github.com/patriksimek/buffer-crc32.git"
+		},
+		{
+			"name": "fd-slicer",
+			"src": "https://github.com/patriksimek/node-fd-slicer.git"
 		}
 
     ]
