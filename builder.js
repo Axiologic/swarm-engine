@@ -127,11 +127,11 @@ var config = {
 		},
 		{
 			"name": "buffer-crc32",
-			"src": "https://github.com/patriksimek/buffer-crc32.git"
+			"src": "https://github.com/PrivateSky/buffer-crc32.git"
 		},
 		{
-			"name": "fd-slicer",
-			"src": "https://github.com/patriksimek/node-fd-slicer.git"
+			"name": "node-fd-slicer",
+			"src": "https://github.com/PrivateSky/node-fd-slicer.git"
 		}
 
     ]
