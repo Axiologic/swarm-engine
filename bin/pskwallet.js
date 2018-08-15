@@ -5,16 +5,17 @@ var commands_help = {};
 $$.requireModule("callflow");
 
 //global function addCommand
-addCommand = function addCommand(verb, adverbe, funct, helpLine){
+
+addCommand = function addCommand(verb, adverb, funct, helpLine){
     var cmdId;
     if(!helpLine){
         helpLine = " ";
     } else {
         helpLine = " " + helpLine;
     }
-    if(adverbe){
-        cmdId = verb + " " +  adverbe;
-        helpLine = verb + " " +  adverbe + helpLine;
+    if(adverb){
+        cmdId = verb + " " +  adverb;
+        helpLine = verb + " " +  adverb + helpLine;
     } else {
         cmdId = verb;
         helpLine = verb + helpLine;
