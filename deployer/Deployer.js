@@ -57,10 +57,11 @@ function Deployer() {
 		let err;
 		if(config){
 			function iterateOverDeps(type){
-			    if(Array.isArray(config[type]))
-				for(let i=0; i < config[type].length; i++){
-					newConfig.push(createCopyDep(type, config[type][i]));
-				}
+			    if(Array.isArray(config[type])) {
+                    for(let i=0; i < config[type].length; i++){
+                        newConfig.push(createCopyDep(type, config[type][i]));
+                    }
+                }
 			}
 
 			iterateOverDeps("modules");
