@@ -330,6 +330,12 @@ function ActionsRegistry(){
                 }
             }catch(err){
                 action.message = mergeChangeSet;
+            }finally{
+                fs.unlink(changeSet, (err) => {
+                    if(err){
+                        console.log(err);
+                    }
+                });
             }
         }
 
