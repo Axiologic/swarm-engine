@@ -1,0 +1,49 @@
+{
+  "name": "PrivateSky",
+  "description": "Execute swarm choregraphies. Control your asynchronous code with explicit flows! Created mainly for simplifying code within SwarmESB/PrivateSky projects but can be used outside SwarmESB ecosystem. ",
+  "version": "0.5.0",
+  "_id": "privatesky@0.5.0",
+  "homepage": "https://github.com/PrivateSky/privatesky",
+  "author": {
+    "name": "Alboaie Sinica",
+    "email": "abss@axiologic.ro"
+  },
+  "contributors": [
+    {
+      "name": "Alboaie Sinica",
+      "email": "abss@axiologic.ro"
+    }
+  ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/PrivateSky/privatesky.git"
+  },
+  "bugs": {
+    "email": "salboaie@gmail.com",
+    "url": "https://github.com/PrivateSky/privatesky/issues"
+  },
+  "directories": {
+    "lib": "./engine"
+  },
+  "main": "./engine/core.js",
+  "licenses": [
+    {
+      "type": "LGPL",
+      "url": "http://www.gnu.org/licenses/lgpl.html"
+    }
+  ],
+  "dependencies": {
+    "combos": "^0.2.0",
+    "secp256k1": "^3.5.0"
+  },
+  "devel": "node build-devel.js",
+  "release": "node build-release.js",
+  "build": "browserify runtime.js -o runtimes/psk.js",
+  "build": "browserify node-modules-browser.js -o runtimes/common.js",
+  "watch": "watchify browser.js -o static/bundle.js --debug --verbose"
+}
+
+
+
+
+

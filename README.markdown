@@ -6,7 +6,7 @@ Still very beta, for the next months this repository will be used for coordinati
 How should be used for third party applications or by external contributors:
 - clone it
 - add your list of modules and libraries in release or in other folder
-- config and execute builder.js
+- config and execute build-devel.js
 - execute engine/launcher.js
 
 ###Temporary precautions

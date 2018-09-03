@@ -1,0 +1,10 @@
+Project level tasks for all partners until December 2018:
+
+
+1. Verify and remove all the external dependencies where possible
+2. Create multiple builds and better development model when working with sandboxed code
+3. Finish implementation of libraries, modules for PDS,CSB, Sandboxing,Callflow and Virtual MQ - integrate them
+4. A MVP candidate in December
+
+
+
