@@ -1,11 +1,15 @@
 const fs = require("fs");
 const actionsRegistry = require("./ActionsRegistry");
 const path = require("path");
-const TAG = "[Deployer]";
+let TAG = "[Deployer]";
 
 function Deployer() {
 
     var self = {};
+
+    self.setTag = function(tagName){
+        TAG = tagName;
+    };
 
 	/**
 	 * runBasicConfig

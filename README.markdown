@@ -1,4 +1,4 @@
-#PrivateSky
+# PrivateSky
 
 PrivateSky core GitHub public repository. Based on Axiologic's work on a new execution engine for swarms.
 Still very beta, for the next months this repository will be used for coordination between partners.
@@ -9,7 +9,25 @@ How should be used for third party applications or by external contributors:
 - config and execute builder.js
 - execute engine/launcher.js
 
-###Temporary precautions
+## Building and running
+
+Firstly, the build.js files should be executed. We offer some predefined configurations that will download only the
+dependencies necessary for what needs to run next. If you want to configure what gets downloaded you need to use
+ any of these flags (you can use multiple):
+- --virtualmq - downloads the dependencies to run VirtualMQ
+- --pskwallet - downloads the dependencies to run PskWallet
+- --all - this is the default one if you don't specify any flags, it downloads all dependencies for the entire project 
+
+After getting the dependencies you need you can run (for now) VirtualMq using the runVirtualMq.js file in the bin folder.
+This will start an instance of VirtualMq on the port 8080 and using the 'tmp' folder inside the project root.You can also
+customize this using the next parameters:
+
+- --port PORT - it will set the port number
+- --folder PATH - it will set the root folder for all operations done by VirtualMq
+
+Example: node runVirtualMq.js --port 8081 --folder /path/to/root/folder
+
+### Temporary precautions
 - if running on Windows enable/grant symlink option/permissions
 
 For security and code quality reasons all the integration here and releases will be performed manually by a very small core of developers (Sinica and Cosmin)!
