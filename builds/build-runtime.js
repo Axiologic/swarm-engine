@@ -1,12 +1,32 @@
 var browserify = require('browserify');
-
-var common = browserify();
-b.add('./runtimes/node-node-browser.js');
-b.require().pipe(process.stdout);
+var fs = require("fs");
+var out;
 
 
+var common = browserify("./runtimes/src/webruntime.js");
+out = fs.createWriteStream("./runtimes/nodeShims.js")
+common.bundle().pipe(out);
 
 
-var b = browserify();
-b.add('./runtimes/runtime.js');
-b.bundle().pipe(process.stdout);
+var pskModules = browserify("./runtimes/src/pskruntime.js", {
+    paths:__dirname+ "/../modules/",
+    "bare":true,
+    "debug":true
+});
+out = fs.createWriteStream("./runtimes/runtime.js")
+pskModules.bundle().pipe(out);
+
+
+/*
+var pskModules = browserify("./runtimes/quickTest/testSwarm.js", {ignoreMissing:true});
+
+var out = fs.createWriteStream("./runtimes/runTest.js")
+pskModules.bundle().pipe(out);
+*/
+
+
+/*
+var pskModules = browserify("./runtimes/quicktest/learn/main.js", {debug:true});
+
+var out = fs.createWriteStream("./mainX.js")
+pskModules.bundle().pipe(out); */

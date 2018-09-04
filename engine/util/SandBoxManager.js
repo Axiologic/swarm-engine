@@ -1,4 +1,4 @@
-var mq = $$.requireModule("soundpubsub").folderMQ;
+var mq = $$.require("soundpubsub").folderMQ;
 const path = require('path');
 var child_process = require("child_process");
 

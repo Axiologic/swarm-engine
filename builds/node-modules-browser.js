@@ -1,6 +1,0 @@
-/*
-Shims for
-
-*/
-
-require()
