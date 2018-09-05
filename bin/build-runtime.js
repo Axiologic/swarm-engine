@@ -3,10 +3,11 @@ var fs = require("fs");
 var out;
 
 
-var common = browserify("./runtimes/src/webruntime.js");
-out = fs.createWriteStream("./runtimes/nodeShims.js")
+var common = browserify("../engine/pskbuildtemp/webruntime.js");
+out = fs.createWriteStream("../builds/devel/webruntime.js")
 common.bundle().pipe(out);
 
+/*
 
 var pskModules = browserify("./runtimes/src/pskruntime.js", {
     paths:__dirname+ "/../modules/",
@@ -15,7 +16,7 @@ var pskModules = browserify("./runtimes/src/pskruntime.js", {
 });
 out = fs.createWriteStream("./runtimes/runtime.js")
 pskModules.bundle().pipe(out);
-
+*/
 
 /*
 var pskModules = browserify("./runtimes/quickTest/testSwarm.js", {ignoreMissing:true});

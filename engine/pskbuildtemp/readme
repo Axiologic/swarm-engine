@@ -1,0 +1,9 @@
+This folder contains the templates used for generating privatesky runtimes with browserify and the pskbuild tool
+
+pskruntime.js : the code
+webruntime.js
+
+/*
+Additional modules that could be added in projectMap JOSN files in the browser section:
+assert,buffer,console,constants,crypto,domain,events,http,https,os,path,punycode,querystring,stream,string_decoder,timers,tty,url,util,vm,zlib
+*/

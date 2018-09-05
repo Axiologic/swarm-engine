@@ -22,12 +22,6 @@ if(typeof($$["browserRuntime"]) == "undefined") {
     require("./nodeModules")
 }
 
-$$.__runtimeModules["soundpubsub"] = require("soundpubsub");
-$$.__runtimeModules["callflow"] = require("callflow");
-$$.__runtimeModules["dicontainer"] = require("dicontainer");
-$$.__runtimeModules["double-check"] = require("double-check");
-$$.__runtimeModules["pskcrypto"] = require("pskcrypto");
-
-
+require("./pskModules");
 
 
