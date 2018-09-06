@@ -1,20 +1,19 @@
 var fs = require("fs");
+var path = require("path");
 var browserify = require('browserify');
 
 var args = process.argv.slice(2);
 var defaultMap = {
     browser:"assert,crypto,zlib",
     runtime:"soundpubsub,callflow,dicontainer,double-check,pskcrypto,signsensus",
-    libraries:"core",
-    app:"",
-    libs:"localnode, pds, domain"
+    domain:"localNode, pds, domain"
 }
 
 
 var targets = {
     forBrowser:true,
     forRuntime:true,
-    forApp:false
+    forDomain:true
 }
 var mapJson = {};
 
@@ -25,8 +24,8 @@ function checkTarget(projectMap, propertyInTargets, propertyInMap){
 }
 
 function concatDependency(d1, d2){
-    if(d1 && d1.length == 0) return d2;
-    if(d2 && d2.length == 0) return d1;
+    if(!d1 || d1.length == 0) return d2;
+    if(!d2 || d2.length == 0) return d1;
     return d1 + "," + d2;
 }
 
@@ -73,12 +72,34 @@ function doBrowserify(targetName, src, dest, opt){
     }
 }
 
+
+function buildDependencyMap(targetName, configProperty, output){
+    var cfg = defaultMap[configProperty];
+    var result = ";"
+    cfg.split(",").map(function(item){
+        item = item.trim();
+        var line = `$$.__runtimeModules["${item}"] = require("${item}");\n`;
+        result += line;
+    })
+    fs.writeFileSync(output,result);
+}
+
+var modulesPath = [path.resolve(process.cwd() + "/../modules/"), path.resolve(process.cwd() + "/../libraries/")];
+
+console.log(modulesPath);
+buildDependencyMap("forBrowser","browser", defaultMap.input + "/nodeShims.js");
 doBrowserify("forBrowser", defaultMap.input + "/webruntime.js",     defaultMap.output + "/webruntime.js");
+buildDependencyMap("forRuntime","runtime", defaultMap.input + "/pskModules.js");
 doBrowserify("forRuntime", defaultMap.input + "/pskruntime.js",     defaultMap.output + "/pskruntime.js", {
-                paths:__dirname+ "/../modules/",
+                paths:modulesPath,
                 "bare":true,
                 "debug":true
             });
-doBrowserify("forApp", defaultMap.input + "/constitution.js",   defaultMap.output + "/constitution.js");
+buildDependencyMap("forDomain","domain", defaultMap.input + "/domain.js");
+doBrowserify("forDomain", defaultMap.input + "/domain.js",   defaultMap.output + "/domain.js", {
+    paths:modulesPath,
+    "bare":true,
+    "debug":true
+});
 
 

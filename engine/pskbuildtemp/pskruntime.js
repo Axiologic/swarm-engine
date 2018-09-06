@@ -19,9 +19,10 @@ if(typeof($$["__runtimeModules"]) == "undefined"){
 }
 
 if(typeof($$["browserRuntime"]) == "undefined") {
-    require("./nodeModules")
+    require("./nodeShims")
 }
 
+console.log("WTF!!!");
 require("./pskModules");
 
 

@@ -8,4 +8,4 @@ if(typeof(global.$$) == "undefined"){
 if(typeof($$.__runtimeModules) == "undefined"){
     $$.__runtimeModules = {};
 }
-require("./nodeModules")
+require("./nodeShims")
