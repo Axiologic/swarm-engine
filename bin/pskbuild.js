@@ -5,7 +5,7 @@ var browserify = require('browserify');
 var args = process.argv.slice(2);
 var defaultMap = {
     browser:"assert,crypto,zlib",
-    runtime:"soundpubsub,callflow,dicontainer,double-check,pskcrypto,signsensus",
+    runtime:"soundpubsub,callflow,dicontainer,double-check,pskcrypto,signsensus,core",
     domain:"localNode, pds, domain"
 }
 
