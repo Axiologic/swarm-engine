@@ -1,5 +1,5 @@
 
-
+require("callflow");
 var simpleFlow = $$.callflow.create("testSwarm",{
     start:function(end){
         this.end = end;
@@ -15,7 +15,7 @@ var simpleFlow = $$.callflow.create("testSwarm",{
         this.end();
     }
 });
-
+console.log("running")
 simpleFlow.start(function(){
     console.log("Callback called")
 });

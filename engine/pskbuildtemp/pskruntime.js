@@ -27,11 +27,7 @@ if(typeof($$["browserRuntime"]) == "undefined") {
     };
 }
 global.require = $$.require;
-setTimeout(function(){
-    require("./pskModules");
-},5000);
-
-
+require("./pskModules");
 
 
 

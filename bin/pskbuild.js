@@ -4,8 +4,8 @@ var browserify = require('browserify');
 
 var args = process.argv.slice(2);
 var defaultMap = {
-    browser:"assert,crypto,zlib, util, path",
-    runtime:"soundpubsub,callflow,dicontainer,pskcrypto,signsensus",
+    browser:"assert,crypto,zlib,util,path",
+    runtime:"soundpubsub,callflow,dicontainer,signsensus",
     domain:"localNode, pds, domain"
 }
 
@@ -63,11 +63,36 @@ if(args.length ==0 ){
 
 
 
-function doBrowserify(targetName, src, dest, opt){
+function doBrowserify(targetName, src, dest, opt, externalModules, exportsModules){
     if(targets[targetName]){
         console.log("Processing ", src, "into", dest);
         var package = browserify(src,opt);
+
+        if(externalModules){
+            //package.add(src);
+            package.external(externalModules);
+        }else{
+         //
+        }
+
+        var optRequire = {};
+        if(exportsModules){
+            optRequire.expose = exportsModules;
+        }
+
+        //package.require(src, optRequire);
         var out = fs.createWriteStream(dest);
+        package.on('file', function(file, id, parent){
+            console.log(file, id, parent);
+            /*if(id == "callflow"){
+                package.require(file,{
+                    expose:"callflow"
+                })
+            }*/
+        })
+        package.require("C:\\work\\PrivateSky\\privatesky\\modules\\callflow\\index.js", {
+            expose:"callflow"
+        })
         package.bundle().pipe(out);
     }
 }
@@ -86,15 +111,22 @@ function buildDependencyMap(targetName, configProperty, output){
 
 var modulesPath = [path.resolve(process.cwd() + "/../modules/"), path.resolve(process.cwd() + "/../libraries/")];
 
+var externalModules = defaultMap.browser.split(",");
+var exportsModules = defaultMap.runtime.split(",");
+
+
 console.log(modulesPath);
 buildDependencyMap("forBrowser","browser", defaultMap.input + "/nodeShims.js");
-doBrowserify("forBrowser", defaultMap.input + "/webruntime.js",     defaultMap.output + "/webruntime.js");
+doBrowserify("forBrowser", defaultMap.input + "/webruntime.js",     defaultMap.output + "/webruntime.js", {"fullPaths": true,
+    externalRequireName:"browserifyRequire"});
 buildDependencyMap("forRuntime","runtime", defaultMap.input + "/pskModules.js");
 doBrowserify("forRuntime", defaultMap.input + "/pskruntime.js",     defaultMap.output + "/pskruntime.js", {
                 paths:modulesPath,
                 "bare":true,
-                "debug":true
-            });
+                "debug":true,
+                "fullPaths": true,
+                externalRequireName:"browserifyRequire"
+            }, externalModules, exportsModules);
 buildDependencyMap("forDomain","domain", defaultMap.input + "/domain.js");
 doBrowserify("forDomain", defaultMap.input + "/domain.js",   defaultMap.output + "/domain.js", {
     paths:modulesPath,
