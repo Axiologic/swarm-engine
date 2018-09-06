@@ -13,7 +13,7 @@ exports.enableTesting = function() {
     require("./fakes/dummyVM");
 }
 
-var core = $$.requireLibrary("core");
+var core = $$.requireLibrary("launcher");
 
 
 //TODO: SHOULD be moved in $$.__globals

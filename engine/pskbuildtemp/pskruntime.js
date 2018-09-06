@@ -20,9 +20,19 @@ if(typeof($$["__runtimeModules"]) == "undefined"){
 
 if(typeof($$["browserRuntime"]) == "undefined") {
     require("./nodeShims")
-}
+} else {
+    console.log("Defining fs...");
+    $$.__runtimeModules["fs"] = {
 
-console.log("WTF!!!");
-require("./pskModules");
+    };
+}
+global.require = $$.require;
+setTimeout(function(){
+    require("./pskModules");
+},5000);
+
+
+
+
 
 

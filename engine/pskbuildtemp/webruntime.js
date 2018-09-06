@@ -8,4 +8,6 @@ if(typeof(global.$$) == "undefined"){
 if(typeof($$.__runtimeModules) == "undefined"){
     $$.__runtimeModules = {};
 }
-require("./nodeShims")
+require("./nodeShims");
+var c = require("crypto");
+console.log("Am incarcat dependentele", c);

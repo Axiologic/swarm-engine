@@ -4,5 +4,5 @@
 Run testSwarm.js
  */
 
-require("../runtime.js");
+require("../devel/pskruntime.js");
 require("./testSwarm.js")
