@@ -1,2 +1,2 @@
 
-node "%~dp0pskwallet.js" %*
+node "%~dp0scripts\pskwallet.js" %*
