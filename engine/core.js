@@ -28,3 +28,9 @@ $$.ensureLinkExists = function(existingPath, newPath, callback){
     var flow = $$.flow.start(core.mkDirRec);
     flow.makeLink(existingPath, newPath, callback);
 };
+
+$$.pathNormalize = function (pathToNormalize) {
+    const path = require("path");
+    pathToNormalize = path.normalize(pathToNormalize);
+    return pathToNormalize.replace(/[\/\\]/g, path.sep);
+};
