@@ -1,0 +1,5 @@
+{
+  "browser":"assert,crypto,zlib,util,path",
+  "runtime":"soundpubsub,callflow,dicontainer",
+  "domain":"localNode,domain"
+}

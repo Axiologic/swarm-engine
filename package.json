@@ -37,8 +37,10 @@
     "combos": "^0.2.0",
     "secp256k1": "^3.5.0"
   },
-  "devel": "node build-devel.js",
-  "release": "node build-release.js",
-  "build": "browserify node-modules-browser.js -o runtimes/common.js",
-  "watch": "watchify browser.js -o static/bundle.js --debug --verbose"
+  "scripts":{
+    "devel": "node build-devel.js",
+    "release": "node build-release.js",
+    "runtime": "node ./bin/pskbuild.js ./builds/build.json",
+    "watch": "watchify browser.js -o static/bundle.js --debug --verbose"
+  }
 }
