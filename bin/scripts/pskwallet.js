@@ -1,21 +1,20 @@
-require("../engine/core");
+require("../../engine/core");
 
 var commands = {};
 var commands_help = {};
-$$.require("callflow");
+$$.requireModule("callflow");
 
 //global function addCommand
-
-addCommand = function addCommand(verb, adverb, funct, helpLine){
+addCommand = function addCommand(verb, adverbe, funct, helpLine){
     var cmdId;
     if(!helpLine){
         helpLine = " ";
     } else {
         helpLine = " " + helpLine;
     }
-    if(adverb){
-        cmdId = verb + " " +  adverb;
-        helpLine = verb + " " +  adverb + helpLine;
+    if(adverbe){
+        cmdId = verb + " " +  adverbe;
+        helpLine = verb + " " +  adverbe + helpLine;
     } else {
         cmdId = verb;
         helpLine = verb + helpLine;
@@ -67,7 +66,7 @@ function runCommand(){
 
 }
 
-$$.__global.__loadLibraryRoot = __dirname + "/../modules/pskwallet/libraries/";
+$$.__global.__loadLibraryRoot = __dirname + "/../../modules/pskwallet/libraries/";
 
 $$.requireLibrary("cmds");
 

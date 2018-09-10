@@ -1,11 +1,15 @@
 const fs = require("fs");
 const actionsRegistry = require("./ActionsRegistry");
 const path = require("path");
-const TAG = "[Deployer]";
+let TAG = "[Deployer]";
 
 function Deployer() {
 
     var self = {};
+
+    self.setTag = function(tagName){
+        TAG = tagName;
+    };
 
 	/**
 	 * runBasicConfig
@@ -57,9 +61,11 @@ function Deployer() {
 		let err;
 		if(config){
 			function iterateOverDeps(type){
-				for(let i=0; i < config[type].length; i++){
-					newConfig.push(createCopyDep(type, config[type][i]));
-				}
+			    if(Array.isArray(config[type])) {
+                    for(let i=0; i < config[type].length; i++){
+                        newConfig.push(createCopyDep(type, config[type][i]));
+                    }
+                }
 			}
 
 			iterateOverDeps("modules");

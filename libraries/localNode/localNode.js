@@ -1,6 +1,6 @@
 /* define functions for working with the local node*/
 
-var ss = $$.requireModule("signsensus");
+var ss = $$.require("signsensus");
 
 $$.flow.describe("localNode", {
     public:{

@@ -1,8 +1,8 @@
 {
   "name": "PrivateSky",
   "description": "Execute swarm choregraphies. Control your asynchronous code with explicit flows! Created mainly for simplifying code within SwarmESB/PrivateSky projects but can be used outside SwarmESB ecosystem. ",
-  "version": "0.1.2",
-  "_id": "privatesky@0.1.2",
+  "version": "0.5.0",
+  "_id": "privatesky@0.5.0",
   "homepage": "https://github.com/PrivateSky/privatesky",
   "author": {
     "name": "Alboaie Sinica",
@@ -33,9 +33,14 @@
     }
   ],
   "dependencies": {
+    "browserify": "^16.2.2",
     "combos": "^0.2.0",
-    "secp256k1": "^3.5.0",
-    "yazl": "^2.4.3",
-    "zip-stream": "^1.2.0"
+    "secp256k1": "^3.5.0"
+  },
+  "scripts":{
+    "devel": "node build-devel.js",
+    "release": "node build-release.js",
+    "runtime": "node ./bin/pskbuild.js ./builds/build.json",
+    "watch": "watchify browser.js -o static/bundle.js --debug --verbose"
   }
 }

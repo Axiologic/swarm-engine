@@ -3,5 +3,7 @@ $$.CONSTANTS = {
     INBOUND:"inbound",
     OUTBOUND:"outbound",
     PDS:"PrivateDataSystem",
-    CRL:"CommunicationReplicationLayer"
-}
+    CRL:"CommunicationReplicationLayer",
+    SWARM_RETURN: 'swarm_return'
+};
+

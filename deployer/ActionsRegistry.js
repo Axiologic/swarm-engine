@@ -10,6 +10,9 @@ const fsExt = require('../libraries/utils/FSExtension').fsExt
 
 const accessSync = fs.accessSync;
 const constants = fs.constants || fs;
+const changeSet = "latest-change-set.txt";
+const mergeChangeSet = "Merge";
+const changeSetDefaultSize = 3;
 
 /**
  * Contains default actions
@@ -203,7 +206,7 @@ function ActionsRegistry(){
             options = action.options;
         }
 
-        global.collectLog = action.collectLog || false;
+        global.collectLog = action.collectLog || true;
 
         _clone(dependency.src, target, options, dependency.credentials, function(err, res){
             if(!err){
@@ -260,10 +263,9 @@ function ActionsRegistry(){
                         }
                         msg = stdout.substring(index);
 
-                        if(!global.msgs || !Array.isArray(global.msgs)){
-                            global.msgs = [msg];
-                        }else{
-                            global.msgs.push(msg);
+                        if(msg.indexOf("#") ==-1)
+                        {
+                            fs.appendFileSync(changeSet, msg);
                         }
                     }
 
@@ -321,13 +323,20 @@ function ActionsRegistry(){
         }
 
         if(!action.message){
-            if(!global.msgs){
-                throw "No message attribute found on: " + JSON.stringify(action);
-            }else{
-                console.log("Using compact messages for " + JSON.stringify(action));
+            try{
+                action.message = fs.readFileSync(changeSet, 'utf8');
+                if((action.message.match(new RegExp("\n", "g")) || []).length > changeSetDefaultSize){
+                    action.message = mergeChangeSet;
+                }
+            }catch(err){
+                action.message = mergeChangeSet;
+            }finally{
+                fs.unlink(changeSet, (err) => {
+                    if(err){
+                        console.log(err);
+                    }
+                });
             }
-            action.message = global.msgs.toString();
-            global.msgs = undefined;
         }
 
         var commandExists = _commandExistsSync("git");
