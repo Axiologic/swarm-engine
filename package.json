@@ -35,9 +35,8 @@
   "dependencies": {
   },
   "scripts":{
-    "install": "node dev/build-devel.js",
-    "devel": "node build-devel.js",
-    "release": "node build-release.js",
+    "devel": "node dev/build-devel.js",
+    "release": "node dev/build-release.js",
     "runtime": "node ./bin/pskbuild.js ./builds/build.json",
     "watch": "watchify browser.js -o static/bundle.js --debug --verbose"
   }
