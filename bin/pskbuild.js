@@ -62,6 +62,17 @@ if (mapJson.output) {
     defaultMap.output = process.cwd() + "/builds/devel/";
 }
 
+function detectAlias(str){
+    var a = str.trim().split(":");
+    var res = {};
+    res.module = a[0].trim();
+    if(a[1]){
+        res.alias = a[1].trim();
+    } else{
+        res.alias = res.module;
+    }
+    return res;
+}
 
 function doBrowserify(targetName, src, dest, opt, externalModules, exportsModules) {
 
@@ -78,7 +89,8 @@ function doBrowserify(targetName, src, dest, opt, externalModules, exportsModule
         var mapForExpose = {};
 
         exportsModules.map(function (item) {
-            mapForExpose[item] = item;
+            var i = detectAlias(item)
+            mapForExpose[i.module] = i.alias;
         })
 
         package.on('file', function (file, id, parent) {
@@ -124,8 +136,8 @@ function buildDependencyMap(targetName, configProperty, output) {
     var cfg = defaultMap[configProperty];
     var result = ";"
     cfg.split(",").map(function (item) {
-        item = item.trim();
-        var line = `$$.__runtimeModules["${item}"] = require("${item}");\n`;
+        var ia = detectAlias(item)
+        var line = `$$.__runtimeModules["${ia.alias}"] = require("${ia.alias}");\n`;
         result += line;
     })
     fs.writeFileSync(output, result);
