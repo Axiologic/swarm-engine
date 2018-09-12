@@ -33,8 +33,9 @@
     }
   ],
   "dependencies": {
+    "browserify": "^16.2.2"
   },
-  "scripts":{
+  "scripts": {
     "devel": "node dev/build-devel.js",
     "release": "node dev/build-release.js",
     "runtime": "node ./bin/pskbuild.js ./builds/build.json",
