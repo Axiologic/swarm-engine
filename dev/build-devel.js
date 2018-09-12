@@ -128,6 +128,11 @@ const config = {
                     }
                 }
             ]
+        },
+        {
+            "name": "browserify",
+            "src": "npm",
+            "actions": ["install"]
         }
 
     ]
