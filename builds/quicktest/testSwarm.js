@@ -22,3 +22,6 @@ simpleFlow.start(function(){
     //require("callflow");
     console.log("Callback called");
 });
+
+var fs = require("fs");
+console.log("FS stat:", fs.stat);

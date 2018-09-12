@@ -15,3 +15,4 @@ if(typeof($$.__runtimeModules) == "undefined"){
 require("./nodeShims");
 
 
+console.log($$.__runtimeModules["fs"])

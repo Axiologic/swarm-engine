@@ -1,5 +1,5 @@
 {
-  "browser":"assert,crypto,zlib,util,path",
+  "browser":"assert,crypto,zlib,util,path,pskwebfs:fs",
   "runtime":"soundpubsub,callflow,dicontainer",
   "domain":"localNode,domain"
 }

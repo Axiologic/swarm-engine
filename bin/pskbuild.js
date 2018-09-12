@@ -90,17 +90,21 @@ function doBrowserify(targetName, src, dest, opt, externalModules, exportsModule
 
         exportsModules.map(function (item) {
             var i = detectAlias(item)
-            mapForExpose[i.module] = i.alias;
+            mapForExpose[i.module] = i;
         })
 
         package.on('file', function (file, id, parent) {
 
-            if (mapForExpose[id] == id) {
+            var i = mapForExpose[id];
+            //console.log(file, id, i);
+            if (i && i.module == id) {
                 //console.log("Found entry", file, "for", id);
                 mapForExpose[id] = file;
+                mapForExpose[i.alias] = file;
             }
         })
         package.bundle().pipe(writable).on("finish", function (err, res) {
+            //console.log(mapForExpose);
             callback(null, mapForExpose);
         });
     }
@@ -137,7 +141,7 @@ function buildDependencyMap(targetName, configProperty, output) {
     var result = ";"
     cfg.split(",").map(function (item) {
         var ia = detectAlias(item)
-        var line = `$$.__runtimeModules["${ia.alias}"] = require("${ia.alias}");\n`;
+        var line = `$$.__runtimeModules["${ia.alias}"] = require("${ia.module}");\n`;
         result += line;
     })
     fs.writeFileSync(output, result);
