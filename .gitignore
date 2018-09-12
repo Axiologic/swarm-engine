@@ -5,3 +5,9 @@ tests
 libraries/testSwarms
 tmp
 latest-change-set.txt
+devel/domain.js
+devel/pskruntime.js
+devel/webruntime.js
+engine/pskbuildtemp/domain.js
+engine/pskbuildtemp/nodeShims.js
+engine/pskbuildtemp/pskModules.js
