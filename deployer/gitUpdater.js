@@ -28,7 +28,7 @@ function discoveryGitRepos(directoryArr){
         for(var i=0; i<subDirs.length; i++){
             let sd = subDirs[i];
             if(sd.indexOf(".git")!=-1){
-                if(path.join(dir, sd).indexOf("privatesky/.git")==-1){
+                if(path.join(dir, sd).indexOf(path.join("privatesky",".git"))==-1){
                     gitRepos.push(dir);
                 }else{
                     manualUpdateRepos.push(dir);
