@@ -1,6 +1,7 @@
 var fs = require("fs");
 var path = require("path");
 var browserify = require('browserify');
+var fsExt = require("./../libraries/utils/FSExtension").fsExt;
 
 var args = process.argv.slice(2);
 var defaultMap = {
@@ -51,19 +52,19 @@ defaultMap.domain = concatDependency(defaultMap.domain, mapJson.domain);
 
 
 if (mapJson.input) {
-    defaultMap.input = process.cwd() + mapJson.input;
+    defaultMap.input = path.join(process.cwd(), mapJson.input);
 } else {
-    defaultMap.input = process.cwd() + "/engine/pskbuildtemp/";
+    defaultMap.input = path.join(process.cwd(), "engine", "pskbuildtemp");
 }
 
 if (mapJson.output) {
-    defaultMap.output = process.cwd() + mapJson.output;
+    defaultMap.output = path.join(process.cwd(), mapJson.output);
 } else {
-    defaultMap.output = process.cwd() + "/builds/devel/";
+    defaultMap.output = path.join(process.cwd(), "builds", "devel");
 }
 
 function detectAlias(str){
-    var a = str.trim().split(":");
+    var a = str.trim().split(/\s*:\s*/);
     var res = {};
     res.module = a[0].trim();
     if(a[1]){
@@ -125,6 +126,9 @@ function doBrowserify(targetName, src, dest, opt, externalModules, exportsModule
             });
         }
 
+        //ensure dir struct exists
+        fsExt.createDir(path.dirname(dest));
+
         var out = fs.createWriteStream(dest);
         package.bundle().pipe(out);
     }
@@ -139,15 +143,19 @@ function doBrowserify(targetName, src, dest, opt, externalModules, exportsModule
 function buildDependencyMap(targetName, configProperty, output) {
     var cfg = defaultMap[configProperty];
     var result = ";"
-    cfg.split(",").map(function (item) {
+    splitStrToArray(cfg).map(function (item) {
         var ia = detectAlias(item)
         var line = `$$.__runtimeModules["${ia.alias}"] = require("${ia.module}");\n`;
         result += line;
     })
+
+    //ensure dir struct exists
+    fsExt.createDir(path.dirname(output));
+
     fs.writeFileSync(output, result);
 }
 
-var modulesPath = [path.resolve(process.cwd() + "/modules/"), path.resolve(process.cwd() + "/libraries/")];
+var modulesPath = [path.resolve(process.cwd(), "modules"), path.resolve(process.cwd(), "libraries")];
 
 
 var browserOptions = {
@@ -173,29 +181,33 @@ var domainOptions = {
     externalRequireName: "domainRequire"
 }
 
-var externalForDomain = defaultMap.browser.split(",").join(defaultMap.runtime.split(","));
+function splitStrToArray(str){
+    return str.split(/\s*,\s*/);
+}
 
-buildDependencyMap("forBrowser", "browser", defaultMap.input + "/nodeShims.js");
+var externalForDomain = splitStrToArray(defaultMap.browser).join(splitStrToArray(defaultMap.runtime));
+
+buildDependencyMap("forBrowser", "browser", path.join(defaultMap.input, "nodeShims.js"));
 doBrowserify("forBrowser",
-    defaultMap.input + "/webruntime.js",
-    defaultMap.output + "/webruntime.js",
+    path.join(defaultMap.input, "webruntime.js"),
+    path.join(defaultMap.output, "webruntime.js"),
     browserOptions,
     null,
-    defaultMap.browser.split(","));
+    splitStrToArray(defaultMap.browser));
 
-buildDependencyMap("forRuntime", "runtime", defaultMap.input + "/pskModules.js");
+buildDependencyMap("forRuntime", "runtime", path.join(defaultMap.input, "pskModules.js"));
 doBrowserify("forRuntime",
-    defaultMap.input + "/pskruntime.js",
-    defaultMap.output + "/pskruntime.js",
+    path.join(defaultMap.input, "pskruntime.js"),
+    path.join(defaultMap.output, "pskruntime.js"),
     runtimeOptions,
-    defaultMap.browser.split(","),
-    defaultMap.runtime.split(","));
+    splitStrToArray(defaultMap.browser),
+    splitStrToArray(defaultMap.runtime));
 
-buildDependencyMap("forDomain", "domain", defaultMap.input + "/domain.js");
+buildDependencyMap("forDomain", "domain", path.join(defaultMap.input, "domain.js"));
 doBrowserify("forDomain",
-    defaultMap.input + "/domain.js",
-    defaultMap.output + "/domain.js",
+    path.join(defaultMap.input, "domain.js"),
+    path.join(defaultMap.output, "domain.js"),
     domainOptions,
     null,
-    defaultMap.domain.split(","));
+    splitStrToArray(defaultMap.domain));
 
