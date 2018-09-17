@@ -24,10 +24,18 @@ function checkTarget(projectMap, propertyInTargets, propertyInMap) {
     }
 }
 
-function concatDependency(d1, d2) {
+function concatDependencyMaps(d1, d2) {
     if (!d1 || d1.length == 0) return d2;
     if (!d2 || d2.length == 0) return d1;
-    return d1 + "," + d2;
+
+    let d3Arr = splitStrToArray(d2);
+    for(let i=0; i<d3Arr.length; i++){
+        if(d1.indexOf(d3Arr[i])!==-1){
+            //removing duplicates deps from map
+            d2 = d2.replace(new RegExp(d3Arr[i]), "");
+        }
+    }
+    return (d1+","+d2).replace(/,+/g, ',');
 }
 
 if (args.length == 0) {
@@ -44,11 +52,11 @@ if (args.length == 0) {
 }
 
 
-defaultMap.browser = concatDependency(defaultMap.browser, mapJson.browser);
-defaultMap.runtime = concatDependency(defaultMap.runtime, mapJson.runtime);
+defaultMap.browser = concatDependencyMaps(defaultMap.browser, mapJson.browser);
+defaultMap.runtime = concatDependencyMaps(defaultMap.runtime, mapJson.runtime);
 
 
-defaultMap.domain = concatDependency(defaultMap.domain, mapJson.domain);
+defaultMap.domain = concatDependencyMaps(defaultMap.domain, mapJson.domain);
 
 
 if (mapJson.input) {
