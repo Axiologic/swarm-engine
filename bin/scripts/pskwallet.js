@@ -1,8 +1,8 @@
-require("../../engine/core");
-
 var commands = {};
 var commands_help = {};
-$$.requireModule("callflow");
+
+require("../../builds/devel/pskruntime");
+require("callflow");
 
 //global function addCommand
 addCommand = function addCommand(verb, adverbe, funct, helpLine){
@@ -66,9 +66,6 @@ function runCommand(){
 
 }
 
-$$.__global.__loadLibraryRoot = __dirname + "/../../modules/pskwallet/libraries/";
 
-$$.requireLibrary("cmds");
-
-
+$$.loadLibrary("cmds",require('../../modules/pskwallet/libraries/cmds'));
 runCommand();
