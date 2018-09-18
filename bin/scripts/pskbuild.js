@@ -119,7 +119,7 @@ function doBrowserify(targetName, src, dest, opt, externalModules, exportsModule
     }
 
     function doWork(err, mapForExpose) {
-        console.log("Processing ", src, "into", dest, "\n" /*, JSON.stringify(mapForExpose, 2)*/);
+        //console.log("Processing ", src, "into", dest, "\n" /*, JSON.stringify(mapForExpose, 2)*/);
 
         var package = browserify(src, opt);
 
@@ -139,6 +139,7 @@ function doBrowserify(targetName, src, dest, opt, externalModules, exportsModule
 
         var out = fs.createWriteStream(dest);
         package.bundle().pipe(out);
+        endCallback(targetName);
     }
 
 
@@ -195,6 +196,17 @@ function splitStrToArray(str){
 
 var externalForDomain = splitStrToArray(defaultMap.browser).join(splitStrToArray(defaultMap.runtime));
 
+console.log("Starts rebuilding");
+
+var counter = 0;
+function endCallback(str){
+    counter++;
+    console.log(str, "done ");
+    if(counter == 3) {
+        console.log("Finished rebuilding");
+    }
+}
+
 buildDependencyMap("forBrowser", "browser", path.join(defaultMap.input, "nodeShims.js"));
 doBrowserify("forBrowser",
     path.join(defaultMap.input, "webruntime.js"),
@@ -218,4 +230,5 @@ doBrowserify("forDomain",
     domainOptions,
     null,
     splitStrToArray(defaultMap.domain));
+
 
