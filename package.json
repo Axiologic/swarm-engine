@@ -33,13 +33,14 @@
     }
   ],
   "dependencies": {
-    "browserify": "^16.2.2"
+    "browserify": "^16.2.2",
+    "chokidar": "^2.0.4"
   },
   "scripts": {
     "devel": "node dev/build-devel.js",
     "release": "node dev/build-release.js",
-    "runtime": "node ./bin/pskbuild.js ./builds/build.json",
-    "watch": "watchify browser.js -o static/bundle.js --debug --verbose",
+    "runtime": "node ./bin/scripts/pskbuild.js ./builds/build.json",
+    "watch": "node ./bin/scripts/watcher.js --watch ./ --run ./bin/scripts/psknode.js",
     "git-update": "node deployer/gitUpdater.js ."
   }
 }

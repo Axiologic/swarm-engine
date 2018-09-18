@@ -1,7 +1,7 @@
 var fs = require("fs");
 var path = require("path");
 var browserify = require('browserify');
-var fsExt = require("./../libraries/utils/FSExtension").fsExt;
+var fsExt = require("../../libraries/utils/FSExtension").fsExt;
 
 var args = process.argv.slice(2);
 var defaultMap = {
