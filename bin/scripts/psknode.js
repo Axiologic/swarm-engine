@@ -7,7 +7,15 @@ Start a Launcher
 const { spawn } = require('child_process');
 const http = require('http')
 
-spawn('node', ['./bin/pskbuild.js', './builds/build.json']);
+const spawnedProcess = spawn('node', ['./bin/scripts/pskbuild.js', './builds/build.json']);
+
+spawnedProcess.stdout.on('data', (data) => {
+    console.log(`pskbuild: ${data}`);
+});
+
+spawnedProcess.stderr.on('data', (data) => {
+    console.error(`pskbuild: ${data}`);
+});
 
 const port = 3000;
 
@@ -25,5 +33,4 @@ server.listen(port, (err) => {
 
     console.log(`Server is listening on ${port}`)
 })
-
 
