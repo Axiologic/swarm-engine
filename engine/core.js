@@ -4,28 +4,22 @@
  Code License: LGPL or MIT.
  */
 
-
-var callflowModule = require("./../modules/callflow");
-
-
-
 exports.enableTesting = function() {
     require("./fakes/dummyVM");
 }
 
-var core = requireLibrary("launcher");
-
+var core = require("launcher");
 
 //TODO: SHOULD be moved in $$.__globals
 $$.ensureFolderExists = function(folder, callback){
 
-    var flow = $$.flow.start("mkDirRec");
+    var flow = $$.flow.start(core.mkDirRec);
     flow.make(folder, callback);
 };
 
 $$.ensureLinkExists = function(existingPath, newPath, callback){
 
-    var flow = $$.flow.start("mkDirRec");
+    var flow = $$.flow.start(core.mkDirRec);
     flow.makeLink(existingPath, newPath, callback);
 };
 

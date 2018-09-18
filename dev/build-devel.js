@@ -146,8 +146,6 @@ const config = {
     ]
 };
 
-config.dependencies = baseDeps.concat(config.dependencies);
-
 const virtualMQConfig = {
     workDir: '.',
     dependencies: [
@@ -171,6 +169,8 @@ const pskWalletConfig = {
         }
     ]
 };
+
+config.dependencies = baseDeps.concat(config.dependencies, pskWalletConfig.dependencies, virtualMQConfig.dependencies);
 
 pskWalletConfig.dependencies = baseDeps.concat(pskWalletConfig.dependencies);
 

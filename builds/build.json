@@ -1,5 +1,5 @@
 {
-  "browser":"assert,crypto,zlib,util,path,pskwebfs:fs",
-  "runtime":"soundpubsub,callflow,dicontainer, launcher, yazl, double-check",
-  "domain":"localNode,domain"
+  "browser" : "assert,crypto,zlib,util,path,pskwebfs:fs",
+  "runtime" : "soundpubsub, dicontainer, callflow, launcher, yazl, yauzl, double-check, psk-http-client, pskcrypto, virtualmq",
+  "domain" : "localNode,domain"
 }

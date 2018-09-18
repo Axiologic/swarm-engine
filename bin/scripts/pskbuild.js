@@ -35,7 +35,7 @@ function concatDependencyMaps(d1, d2) {
             d2 = d2.replace(new RegExp(d3Arr[i]), "");
         }
     }
-    return (d1+","+d2).replace(/,+/g, ',');
+    return (d1+","+d2).replace(/(,+\s+,+)|,+/g, ',');
 }
 
 if (args.length == 0) {
