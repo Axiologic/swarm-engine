@@ -40,7 +40,7 @@
     "devel": "node dev/build-devel.js",
     "release": "node dev/build-release.js",
     "runtime": "node ./bin/scripts/pskbuild.js ./builds/build.json",
-    "watch": "node ./bin/scripts/watcher.js --watch ./ --run ./bin/scripts/psknode.js",
+    "watch": "node ./bin/scripts/watcher.js --watch ./ --run ./bin/scripts/psknode.js --ignore=\"engine/pskbuildtemp,builds/devel\"",
     "git-update": "node deployer/gitUpdater.js ."
   }
 }

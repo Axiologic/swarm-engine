@@ -7,7 +7,9 @@ const config = {
     run: null,
     watch: '.',
     allowedFileExtensions: ['.js'],
-    args: []
+    args: '',
+    exec: null,
+    ignore: []
 };
 
 let forkedProcess;
@@ -38,15 +40,22 @@ for (let i = 0; i < argv.length; ++i) {
     }
 }
 
-console.log(`Started watching ${path.resolve(config.watch)}, changes will run ${path.resolve(config.run)} with arguments ${config.args}`);
+config.watch = config.watch.split(',').map(watchPath => path.resolve(watchPath));
+
+console.log('Watching paths ', config.watch.join(', '));
+
 const watcher = chokidar.watch(config.watch, {
-    ignored: '**/.git/**',
+    ignored: ['**/.git/**'].concat(config.ignore.map(element => `**${element}**`)),
     ignoreInitial: true,
     usePolling: true
 });
 
 if (config.run) {
     runFile(config.run);
+}
+
+if (config.exec) {
+    runExec();
 }
 
 
@@ -62,6 +71,10 @@ function editConfig(key, value) {
     }
 
     config[key] = value;
+
+    if (Array.isArray(config.key) && !Array.isArray(value)) {
+        config[key] = [value];
+    }
 }
 
 function preprocessArgument(argument) {
@@ -91,6 +104,10 @@ function restartServer(path) {
         return;
     }
 
+    if (config.exec) {
+        runExec();
+    }
+
     if (config.run) {
         runFile(config.run);
     } else {
@@ -104,5 +121,22 @@ function runFile(filePath) {
         forkedProcess.kill();
     }
 
-    forkedProcess = childProcess.fork(filePath, config.args)
+    forkedProcess = childProcess.fork(filePath, config.args.split(' '))
+}
+
+function runExec() {
+    childProcess.exec(config.exec, (err, stdout, stderr) => {
+        if (err) {
+            console.error(err);
+        }
+
+        if (stdout) {
+            console.log(stdout);
+        }
+
+        if (stderr) {
+            console.error(stderr);
+        }
+    });
+
 }
