@@ -34,3 +34,7 @@ server.listen(port, (err) => {
     console.log(`Server is listening on ${port}`)
 })
 
+process.on('exit', () => {
+    server.close();
+});
+
