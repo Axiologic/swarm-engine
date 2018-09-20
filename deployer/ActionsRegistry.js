@@ -47,7 +47,7 @@ function ActionsRegistry(){
             commandOpts.cwd = dependency.workDir;
         }
 
-        console.log("npm install " + target);
+        console.log("npm install --no-save " + target);
         let error = null;
         let response = `Finished install action on dependency ${dependency.name}`;
         try {
@@ -249,7 +249,7 @@ function ActionsRegistry(){
                             callback(new Error(`Repo ${target} needs attention! (Merging issues)`), `Finished update action on dependency ${dependency.name}`)
                         }
                     }catch(err){
-                        if(err.message.indexOf("No stash found.") != -1){
+                        if(err.message.indexOf("No stash") != -1){
                             //ignore
                         }else{
                             console.log(err);
