@@ -11,7 +11,7 @@
   "contributors": [
     {
       "name": "Alboaie Sinica",
-      "email": "abss@axiologic.ro"
+      "email": "abss@axiologic.net"
     }
   ],
   "repository": {
@@ -32,7 +32,8 @@
       "url": "http://www.gnu.org/licenses/lgpl.html"
     }
   ],
-  "dependencies": {},
+  "dependencies": {
+  },
   "scripts": {
     "install": "node bin/scripts/build-devel.js && node deployer/gitStatusCheck.js .",
     "release": "node bin/scripts/build-release.js",
