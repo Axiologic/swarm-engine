@@ -32,7 +32,10 @@
       "url": "http://www.gnu.org/licenses/lgpl.html"
     }
   ],
-  "dependencies": {},
+  "dependencies": {
+    "browserify": "^16.2.2",
+    "chokidar": "^2.0.4"
+  },
   "scripts": {
     "install": "node bin/scripts/build-devel.js",
     "release": "node bin/scripts/build-release.js",

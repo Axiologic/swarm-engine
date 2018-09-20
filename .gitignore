@@ -4,6 +4,7 @@ modules
 tests
 libraries/testSwarms
 tmp
+package-lock.json
 latest-change-set.txt
 builds/devel/domain.js
 builds/devel/pskruntime.js

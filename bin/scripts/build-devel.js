@@ -22,6 +22,10 @@ const baseDeps = [
         "src": "https://github.com/PrivateSky/interact.git"
     },
     {
+        "name": "pskdb",
+        "src": "https://github.com/PrivateSky/pskdb.git"
+    },
+    {
         "name": "psk-http-client",
         "src": "https://github.com/PrivateSky/psk-http-client.git"
     },
