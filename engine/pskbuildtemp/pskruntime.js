@@ -1,6 +1,10 @@
 
 require("../../modules/callflow/lib/overwriteRequire")
-require("./pskModules");
+
+if(false){
+    require("./pskModules");
+}
+
 
 console.log("Loading runtime");
 

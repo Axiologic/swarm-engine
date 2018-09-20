@@ -8,6 +8,8 @@ exports.enableTesting = function() {
     require("./fakes/dummyVM");
 }
 
+var callflowModule = require("callflow");
+
 var core = require("launcher");
 
 //TODO: SHOULD be moved in $$.__globals
