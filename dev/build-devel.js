@@ -141,6 +141,11 @@ const config = {
             "name": "browserify",
             "src": "npm",
             "actions": ["install"]
+        },
+        {
+            "name": "chokidar",
+            "src": "npm",
+            "actions": ["install"]
         }
 
     ]

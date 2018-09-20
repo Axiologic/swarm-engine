@@ -32,15 +32,13 @@
       "url": "http://www.gnu.org/licenses/lgpl.html"
     }
   ],
-  "dependencies": {
-    "browserify": "^16.2.2",
-    "chokidar": "^2.0.4"
-  },
+  "dependencies": {},
   "scripts": {
-    "devel": "node dev/build-devel.js",
+    "install": "node dev/build-devel.js",
     "release": "node dev/build-release.js",
     "runtime": "node ./bin/scripts/pskbuild.js ./builds/build.json",
-    "watch": "node ./bin/scripts/watcher.js --watch ./ --run ./bin/scripts/psknode.js --ignore=\"/engine/pskbuildtemp/,/builds/devel/\"",
-    "git-update": "node deployer/gitUpdater.js ."
+    "watch": "node ./bin/scripts/watcher.js --watch ./ --run ./bin/scripts/psknode.js --ignore=\"/engine/pskbuildtemp/,/builds/devel/,/tests\"",
+    "git-update": "node deployer/gitUpdater.js .",
+    "git-status": "node deployer/gitStatusCheck.js ."
   }
 }
