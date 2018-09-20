@@ -131,14 +131,18 @@ function Deployer() {
 	 */
 	function __setDefaultActions(dep){
 		const defaultActions = [
-			{
+			/*{
 				"type": "remove",
 				"target": "modules/"+dep.name
 			},
 			{
 				"type": "clone",
 				"target": "modules"
-			}];
+			}*/
+            {
+                "type": "smartClone",
+                "target": "modules"
+            }];
 
 		if(!dep.actions){
 			dep.actions = defaultActions;

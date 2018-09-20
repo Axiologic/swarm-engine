@@ -215,6 +215,70 @@ function ActionsRegistry(){
         });
     };
 
+    actions.smartClone = function(action, dependency, callback) {
+        if(!dependency || !dependency.src){
+            throw "No source (src) attribute found on: " + JSON.stringify(dependency);
+        }
+
+        var target = os.tmpdir();
+        if(action.target){
+            target =  fsExt.resolvePath(path.join(action.target, dependency.name));
+        }
+
+        // the target if exists and it's a git repo we try update
+        if(fs.existsSync(target) && fs.readdirSync(target).length > 0 && fs.existsSync(path.join(target, ".git"))) {
+
+            basicProcOptions = {cwd: path.resolve(target), stdio:[0, "pipe", "pipe"]};
+
+            child_process.exec("git remote -v", basicProcOptions, function(err, stdout, stderr) {
+                var next = true;
+                if (err) {
+                    console.log(err);
+                }else{
+                    var originFetchRegex = new RegExp('^[origin]*\\s*'+dependency.src+'[.git]*\\s*\\(fetch\\)', 'g');
+                    var matchedArr = stdout.match(originFetchRegex)
+                    if(!matchedArr){
+                        throw new Error("Different remotes found on repo "+target);
+                    }
+
+                    try{
+                        child_process.execSync("git stash", basicProcOptions);
+                        child_process.execSync("git pull", basicProcOptions);
+                        var finalResult = child_process.execSync("git stash apply", basicProcOptions);
+                        if(finalResult.indexOf("Unmerged") != -1){
+                            callback(new Error("Repo "+target+" needs attention! (Merging issues)"), `Finished update action on dependency "${dependency.name}"`)
+                        }
+                    }catch(err){
+                        if(err.message.indexOf("No stash found.")){
+                            //ignore
+                        }else{
+                            console.log(err);
+                        }
+                    }
+                    callback(err, `Finished update action on dependency "${dependency.name}"`);
+                }
+            });
+            //throw `Destination path (target) ${target} already exists and is not an empty directory.`;
+        }else{
+
+            var options = {
+                "depth": "1",
+                "branch": "master"
+            };
+            if(action && typeof action.options === "object") {
+                options = action.options;
+            }
+
+            global.collectLog = action.collectLog || true;
+
+            _clone(dependency.src, target, options, dependency.credentials, function(err, res){
+                if(!err){
+                    callback(err, `Finished clone action on dependency "${dependency.name}"`);
+                }
+            });
+        }
+    };
+
     var _clone = function (remote, tmp, options, credentials, callback) {
         var commandExists = _commandExistsSync("git");
         if(!commandExists) {

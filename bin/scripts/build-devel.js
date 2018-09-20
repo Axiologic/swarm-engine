@@ -1,4 +1,4 @@
-const deployer = require("./../deployer/Deployer.js");
+const deployer = require("./../../deployer/Deployer.js");
 
 const baseDeps = [
     {
@@ -10,8 +10,16 @@ const baseDeps = [
         "src": "https://github.com/PrivateSky/callflow.git"
     },
     {
+        "name": "pskwebfs",
+        "src": "https://github.com/PrivateSky/pskwebfs.git"
+    },
+    {
         "name": "pskcrypto",
         "src": "https://github.com/PrivateSky/pskcrypto.git"
+    },
+    {
+        "name": "interact",
+        "src": "https://github.com/PrivateSky/interact.git"
     },
     {
         "name": "psk-http-client",
@@ -58,11 +66,7 @@ const config = {
             "src": "https://github.com/PrivateSky/psk-integration-testing.git",
             "actions": [
                 {
-                    "type": "remove",
-                    "target": "tests/psk-integration-testing"
-                },
-                {
-                    "type": "clone",
+                    "type": "smartClone",
                     "target": "tests"
                 },
                 {
@@ -77,42 +81,18 @@ const config = {
         },
         {
             "name": "psk-smoke-testing",
-            "src": "https://github.com/PrivateSky/psk-smoke-testing.git",
-            "actions": [
-                {
-                    "type": "remove",
-                    "target": "tests/psk-smoke-testing"
-                },
-                {
-                    "type": "clone",
-                    "target": "tests"
-                }
-            ]
+            "src": "https://github.com/PrivateSky/psk-smoke-testing.git"
         },
         {
             "name": "psk-unit-testing",
-            "src": "https://github.com/PrivateSky/psk-unit-testing.git",
-            "actions": [
-                {
-                    "type": "remove",
-                    "target": "tests/psk-unit-testing"
-                },
-                {
-                    "type": "clone",
-                    "target": "tests"
-                }
-            ]
+            "src": "https://github.com/PrivateSky/psk-unit-testing.git"
         },
         {
             "name": "combos",
             "src": "https://github.com/jfairbank/combos.git",
             "actions": [
                 {
-                    "type": "remove",
-                    "target": "modules/combos"
-                },
-                {
-                    "type": "clone",
+                    "type": "smartClone",
                     "options": {
                         "depth": "1",
                         "branch": "master"
@@ -128,12 +108,20 @@ const config = {
                     }
                 }
             ]
+        },
+        {
+            "name": "browserify",
+            "src": "npm",
+            "actions": ["install"]
+        },
+        {
+            "name": "chokidar",
+            "src": "npm",
+            "actions": ["install"]
         }
 
     ]
 };
-
-config.dependencies = baseDeps.concat(config.dependencies);
 
 const virtualMQConfig = {
     workDir: '.',
@@ -158,6 +146,8 @@ const pskWalletConfig = {
         }
     ]
 };
+
+config.dependencies = baseDeps.concat(config.dependencies, pskWalletConfig.dependencies, virtualMQConfig.dependencies);
 
 pskWalletConfig.dependencies = baseDeps.concat(pskWalletConfig.dependencies);
 
