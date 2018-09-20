@@ -238,7 +238,7 @@ function ActionsRegistry(){
                     var originFetchRegex = new RegExp('^[origin]*\\s*'+dependency.src+'[.git]*\\s*\\(fetch\\)', 'g');
                     var matchedArr = stdout.match(originFetchRegex)
                     if(!matchedArr){
-                        throw new Error("Different remotes found on repo "+target);
+                        throw new Error(`Different remotes found on repo ${target}`);
                     }
 
                     try{
@@ -246,16 +246,16 @@ function ActionsRegistry(){
                         child_process.execSync("git pull", basicProcOptions);
                         var finalResult = child_process.execSync("git stash apply", basicProcOptions);
                         if(finalResult.indexOf("Unmerged") != -1){
-                            callback(new Error("Repo "+target+" needs attention! (Merging issues)"), `Finished update action on dependency "${dependency.name}"`)
+                            callback(new Error(`Repo ${target} needs attention! (Merging issues)`), `Finished update action on dependency ${dependency.name}`)
                         }
                     }catch(err){
-                        if(err.message.indexOf("No stash found.")){
+                        if(err.message.indexOf("No stash found.") != -1){
                             //ignore
                         }else{
                             console.log(err);
                         }
                     }
-                    callback(err, `Finished update action on dependency "${dependency.name}"`);
+                    callback(err, `Finished update action on dependency ${dependency.name}`);
                 }
             });
             //throw `Destination path (target) ${target} already exists and is not an empty directory.`;
@@ -273,7 +273,7 @@ function ActionsRegistry(){
 
             _clone(dependency.src, target, options, dependency.credentials, function(err, res){
                 if(!err){
-                    callback(err, `Finished clone action on dependency "${dependency.name}"`);
+                    callback(err, `Finished clone action on dependency ${dependency.name}`);
                 }
             });
         }
