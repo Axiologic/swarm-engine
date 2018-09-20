@@ -1,6 +1,0 @@
-{
-  "browser":"module1, module2",
-  "runtime":"module1, module2",
-  "modules":"someAppSpecificModule1,someAppSpecificModule2",
-  "libraries":"someLibrary1,someLibrary2"
-}
