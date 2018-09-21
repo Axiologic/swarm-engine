@@ -2,6 +2,10 @@ const deployer = require("./../../deployer/Deployer.js");
 
 const baseDeps = [
     {
+        "name": "foldermq",
+        "src": "https://github.com/PrivateSky/foldermq.git"
+    },
+    {
         "name": "soundpubsub",
         "src": "https://github.com/PrivateSky/soundpubsub.git"
     },

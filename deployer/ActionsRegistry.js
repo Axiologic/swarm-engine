@@ -47,11 +47,12 @@ function ActionsRegistry(){
             commandOpts.cwd = dependency.workDir;
         }
 
-        console.log("npm install --no-save " + target);
+        var cmd = "npm install " + target + " --no-save"
+        console.log(cmd);
         let error = null;
         let response = `Finished install action on dependency ${dependency.name}`;
         try {
-            child_process.execSync("npm install " + target, commandOpts);
+            child_process.execSync(cmd, commandOpts);
         } catch(e) {
             error = e;
             response = null

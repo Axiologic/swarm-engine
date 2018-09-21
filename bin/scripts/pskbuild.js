@@ -10,7 +10,6 @@ var defaultMap = {
     domain: ""
 }
 
-
 var targets = {
     forBrowser: true,
     forRuntime: true,
@@ -98,7 +97,7 @@ function doBrowserify(targetName, src, dest, opt, externalModules, exportsModule
         var mapForExpose = {};
 
         exportsModules.map(function (item) {
-            var i = detectAlias(item)
+            var i = detectAlias(item);
             mapForExpose[i.module] = i;
         })
 
@@ -133,7 +132,6 @@ function doBrowserify(targetName, src, dest, opt, externalModules, exportsModule
                 expose: v
             });
         }
-
         //ensure dir struct exists
         fsExt.createDir(path.dirname(dest));
 
@@ -141,7 +139,6 @@ function doBrowserify(targetName, src, dest, opt, externalModules, exportsModule
         package.bundle().pipe(out);
         endCallback(targetName);
     }
-
 
     if (targets[targetName]) {
         scanExports(doWork);
