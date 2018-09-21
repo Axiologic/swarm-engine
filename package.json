@@ -39,6 +39,7 @@
     "release": "node bin/scripts/build-release.js",
     "runtime": "node ./bin/scripts/pskbuild.js ./builds/build.json",
     "watch": "node ./bin/scripts/watcher.js --watch ./ --run ./bin/scripts/psknode.js --ignore=\"/engine/pskbuildtemp/,/builds/devel/,/tests\"",
-    "git-status": "node deployer/gitStatusCheck.js ."
+    "git-status": "node deployer/gitStatusCheck.js .",
+    "run-tests": "node bin/scripts/testrunner.js"
   }
 }
