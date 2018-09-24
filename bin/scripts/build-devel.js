@@ -118,12 +118,7 @@ const config = {
             ]
         },
         {
-            "name": "browserify",
-            "src": "npm",
-            "actions": ["install"]
-        },
-        {
-            "name": "chokidar",
+            "name": "browserify chokidar",
             "src": "npm",
             "actions": ["install"]
         }
