@@ -6,7 +6,7 @@ const config = {
 
 const path = require("path");
 require('../../engine/core');
-const VirtualMQ  = $$.requireModule('virtualmq');
+const VirtualMQ  = require('virtualmq');
 
 function startServer (config) {
     const virtualMq = VirtualMQ.createVirtualMQ(Number.parseInt(config.port), path.resolve(config.folder));
