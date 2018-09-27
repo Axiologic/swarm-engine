@@ -150,8 +150,9 @@ function buildDependencyMap(targetName, configProperty, output) {
     var cfg = defaultMap[configProperty];
     var result = ";"
     splitStrToArray(cfg).map(function (item) {
-        var ia = detectAlias(item)
+        var ia = detectAlias(item);
         var line = `$$.__runtimeModules["${ia.alias}"] = require("${ia.module}");\n`;
+
         result += line;
     })
 

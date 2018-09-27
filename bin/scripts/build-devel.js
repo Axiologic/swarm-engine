@@ -89,11 +89,23 @@ const config = {
         },
         {
             "name": "psk-smoke-testing",
-            "src": "https://github.com/PrivateSky/psk-smoke-testing.git"
+            "src": "https://github.com/PrivateSky/psk-smoke-testing.git",
+            "actions": [
+                {
+                    "type": "smartClone",
+                    "target": "tests"
+                }
+            ]
         },
         {
             "name": "psk-unit-testing",
-            "src": "https://github.com/PrivateSky/psk-unit-testing.git"
+            "src": "https://github.com/PrivateSky/psk-unit-testing.git",
+            "actions": [
+                {
+                    "type": "smartClone",
+                    "target": "tests"
+                }
+            ]
         },
         {
             "name": "combos",
