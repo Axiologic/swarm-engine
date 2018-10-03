@@ -109,6 +109,8 @@ function restartServer(path) {
     }
 
     if (config.run) {
+        var fs = require("fs");
+        console.log(`Some event triggered on file ${path}`, arguments, new String(fs.readFileSync(path)));
         runFile(config.run);
     } else {
         console.log(`Some event triggered on file ${path}`);

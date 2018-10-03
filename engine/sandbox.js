@@ -73,7 +73,7 @@ vm.run(`
         // console.error('entering sandbox');
         require('./code/engine/core.js');
 
-		$$.requireModule("callflow").swarmInstanceManager;
+		require("callflow").swarmInstanceManager;
         
         const sand = require('./code/engine/pubSub/sandboxPubSub');
         

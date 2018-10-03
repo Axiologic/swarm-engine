@@ -5,14 +5,19 @@ const config = {
     spaceName: 'localhost'
 };
 
+if(process.argv.length === 3) {
+    config.spaceName = process.argv[2];
+}
 
+require('../builds/devel/pskruntime');
 require('../engine/core');
 require('../modules/psk-http-client/index');
 const path = require('path');
 
-if(process.argv.length === 3) {
-    config.spaceName = process.argv[2];
-}
+
+
+console.log(`Domainsandbox ${config.spaceName} is loading.`);
+
 
 
 process.env.PRIVATESKY_TMP = path.resolve('../tmp');
@@ -20,9 +25,10 @@ process.env.PRIVATESKY_TMP = path.resolve('../tmp');
 $$.container = require('../modules/dicontainer').newContainer($$.errorHandler);
 $$.PSK_PubSub = require('../engine/pubSub/launcherPubSub').create(path.resolve('../tmp'), path.resolve('..'));
 
-$$.loadLibrary('testSwarms', '../libraries/testSwarms');
+//$$.loadLibrary('testSwarms', '../libraries/testSwarms');
 
 $$.remote.createRequestManager(1000);
+console.log('virtualmqEndpoint', `${config.endpoint}:${config.port}/${config.channelId}`, `${config.endpoint}:${config.port}/${config.channelId}`);
 $$.remote.newEndPoint('virtualmqEndpoint', `${config.endpoint}:${config.port}/${config.channelId}`, `${config.endpoint}:${config.port}/${config.channelId}`);
 
 
