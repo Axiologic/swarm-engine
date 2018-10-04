@@ -48,7 +48,8 @@ console.log('Watching paths ', config.watch.join(', '));
 const watcher = chokidar.watch(config.watch, {
     ignored: ['**/.git/**'].concat(config.ignore.map(element => `**${element}**`)),
     ignoreInitial: true,
-    usePolling: true
+    usePolling: true,
+    interval:2000
 });
 
 if (config.run) {
