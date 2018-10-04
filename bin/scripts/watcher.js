@@ -13,6 +13,7 @@ const config = {
 };
 
 let forkedProcess;
+let execProcess;
 
 const argv = process.argv.slice(2);
 
@@ -61,6 +62,20 @@ if (config.exec) {
 
 watcher.on('change', restartServer);
 watcher.on('add', restartServer);
+watcher.on('error', (err) => {console.error('An error occurred while watching ', config.watch, err)});
+
+process.on('uncaughtException', function(err) {
+    console.error('watcher caught and error ', err);
+    if (forkedProcess) {
+        forkedProcess.kill();
+    }
+
+    if (execProcess) {
+        execProcess.kill();
+    }
+
+    process.kill(2);
+});
 
 
 /* ------------ Utils functions ------------ */
@@ -109,8 +124,7 @@ function restartServer(path) {
     }
 
     if (config.run) {
-        var fs = require("fs");
-        console.log(`Some event triggered on file ${path}`, arguments, new String(fs.readFileSync(path)));
+        console.log(`Some event triggered on file ${path}`);
         runFile(config.run);
     } else {
         console.log(`Some event triggered on file ${path}`);
@@ -127,7 +141,11 @@ function runFile(filePath) {
 }
 
 function runExec() {
-    childProcess.exec(config.exec, (err, stdout, stderr) => {
+    if (execProcess) {
+        execProcess.kill();
+    }
+
+    execProcess = childProcess.exec(config.exec, (err, stdout, stderr) => {
         if (err) {
             console.error(err);
         }
@@ -140,5 +158,4 @@ function runExec() {
             console.error(stderr);
         }
     });
-
 }
