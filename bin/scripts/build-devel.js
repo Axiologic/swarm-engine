@@ -14,6 +14,10 @@ const baseDeps = [
         "src": "https://github.com/PrivateSky/callflow.git"
     },
     {
+        "name": "browserfs-dist",
+        "src": "https://github.com/PrivateSky/browserfs-dist"
+    },
+    {
         "name": "pskwebfs",
         "src": "https://github.com/PrivateSky/pskwebfs.git"
     },
