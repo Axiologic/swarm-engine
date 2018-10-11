@@ -1,7 +1,7 @@
 const config = {
     endpoint:'http://127.0.0.1',
     port: 8080,
-    channelId: 'localdomainchannel',
+    agentUrl: 'localdomain/localAgent',
     spaceName: 'localhost'
 };
 
@@ -28,8 +28,9 @@ $$.PSK_PubSub = require('../engine/pubSub/launcherPubSub').create(path.resolve('
 //$$.loadLibrary('testSwarms', '../libraries/testSwarms');
 
 $$.remote.createRequestManager(1000);
-console.log('virtualmqEndpoint', `${config.endpoint}:${config.port}/${config.channelId}`, `${config.endpoint}:${config.port}/${config.channelId}`);
-$$.remote.newEndPoint('virtualmqEndpoint', `${config.endpoint}:${config.port}/${config.channelId}`, `${config.endpoint}:${config.port}/${config.channelId}`);
+
+console.log('virtualmqEndpoint', `${config.endpoint}:${config.port}`, `${config.agentUrl}`);
+$$.remote.newEndPoint('virtualmqEndpoint', `${config.endpoint}:${config.port}`, `${config.agentUrl}`);
 
 
 $$.remote.virtualmqEndpoint.on('*', '*', function (err, res) {

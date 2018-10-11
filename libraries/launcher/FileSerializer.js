@@ -30,7 +30,7 @@ launcher.callflow.describe("FileSerializer", {
     __restoreSwarm: function(err, jsonObject){
         var flow;
         if(err){
-            flow = $$.callflow.start(this.swarmType);
+            flow = $$.callflow.describe(this.swarmType);
         }
         else {
             try{

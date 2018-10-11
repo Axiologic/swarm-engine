@@ -74,6 +74,10 @@ const config = {
             "src": "https://github.com/PrivateSky/whys.git"
         },
         {
+            "name": "swarmutils",
+            "src": "https://github.com/PrivateSky/swarmutils.git"
+        },
+        {
             "name": "psk-integration-testing",
             "src": "https://github.com/PrivateSky/psk-integration-testing.git",
             "actions": [
@@ -108,28 +112,6 @@ const config = {
                 {
                     "type": "smartClone",
                     "target": "tests"
-                }
-            ]
-        },
-        {
-            "name": "combos",
-            "src": "https://github.com/jfairbank/combos.git",
-            "actions": [
-                {
-                    "type": "smartClone",
-                    "options": {
-                        "depth": "1",
-                        "branch": "master"
-                    },
-                    "target": "modules"
-                },
-                {
-                    "type": "move",
-                    "src": "modules/combos/src",
-                    "target": "modules/combos/lib",
-                    "options": {
-                        "overwrite": true
-                    }
                 }
             ]
         },
