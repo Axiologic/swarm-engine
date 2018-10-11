@@ -77,6 +77,10 @@ const config = {
             "name": "swarmutils",
             "src": "https://github.com/PrivateSky/swarmutils.git"
         },
+		{
+			"name": "psk-combo-utils",
+			"src": "https://github.com/PrivateSky/psk-combo-utils.git",
+		},
         {
             "name": "psk-integration-testing",
             "src": "https://github.com/PrivateSky/psk-integration-testing.git",
