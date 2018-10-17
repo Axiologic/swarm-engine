@@ -1,10 +1,10 @@
 var pubSub = $$.require("soundpubsub").soundPubSub;
-var mq = $$.require("soundpubsub").folderMQ;
+var mq = $$.require("foldermq");
 var path = require("path");
 
 exports.create = function(folder, core){
-    var inbound = mq.getFolderQueue(path.join(folder, "/mq/inbound/"), $$.defaultErrorHandlingImplementation);
-    var outbound = mq.getFolderQueue(path.join(folder, "/mq/outbound/"), $$.defaultErrorHandlingImplementation).getHandler();
+    var inbound = mq.createQue(path.join(folder, "/mq/inbound/"), $$.defaultErrorHandlingImplementation);
+    var outbound = mq.createQue(path.join(folder, "/mq/outbound/"), $$.defaultErrorHandlingImplementation).getHandler();
 
     inbound.registerConsumer(function(err, swarm){
        //restore and execute this tasty swarm

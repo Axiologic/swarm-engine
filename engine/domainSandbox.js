@@ -1,22 +1,23 @@
 const config = {
     endpoint:'http://127.0.0.1',
     port: 8080,
-    agentUrl: 'localdomain/localAgent',
-    spaceName: 'localhost'
+    agentUrl: 'localhost/agent/system'
 };
 
-if(process.argv.length === 3) {
-    config.spaceName = process.argv[2];
+if(process.argv.length > 2) {
+    //config.agentUrl = process.argv[2];
+    // config.domain = config.agentUrl.split('/')[0];
 }
 
 require('../builds/devel/pskruntime');
 require('../engine/core');
 require('../modules/psk-http-client/index');
+require('../builds/devel/domain');
 const path = require('path');
 
 
 
-console.log(`Domainsandbox ${config.spaceName} is loading.`);
+// console.log(`Domainsandbox ${config.domain} is loading.`);
 
 
 

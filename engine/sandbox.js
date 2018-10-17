@@ -6,9 +6,11 @@
 const fs = require("fs");
 const path = require("path");
 const SandboxCreator = require('./sandboxCreator');
+require('../builds/devel/pskruntime');
 require('./core');
 
 let spaceName = "self";
+let runInVM = false;
 
 //---------------------------- ARGS pre-processing -----------------------------
 let argv;
@@ -46,40 +48,34 @@ console.log("Booting sandbox:", spaceName);
 // ??? why we need this? what changed?
 process.chdir($$.pathNormalize(path.join(process.env.PRIVATESKY_TMP, "sandboxes", spaceName)));
 
-/*
+const vm = SandboxCreator.createVM(["./builds/devel/pskruntime", "dicontainer", "launcher", "yazl", "yauzl", "double-check", "psk-http-client", "pskcrypto", "virtualmq", "dicontainer", "foldermq", "interact", "swarmutils", "pskdb"]);
 
-Once everything it is tied done deployer needs to be run in order to get more dependencies ready for the sandbox
-
-var deployer = require("./../deployer/Deployer.js");
-//a minimal config example
-var config = {
-	"domain": spaceName,
-	"modules": ["soundpubsub", "virtualmq"],
-	"libraries": ["core", "crl"]
-};
-
-deployer.runBasicConfig(pskRootFolder, config, function (error, result) {
-	if(error){
-		console.log("[Sandbox Deployer - Error]", error);
-	}else{
-		console.log("[Sandbox Deployer - Result]", result);
-	}
-});*/
-
-const vm = SandboxCreator.createVM();
-
-vm.run(`
+if(runInVM){
+    vm.run(`
         'strict mode';
         // console.error('entering sandbox');
-        require('./code/engine/core.js');
+        require('./builds/devel/pskruntime');
+        //require('./code/engine/core.js');
 
-		require("callflow").swarmInstanceManager;
+        require("callflow").swarmInstanceManager;
         
         const sand = require('./code/engine/pubSub/sandboxPubSub');
         
         global.$$.PSK_PubSub = sand.create(__dirname);
 
         $$.loadLibrary('testSwarms', 'code/libraries/testSwarms');
-		
-		console.log("Sandbox [${spaceName}] is running and waiting for swarms.");
-`, process.cwd() + "/test.js");
+        
+        console.log("Sandbox [${spaceName}] is running and waiting for swarms.");
+`, process.cwd() + "/vm.js");
+}else {
+	require('./builds/devel/domain.js');
+
+    require("callflow").swarmInstanceManager;
+
+    const sand = require('./code/engine/pubSub/sandboxPubSub');
+
+    global.$$.PSK_PubSub = sand.create(process.cwd());
+
+
+    console.log("Sandbox [${spaceName}] is running and waiting for swarms.");
+}
