@@ -29,7 +29,10 @@ var bootSandBox = $$.flow.describe("PrivateSky.swarm.engine.bootInLauncher", {
             console.log(err);
         } else {
             var task = this.parallel(this.runCode);
-            task.linkShouldExist(path.join(this.codeFolder, "builds"), path.join(this.folder, "builds"), task.progress );
+            task.linkShouldExist(path.join(this.codeFolder, "engine"),      path.join(this.folder, "code/engine"),       task.progress );
+            task.linkShouldExist(path.join(this.codeFolder, "modules"),     path.join(this.folder, "code/modules"),      task.progress );
+            task.linkShouldExist(path.join(this.codeFolder, "libraries"),   path.join(this.folder, "code/libraries"),    task.progress );
+            task.linkShouldExist(path.join(this.codeFolder, "builds"),      path.join(this.folder, "builds"),            task.progress );
             this.sandBox.inbound = mq.createQue(path.join(this.folder, "mq/inbound"), task.progress);
             this.sandBox.outbound = mq.createQue(path.join(this.folder, "mq/outbound"), task.progress);
         }
