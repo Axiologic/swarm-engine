@@ -102,7 +102,7 @@ function SandBoxManager(sandboxesFolder, codeFolder, callback){
     $$.PSK_PubSub.subscribe($$.CONSTANTS.SWARM_FOR_EXECUTION, function(swarm){
         console.log("Executing in sandbox towards: ", swarm.meta.target);
 
-        if(swarm.meta.target == "system"){
+        if(swarm.meta.target == "system" || swarm.meta.command == "asyncReturn"){
             $$.swarmsInstancesManager.revive_swarm(swarm);
             //$$.swarms.restart(swarm.meta.swarmTypeName, swarm);
         } else

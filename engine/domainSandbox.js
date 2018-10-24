@@ -36,8 +36,8 @@ $$.remote.newEndPoint('virtualmqEndpoint', `${config.endpoint}:${config.port}`, 
 
 $$.remote.virtualmqEndpoint.on('*', '*', function (err, res) {
     $$.PSK_PubSub.subscribe($$.CONSTANTS.SWARM_RETURN, (swarm) => {
-        if(swarm && swarm.meta && swarm.meta.returnChannel){
-        $$.remote.doHttpPost(swarm.meta.returnChannel, swarm, function(err, res){
+        if(swarm && swarm.meta && swarm.meta.target && res.meta.homeSecurityContext == swarm.meta.target){
+        $$.remote.doHttpPost(swarm.meta.target, swarm, function(err, res){
             if(err){
                 console.log(err);
             }
