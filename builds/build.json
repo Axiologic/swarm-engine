@@ -1,5 +1,5 @@
 {
-  "browser" : "assert,crypto,zlib,util,path, browserfs-dist, pskwebfs:fs",
+  "browser" : "assert,crypto,zlib,util,path, browserfs-dist, pskwebfs:fs, buffer",
   "runtime" : "dicontainer, launcher, yazl, yauzl, double-check, psk-http-client, pskcrypto, virtualmq, dicontainer, foldermq, interact, swarmutils, pskdb",
   "domain" : "localNode, domain",
   "client" : "interact, psk-http-client"
