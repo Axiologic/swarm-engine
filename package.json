@@ -32,14 +32,25 @@
       "url": "http://www.gnu.org/licenses/lgpl.html"
     }
   ],
-  "dependencies": {},
+  "dependencies": {
+    "karma": "^3.1.1",
+    "karma-chrome-launcher": "^2.2.0",
+    "karma-firefox-launcher": "^1.1.0",
+    "karma-ie-launcher": "^1.0.0",
+    "karma-mocha": "^1.3.0",
+    "karma-opera-launcher": "^1.0.0",
+    "karma-safari-launcher": "^1.0.0",
+    "mocha": "^5.2.0"
+  },
   "scripts": {
     "install": "node bin/scripts/node_version_check.js && node bin/scripts/build-devel.js && node deployer/gitStatusCheck.js .",
     "update": "node bin/scripts/build-devel.js && node deployer/gitStatusCheck.js .",
     "release": "node bin/scripts/build-release.js",
     "runtime": "node ./bin/scripts/pskbuild.js ./builds/build.json",
     "watch": "node ./bin/scripts/watcher.js --watch ./ --run ./bin/scripts/psknode.js --ignore=\"/engine/pskbuildtemp/,/builds/devel/,/tests/,/bin/\"",
+    "start": "node ./bin/scripts/psknode.js",
     "git-status": "node deployer/gitStatusCheck.js .",
-    "run-tests": "node bin/scripts/testrunner.js"
+    "run-tests": "node bin/scripts/testrunner.js",
+    "browser-tests": "karma start ./bin/scripts/browser-tests/karma.config.js"
   }
 }

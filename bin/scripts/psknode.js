@@ -1,40 +1,49 @@
 /*
-Rebuild sources
-Start A Virtual MQ
-Start a Launcher
+  Rebuild sources
+  Start A Virtual MQ
+  Start a Launcher
  */
 
-const { spawn } = require('child_process');
-const http = require('http')
+const {spawnSync, fork, spawn} = require('child_process');
 
-const spawnedProcess = spawn('node', ['./bin/scripts/pskbuild.js', './builds/build.json']);
+console.log("Start building...");
+spawnSync('node', ['./bin/scripts/pskbuild.js', './builds/build.json']);
+console.log("Build done!");
 
-spawnedProcess.stdout.on('data', (data) => {
-    console.log(`pskbuild: ${data}`);
-});
 
-spawnedProcess.stderr.on('data', (data) => {
-    console.error(`pskbuild: ${data}`);
-});
+let shouldRestart = true;
+const forkedProcesses = {};
 
-const port = 3000;
 
-const requestHandler = (request, response) => {
-    console.log(request.url)
-    response.end('Hello privateSky Server!')
-}
+function startProcess(filePath) {
+    console.log("Booting", filePath);
+    forkedProcesses[filePath] = spawn('node', [filePath], {detached: true, setsid: true, stdio: 'inherit'});
 
-const server = http.createServer(requestHandler);
+    console.log('SPAWNED ', forkedProcesses[filePath].pid);
 
-server.listen(port, (err) => {
-    if (err) {
-        return console.log('Something bad happened', err)
+    function errorHandler(error) {
+        console.log("Exception caught", error ? error : "");
+        if (shouldRestart) {
+            startProcess(filePath);
+        }
     }
 
-    console.log(`Server is listening on ${port}`)
-})
+    forkedProcesses[filePath].on('error', errorHandler);
+    forkedProcesses[filePath].on('exit', errorHandler);
+}
 
-process.on('exit', () => {
-    server.close();
+
+startProcess('./bin/scripts/virtualMq.js');
+startProcess('./engine/launcher.js');
+
+
+[`exit`, `SIGINT`, `SIGUSR1`, `SIGUSR2`, `uncaughtException`, `SIGTERM`].forEach((eventType) => {
+    process.on(eventType, () => {
+        console.log('Shutting down...');
+        shouldRestart = false;
+        Object.keys(forkedProcesses).forEach(childProcess => {
+            console.log('KILLING ', -forkedProcesses[childProcess].pid);
+            process.kill(-forkedProcesses[childProcess].pid);
+        });
+    })
 });
-
