@@ -17,7 +17,7 @@ const forkedProcesses = {};
 
 function startProcess(filePath) {
     console.log("Booting", filePath);
-    forkedProcesses[filePath] = spawn('node', [filePath], {detached: true, setsid: true, stdio: 'inherit'});
+    forkedProcesses[filePath] = spawn('node', [filePath], {detached: process.platform === "win32" ? false : true, setsid: true, stdio: 'inherit'});
 
     console.log('SPAWNED ', forkedProcesses[filePath].pid);
 
