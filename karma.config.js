@@ -6,15 +6,15 @@ module.exports = function(config) {
             './builds/devel/webruntime.js',
             './builds/devel/pskruntime.js',
             {pattern:'./tests/**/*-browserTest.js'},
-            {pattern:'./modules/interact/quicktest/new-interact/**/*.js'},
+            {pattern:'./tests/**/interact/**/*.js'}
         ],
         exclude: [
         ],
         client: {
             karmaHTML:{
                 source: [
-                    {src:'./modules/interact/quicktest/new-interact/web/parent/parent.html', tag:'index'},
-                    {src:'./modules/interact/quicktest/new-interact/web/children/iframe.html', tag:'iframe'},
+                    {src:'./tests/psk-unit-testing/interact/wmqTest/parent/parent.html', tag:'index'},
+                    {src:'./tests/psk-unit-testing/interact/wmqTest/children/iframe.html', tag:'iframe'},
                 ]
             },
             auto: true,
@@ -25,8 +25,8 @@ module.exports = function(config) {
         colors: true,
         logLevel: config.LOG_INFO,
         autoWatch: true,
-        browsers: ['Chrome'],
-        singleRun: false,
+        browsers: ['Chrome','Firefox'],
+        singleRun: true,
         plugins : [
             /*'karma-junit-reporter',*/
             'karma-chrome-launcher',
