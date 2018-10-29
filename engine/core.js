@@ -4,11 +4,7 @@
  Code License: LGPL or MIT.
  */
 
-exports.enableTesting = function() {
-    require("./fakes/dummyVM");
-}
-
-var callflowModule = require("callflow");
+require("callflow");
 
 var core = require("launcher");
 
