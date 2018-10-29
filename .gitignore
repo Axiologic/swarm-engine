@@ -12,3 +12,5 @@ builds/devel/webruntime.js
 engine/pskbuildtemp/domain.js
 engine/pskbuildtemp/nodeShims.js
 engine/pskbuildtemp/pskModules.js
+/Report-latest.html
+/Report-latest.txt
