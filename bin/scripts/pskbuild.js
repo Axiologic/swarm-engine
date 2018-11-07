@@ -31,7 +31,7 @@ function concatDependencyMaps(d1, d2) {
     for(let i=0; i<d3Arr.length; i++){
         if(d1.indexOf(d3Arr[i])!==-1){
             //removing duplicates deps from map
-            d2 = d2.replace(new RegExp(d3Arr[i]), "");
+            d2 = d2.replace(new RegExp("[, ]*("+d3Arr[i]+")\\b"), "");
         }
     }
     return (d1+","+d2).replace(/(,+(\s+,+)+)|,+/g, ',');
