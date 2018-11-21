@@ -7,13 +7,15 @@ var args = process.argv.slice(2);
 var defaultMap = {
     browser: "assert,crypto,zlib,util,path",
     runtime: "soundpubsub,callflow",
-    domain: ""
+    domain: "",
+    client: ""
 }
 
 var targets = {
     forBrowser: true,
     forRuntime: true,
-    forDomain: true
+    forDomain: true,
+    forClient: true
 }
 var mapJson = {};
 
@@ -54,7 +56,7 @@ if (args.length == 0) {
 defaultMap.browser = concatDependencyMaps(defaultMap.browser, mapJson.browser);
 defaultMap.runtime = concatDependencyMaps(defaultMap.runtime, mapJson.runtime);
 
-
+defaultMap.client = concatDependencyMaps(defaultMap.client, mapJson.client);
 defaultMap.domain = concatDependencyMaps(defaultMap.domain, mapJson.domain);
 
 
@@ -188,6 +190,14 @@ var domainOptions = {
     externalRequireName: "domainRequire"
 }
 
+var clientOptions = {
+    paths: modulesPath,
+    "bare": true,
+    "debug": true,
+    "fullPaths": true,
+    externalRequireName: "requirePSKClient"
+}
+
 function splitStrToArray(str){
     return str.split(/\s*,\s*/);
 }
@@ -229,4 +239,10 @@ doBrowserify("forDomain",
     null,
     splitStrToArray(defaultMap.domain));
 
-
+buildDependencyMap("forClient", "client", path.join(defaultMap.input, "client.js"));
+doBrowserify("forClient",
+    path.join(defaultMap.input, "client.js"),
+    path.join(defaultMap.output, "client.js"),
+    clientOptions,
+    null,
+    splitStrToArray(defaultMap.client));
