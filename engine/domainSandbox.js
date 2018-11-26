@@ -11,8 +11,9 @@ if(process.argv.length > 2) {
 
 require('../builds/devel/pskruntime');
 require('../engine/core');
-require('../modules/psk-http-client/index');
+require('../modules/psk-http-client');
 require('../builds/devel/domain');
+require('pskdb').startDB('../config');
 const path = require('path');
 
 
