@@ -4,6 +4,17 @@ var browserify = require('browserify');
 var fsExt = require("../../libraries/utils/FSExtension").fsExt;
 
 var args = process.argv.slice(2);
+
+const inputArg = "input";
+const outputArg = "output";
+
+var commandOptions = {
+    input: path.join(process.cwd(), "engine", "pskbuildtemp"),
+    output: path.join(process.cwd(), "builds", "devel")
+};
+
+var modulesPath = [path.resolve(process.cwd(), "modules"), path.resolve(process.cwd(), "libraries")];
+
 var defaultMap = {
     browser: "assert,crypto,zlib,util,path",
     runtime: "soundpubsub,callflow",
@@ -11,19 +22,11 @@ var defaultMap = {
     client: ""
 }
 
-var targets = {
-    forBrowser: true,
-    forRuntime: true,
-    forDomain: true,
-    forClient: true
+var externals = {
+    pskruntime: "webshims"
 }
-var mapJson = {};
 
-function checkTarget(projectMap, propertyInTargets, propertyInMap) {
-    if (projectMap.propertyInMap) {
-        targets[propertyInTargets] = true;
-    }
-}
+var mapJson = {};
 
 function concatDependencyMaps(d1, d2) {
     if (!d1 || d1.length == 0) return d2;
@@ -39,39 +42,6 @@ function concatDependencyMaps(d1, d2) {
     return (d1+","+d2).replace(/(,+(\s+,+)+)|,+/g, ',');
 }
 
-if (args.length == 0) {
-    console.log("pskbuild is used to build the runtime or the code for running a privatesky domain");
-    console.log("Usage: pskbuild <projectmap>");
-    console.log("projectmap is a JSON file that contains the lists of dependencies for runtime or for domain's constitutions ");
-    console.log("Using default configuration, normally used for building a runtime");
-} else {
-    var projectMap = fs.readFileSync(args[0])
-    if (!projectMap) {
-        console.log("Invalid project map file:", args[0]);
-    }
-    mapJson = JSON.parse(projectMap);
-}
-
-
-defaultMap.browser = concatDependencyMaps(defaultMap.browser, mapJson.browser);
-defaultMap.runtime = concatDependencyMaps(defaultMap.runtime, mapJson.runtime);
-
-defaultMap.client = concatDependencyMaps(defaultMap.client, mapJson.client);
-defaultMap.domain = concatDependencyMaps(defaultMap.domain, mapJson.domain);
-
-
-if (mapJson.input) {
-    defaultMap.input = path.join(process.cwd(), mapJson.input);
-} else {
-    defaultMap.input = path.join(process.cwd(), "engine", "pskbuildtemp");
-}
-
-if (mapJson.output) {
-    defaultMap.output = path.join(process.cwd(), mapJson.output);
-} else {
-    defaultMap.output = path.join(process.cwd(), "builds", "devel");
-}
-
 function detectAlias(str){
     var a = str.trim().split(/\s*:\s*/);
     var res = {};
@@ -85,7 +55,7 @@ function detectAlias(str){
 }
 
 function doBrowserify(targetName, src, dest, opt, externalModules, exportsModules) {
-
+    expected++;
     function scanExports(callback) {
         var stream = require("stream");
         var writable = new stream.Writable({
@@ -142,14 +112,12 @@ function doBrowserify(targetName, src, dest, opt, externalModules, exportsModule
         endCallback(targetName);
     }
 
-    if (targets[targetName]) {
-        scanExports(doWork);
-    }
+    scanExports(doWork);
+
 }
 
-
 function buildDependencyMap(targetName, configProperty, output) {
-    var cfg = defaultMap[configProperty];
+    var cfg = targets[targetName].deps;
     var result = ";"
     splitStrToArray(cfg).map(function (item) {
         var ia = detectAlias(item);
@@ -160,89 +128,109 @@ function buildDependencyMap(targetName, configProperty, output) {
 
     //ensure dir struct exists
     fsExt.createDir(path.dirname(output));
-
     fs.writeFileSync(output, result);
 }
 
-var modulesPath = [path.resolve(process.cwd(), "modules"), path.resolve(process.cwd(), "libraries")];
+function constructOptions(targetName, bare = true){
+    var options = {paths: modulesPath,
+        "fullPaths": true,
+        externalRequireName: targetName+"Require"};
 
+    if(bare){
+        options.bare = true;
+        options.debug = true;
+    }
 
-var browserOptions = {
-    paths: modulesPath,
-    "fullPaths": true,
-    externalRequireName: "browserRequire"
-}
-
-var runtimeOptions = {
-    paths: modulesPath,
-    "bare": true,
-    "debug": true,
-    "fullPaths": true,
-    externalRequireName: "pskruntimeRequire"
-}
-
-
-var domainOptions = {
-    paths: modulesPath,
-    "bare": true,
-    "debug": true,
-    "fullPaths": true,
-    externalRequireName: "domainRequire"
-}
-
-var clientOptions = {
-    paths: modulesPath,
-    "bare": true,
-    "debug": true,
-    "fullPaths": true,
-    externalRequireName: "requirePSKClient"
+    return options;
 }
 
 function splitStrToArray(str){
-    return str.split(/\s*,\s*/);
+    return (typeof str === 'string' || str instanceof String) ? str.split(/\s*,\s*/) : [];
 }
 
-var externalForDomain = splitStrToArray(defaultMap.browser).join(splitStrToArray(defaultMap.runtime));
-
-console.log("Starts rebuilding");
-
 var counter = 0;
+var expected = 0;
 function endCallback(str){
     counter++;
-    console.log(str, "done ");
-    if(counter == 3) {
+    console.log(str, "done");
+    if(counter == expected) {
         console.log("Finished rebuilding");
     }
 }
 
-buildDependencyMap("forBrowser", "browser", path.join(defaultMap.input, "nodeShims.js"));
-doBrowserify("forBrowser",
-    path.join(defaultMap.input, "webruntime.js"),
-    path.join(defaultMap.output, "webruntime.js"),
-    browserOptions,
-    null,
-    splitStrToArray(defaultMap.browser));
+function buildTarget(targetName){
+    console.log("building target", targetName);
 
-buildDependencyMap("forRuntime", "runtime", path.join(defaultMap.input, "pskModules.js"));
-doBrowserify("forRuntime",
-    path.join(defaultMap.input, "pskruntime.js"),
-    path.join(defaultMap.output, "pskruntime.js"),
-    runtimeOptions,
-    splitStrToArray(defaultMap.browser),
-    splitStrToArray(defaultMap.runtime));
+    buildDependencyMap(targetName, constructOptions(targetName, targets[targetName]["bare"]), path.join(commandOptions.input, targetName+"_intermediar.js"));
 
-buildDependencyMap("forDomain", "domain", path.join(defaultMap.input, "domain.js"));
-doBrowserify("forDomain",
-    path.join(defaultMap.input, "domain.js"),
-    path.join(defaultMap.output, "domain.js"),
-    domainOptions,
-    null,
-    splitStrToArray(defaultMap.domain));
+    doBrowserify(targetName,
+        path.join(commandOptions.input, targetName+"_intermediar.js"),
+        path.join(commandOptions.output, targetName+".js"),
+        constructOptions(targetName, targets[targetName].bare),
+        externals[targetName] && targets[externals[targetName]] ? splitStrToArray(targets[externals[targetName]].deps) : null,
+        splitStrToArray(targets[targetName].deps));
+}
 
-buildDependencyMap("forClient", "client", path.join(defaultMap.input, "client.js"));
-doBrowserify("forClient",
-    path.join(defaultMap.input, "client.js"),
-    path.join(defaultMap.output, "client.js"),
-    clientOptions,
-    null,
-    splitStrToArray(defaultMap.client));
+
+//---------------------- Processing
+
+if (args.length == 0) {
+    console.log("pskbuild is used to build the runtime or the code for running a privatesky domain");
+    console.log(`Usage: pskbuild <projectmap> [--${inputArg}=<inputPath> --${outputArg}=<outputPath>]`);
+    console.log("projectmap is a JSON file that contains the lists of targets and their dependencies that will be built.");
+    console.log("Using default configuration, normally used for building a runtime");
+} else {
+    var projectMap = fs.readFileSync(args[0]);
+    if (!projectMap) {
+        console.log("Invalid project map file:", args[0]);
+    }else{
+        console.log("Found project map", args[0]);
+        mapJson = JSON.parse(projectMap);
+    }
+}
+
+var targets = {};
+
+console.log("Reading targets and their dependencies list...");
+for(var prop in mapJson){
+    var target = mapJson[prop];
+    if(typeof target === 'string' || target instanceof String){
+        targets[prop] = {deps:concatDependencyMaps(defaultMap[prop], mapJson[prop]), bare:false};
+    }else{
+        if(target instanceof Object && !Array.isArray(target)){
+            targets[prop] = {deps: concatDependencyMaps(defaultMap[prop], mapJson[prop].deps), bare: mapJson[prop].bare};
+        }else{
+            throw new Error(`Wrong format of target <${prop}> found in project map file!`);
+        }
+    }
+    console.log("Identified and prepared target", prop, targets[prop]);
+}
+
+console.log("Reading other command arguments if any...");
+var i=1;
+var knowArgs = [inputArg, outputArg];
+while(i<args.length){
+    var arg = args[i];
+    var found = false;
+    for(var j=0; j<knowArgs.length; j++){
+        if(args[i].indexOf("--"+knowArgs[j]+"=")!=-1){
+            found = knowArgs[j];
+        }
+    }
+    if(found){
+        var value = args[i];
+        //striping --name= from arg
+        value=value.replace("--", "").replace(found+"=", "");
+        commandOptions[found] = path.join(process.cwd(), value);
+        console.log(`Command option "${found}" set`, commandOptions[found]);
+    }else{
+        console.log("Ignored argument", args[i], "reason: unknown");
+    }
+    i++;
+}
+
+console.log("Starts rebuilding");
+
+for(var target in targets){
+    buildTarget(target);
+}

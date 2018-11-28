@@ -32,9 +32,8 @@
       "url": "http://www.gnu.org/licenses/lgpl.html"
     }
   ],
-  "comment_for_dependencies":"  // Should remain empty. Add in bin/scripts/build-devel.js",
-  "dependencies": {
-  },
+  "comment_for_dependencies": "  // Should remain empty. Add in bin/scripts/build-devel.js",
+  "dependencies": {},
   "scripts": {
     "install": "node bin/scripts/node_version_check.js && node bin/scripts/build-devel.js && node deployer/gitStatusCheck.js .",
     "update": "node bin/scripts/build-devel.js && node deployer/gitStatusCheck.js .",
