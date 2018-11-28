@@ -56,6 +56,10 @@ const baseDeps = [
     {
         "name": "node-fd-slicer",
         "src": "https://github.com/PrivateSky/node-fd-slicer.git"
+    },
+    {
+        "name": "pskadmin",
+        "src": "https://github.com/PrivateSky/pskadmin.git"
     }];
 
 const config = {
