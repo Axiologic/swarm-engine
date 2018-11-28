@@ -131,12 +131,14 @@ function buildDependencyMap(targetName, configProperty, output) {
     fs.writeFileSync(output, result);
 }
 
-function constructOptions(targetName, bare = true){
-    var options = {paths: modulesPath,
-        "fullPaths": true,
-        externalRequireName: targetName+"Require"};
+function constructOptions(targetName, bare){
+    var options = {
+        paths : modulesPath,
+        fullPaths : true,
+        externalRequireName : targetName+"Require"
+    };
 
-    if(bare){
+    if(typeof bare == "undefined" || bare){
         options.bare = true;
         options.debug = true;
     }
@@ -198,7 +200,7 @@ console.log("Reading targets and their dependencies list...");
 for(var prop in mapJson){
     var target = mapJson[prop];
     if(typeof target === 'string' || target instanceof String){
-        targets[prop] = {deps:concatDependencyMaps(defaultMap[prop], mapJson[prop]), bare:false};
+        targets[prop] = {deps:concatDependencyMaps(defaultMap[prop], mapJson[prop])/*, bare:true*/};
     }else{
         if(target instanceof Object && !Array.isArray(target)){
             targets[prop] = {deps: concatDependencyMaps(defaultMap[prop], mapJson[prop].deps), bare: mapJson[prop].bare};

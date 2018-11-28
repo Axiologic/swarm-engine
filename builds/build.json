@@ -1,5 +1,5 @@
 {
-  "webshims": "psk-browser-utils, assert,crypto,zlib, util, path,os, events,stream, browserfs-dist, pskwebfs:fs, buffer",
+  "webshims": {"deps": "psk-browser-utils, assert,crypto,zlib, util, path,os, events,stream, browserfs-dist, pskwebfs:fs, buffer", "bare": false},
   "pskruntime": "dicontainer, launcher, yazl, yauzl, double-check, psk-http-client, pskcrypto, virtualmq, dicontainer, foldermq, interact, swarmutils, pskdb",
   "psknode": "localNode, pskwallet",
   "pskclient": "interact, psk-http-client"
