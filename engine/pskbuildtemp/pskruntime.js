@@ -1,12 +1,8 @@
-
 require("../../modules/callflow/lib/overwriteRequire")
 
 if(false){
-    require("./pskModules");
+    require("./pskruntime_intermediar");
 }
 
 
 console.log("Loading runtime");
-
-
-

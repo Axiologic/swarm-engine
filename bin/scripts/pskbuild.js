@@ -163,9 +163,12 @@ function buildTarget(targetName){
 
     buildDependencyMap(targetName, constructOptions(targetName, targets[targetName]["bare"]), path.join(commandOptions.input, targetName+"_intermediar.js"));
 
+    var overrideFile = path.join(commandOptions.input, targetName+".js");
+    var overrideFileExists = fs.existsSync(overrideFile);
+
     doBrowserify(targetName,
-        path.join(commandOptions.input, targetName+"_intermediar.js"),
-        path.join(commandOptions.output, targetName+".js"),
+        path.join(commandOptions.input, targetName + (overrideFileExists ? "" : "_intermediar")+".js"),
+        path.join(commandOptions.output, targetName + ".js"),
         constructOptions(targetName, targets[targetName].bare),
         externals[targetName] && targets[externals[targetName]] ? splitStrToArray(targets[externals[targetName]].deps) : null,
         splitStrToArray(targets[targetName].deps));

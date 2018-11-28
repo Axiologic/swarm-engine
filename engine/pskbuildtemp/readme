@@ -1,7 +1,7 @@
 This folder contains the templates used for generating privatesky runtimes with browserify and the pskbuild tool
 
 pskruntime.js : the code
-webruntime.js
+webshims.js : node web shims
 
 /*
 Additional modules that could be added in projectMap JOSN files in the browser section:
