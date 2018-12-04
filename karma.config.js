@@ -3,8 +3,9 @@ module.exports = function(config) {
         basePath: '',
         frameworks: ["mocha"],
         files: [
-            './builds/devel/webruntime.js',
+            './builds/devel/webshims.js',
             './builds/devel/pskruntime.js',
+            './builds/devel/pskclient.js',
             {pattern:'./tests/**/*-browserTest.js'},
             {pattern:'./tests/**/interact/**/*.js'}
         ],
