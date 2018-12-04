@@ -11,6 +11,7 @@ module.exports = function(config) {
         exclude: [
         ],
         client: {
+            clearContext: false,
             karmaHTML:{
                 source: [
                     {src:'./tests/psk-unit-testing/interact/wmqTest/parent/parent.html', tag:'index'},

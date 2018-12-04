@@ -16,10 +16,10 @@ var commandOptions = {
 var modulesPath = [path.resolve(process.cwd(), "modules"), path.resolve(process.cwd(), "libraries")];
 
 var defaultMap = {
-    browser: "assert,crypto,zlib,util,path",
-    runtime: "soundpubsub,callflow",
-    domain: "",
-    client: ""
+    webshims: "assert,crypto,zlib,util,path",
+    pskruntime: "soundpubsub,callflow",
+    psknode: "",
+    pskclient: ""
 }
 
 var externals = {
