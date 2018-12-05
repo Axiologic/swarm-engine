@@ -14,6 +14,7 @@ const changeSet = "latest-change-set.txt";
 const mergeChangeSet = "Merge";
 const changeSetDefaultSize = 3;
 
+
 /**
  * Contains default actions
  * @constructor
@@ -244,7 +245,17 @@ function ActionsRegistry(){
 
                     try{
                         child_process.execSync("git stash", basicProcOptions);
-                        child_process.execSync("git pull", basicProcOptions);
+                        var pullResult = child_process.execSync("git pull", basicProcOptions);
+                        pullResult = pullResult.toString();
+                        if(pullResult.indexOf("Already up-to-date") == -1){
+                            try{
+                                console.log("pullResult", pullResult.indexOf("Already up-to-date"));
+								let log = child_process.execSync("git log --max-count=1", basicProcOptions).toString().split("\n").slice(4).join("\n");
+								fs.appendFileSync(changeSet, "SmartLog"+log);
+                            }catch(err){
+                                console.log(err);
+                            }
+                        }
                         var finalResult = child_process.execSync("git stash apply", basicProcOptions);
                         if(finalResult.indexOf("Unmerged") != -1){
                             callback(new Error(`Repo ${target} needs attention! (Merging issues)`), `Finished update action on dependency ${dependency.name}`)
