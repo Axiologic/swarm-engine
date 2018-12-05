@@ -118,14 +118,20 @@ function doBrowserify(targetName, src, dest, opt, externalModules, exportsModule
 
 function buildDependencyMap(targetName, configProperty, output) {
     var cfg = targets[targetName].deps;
-    var result = ";"
+    var result = "if (false) {\n";
     splitStrToArray(cfg).map(function (item) {
         var ia = detectAlias(item);
         var line = `$$.__runtimeModules["${ia.alias}"] = require("${ia.module}");\n`;
 
         result += line;
-    })
-
+    });
+    result += "}; \n" + targetName + 'Require = require;' +
+        `
+        if (typeof $$ !== "undefined") {
+            console.log("INCARC TARGET ${targetName}", require);
+            $$.requireBundle("${targetName}");
+        };`;
+    
     //ensure dir struct exists
     fsExt.createDir(path.dirname(output));
     fs.writeFileSync(output, result);
