@@ -5,6 +5,7 @@ var fsExt = require("../../libraries/utils/FSExtension").fsExt;
 
 var args = process.argv.slice(2);
 
+const depsNameProp = "deps";
 const inputArg = "input";
 const outputArg = "output";
 
@@ -117,7 +118,7 @@ function doBrowserify(targetName, src, dest, opt, externalModules, exportsModule
 }
 
 function buildDependencyMap(targetName, configProperty, output) {
-    var cfg = targets[targetName].deps;
+    var cfg = targets[targetName][depsNameProp];
     var result = "if (false) {\n";
     splitStrToArray(cfg).map(function (item) {
         var ia = detectAlias(item);
@@ -137,18 +138,24 @@ function buildDependencyMap(targetName, configProperty, output) {
     fs.writeFileSync(output, result);
 }
 
-function constructOptions(targetName, bare){
+function constructOptions(targetName, opts){
     var options = {
         paths : modulesPath,
         fullPaths : true,
+        bundleExternal: false,
+        debug: true,
         externalRequireName : targetName+"Require"
     };
 
-    if(typeof bare == "undefined" || bare){
+    if(typeof opts == "undefined"){
         options.bare = true;
-        options.debug = true;
+    }else{
+        for(var prop in opts){
+            if(prop != depsNameProp){
+                options[prop] = opts[prop];
+            }
+        }
     }
-
     return options;
 }
 
@@ -169,7 +176,7 @@ function endCallback(str){
 function buildTarget(targetName){
     console.log("building target", targetName);
 
-    buildDependencyMap(targetName, constructOptions(targetName, targets[targetName]["bare"]), path.join(commandOptions.input, targetName+"_intermediar.js"));
+    buildDependencyMap(targetName, constructOptions(targetName, targets[targetName]), path.join(commandOptions.input, targetName+"_intermediar.js"));
 
     var overrideFile = path.join(commandOptions.input, targetName+".js");
     var overrideFileExists = fs.existsSync(overrideFile);
@@ -177,9 +184,9 @@ function buildTarget(targetName){
     doBrowserify(targetName,
         path.join(commandOptions.input, targetName + (overrideFileExists ? "" : "_intermediar")+".js"),
         path.join(commandOptions.output, targetName + ".js"),
-        constructOptions(targetName, targets[targetName].bare),
-        externals[targetName] && targets[externals[targetName]] ? splitStrToArray(targets[externals[targetName]].deps) : null,
-        splitStrToArray(targets[targetName].deps));
+        constructOptions(targetName, targets[targetName]),
+        externals[targetName] && targets[externals[targetName]] ? splitStrToArray(targets[externals[targetName]][depsNameProp]) : null,
+        splitStrToArray(targets[targetName][depsNameProp]));
 }
 
 
@@ -206,10 +213,20 @@ console.log("Reading targets and their dependencies list...");
 for(var prop in mapJson){
     var target = mapJson[prop];
     if(typeof target === 'string' || target instanceof String){
-        targets[prop] = {deps:concatDependencyMaps(defaultMap[prop], mapJson[prop])/*, bare:true*/};
+        var t = {};
+        t[depsNameProp] = concatDependencyMaps(defaultMap[prop], mapJson[prop]);
+        targets[prop] = t;
     }else{
         if(target instanceof Object && !Array.isArray(target)){
-            targets[prop] = {deps: concatDependencyMaps(defaultMap[prop], mapJson[prop].deps), bare: mapJson[prop].bare};
+            var t = {};
+            for(var p in mapJson[prop]){
+                if(p==depsNameProp){
+                    t[p] = concatDependencyMaps(defaultMap[prop], mapJson[prop][p]);
+                }else{
+                    t[p] = mapJson[prop][p];
+                }
+            }
+            targets[prop] = t;
         }else{
             throw new Error(`Wrong format of target <${prop}> found in project map file!`);
         }
