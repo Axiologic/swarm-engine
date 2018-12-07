@@ -21,7 +21,7 @@ launcher.callflow.describe("FileSerializer", {
         if(fileName) {
             this.fileName = fileName;
         }
-        flow.getJSONasync(this.__doStoreResult);
+        flow.getJSON(this.__doStoreResult);
     },
     __doStoreResult: function(err,res){
         var text = $$.jsonReadable(res);

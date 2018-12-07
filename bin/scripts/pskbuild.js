@@ -17,8 +17,8 @@ var commandOptions = {
 var modulesPath = [path.resolve(process.cwd(), "modules"), path.resolve(process.cwd(), "libraries")];
 
 var defaultMap = {
-    webshims: "assert,crypto,zlib,util,path",
-    pskruntime: "soundpubsub,callflow",
+    webshims: "",
+    pskruntime: "",
     psknode: "",
     pskclient: ""
 }
@@ -126,7 +126,7 @@ function buildDependencyMap(targetName, configProperty, output) {
 
         result += line;
     });
-    result += "}; \n" + targetName + 'Require = require;' +
+    result += "}; \nglobal." + targetName + 'Require = require;' +
         `
         if (typeof $$ !== "undefined") {            
             $$.requireBundle("${targetName}");
