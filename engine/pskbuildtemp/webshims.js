@@ -4,12 +4,15 @@ if (typeof(window) !== "undefined") {
     }
 }
 
-if(typeof(global.$$) == "undefined"){
+if (typeof(global.$$) == "undefined") {
     global.$$ = {};
+    $$.requireBundle = function () {
+    };
     $$.browserRuntime = true;
 }
 
-if(typeof($$.__runtimeModules) == "undefined"){
+if (typeof($$.__runtimeModules) == "undefined") {
     $$.__runtimeModules = {};
 }
 require("./webshims_intermediar");
+$$.__runtimeModules["fs"] = require("pskwebfs");

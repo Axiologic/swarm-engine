@@ -128,8 +128,7 @@ function buildDependencyMap(targetName, configProperty, output) {
     });
     result += "}; \n" + targetName + 'Require = require;' +
         `
-        if (typeof $$ !== "undefined") {
-            console.log("INCARC TARGET ${targetName}", require);
+        if (typeof $$ !== "undefined") {            
             $$.requireBundle("${targetName}");
         };`;
     
