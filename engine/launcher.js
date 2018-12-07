@@ -7,7 +7,8 @@
 
 //var config = require("util/configLoader.js")(process.args[1]);
 require("./../builds/devel/pskruntime.js");
-
+require('./../builds/devel/psknode');
+require('./../builds/devel/virtualMQ');
 
 exports.core = require(__dirname+"/core");
 const childProcess = require('child_process');

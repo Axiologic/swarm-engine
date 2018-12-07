@@ -10,6 +10,8 @@ if(process.argv.length > 2) {
 }
 
 require('../builds/devel/pskruntime');
+require('../builds/devel/psknode');
+
 require('../engine/core');
 require('../modules/psk-http-client');
 require('pskdb').startDB('../config');

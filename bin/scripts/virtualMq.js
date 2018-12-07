@@ -6,6 +6,8 @@ const config = {
 
 const path = require("path");
 require('../../builds/devel/pskruntime');
+require('../../builds/devel/psknode');
+require('../../builds/devel/virtualMQ');
 const VirtualMQ  = require('virtualmq');
 
 function startServer (config) {
