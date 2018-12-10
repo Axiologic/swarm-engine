@@ -6,6 +6,7 @@ module.exports = function(config) {
             './builds/devel/webshims.js',
             './builds/devel/pskruntime.js',
             './builds/devel/pskclient.js',
+            './builds/devel/psknode.js',
             {pattern:'./tests/**/*-browserTest.js'},
             {pattern:'./tests/**/interact/**/*.js'}
         ],
