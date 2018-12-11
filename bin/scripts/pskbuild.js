@@ -4,6 +4,15 @@ var browserify = require('browserify');
 var fsExt = require("../../libraries/utils/FSExtension").fsExt;
 
 var args = process.argv.slice(2);
+var externalTarget = process.argv[3];
+//check if fil exists and if it is a directory
+if(externalTarget){
+    var copyToExternalTarget = fs.existsSync(externalTarget) && fs.lstatSync(externalTarget).isDirectory();
+    if(!copyToExternalTarget){
+        console.error("ERROR", externalTarget, "is not accesible!" )
+    }
+}
+
 
 const depsNameProp = "deps";
 const inputArg = "input";
@@ -111,6 +120,16 @@ function doBrowserify(targetName, src, dest, opt, externalModules, exportsModule
         var out = fs.createWriteStream(dest);
         package.bundle().pipe(out);
         endCallback(targetName);
+
+        if (externalTarget && copyToExternalTarget) {
+            ((dest) => {
+                out.on('finish', () => {
+                    copyToExternalDirectory(dest);
+                });
+            })(dest);
+        }
+
+
     }
 
     scanExports(doWork);
@@ -131,7 +150,7 @@ function buildDependencyMap(targetName, configProperty, output) {
         if (typeof $$ !== "undefined") {            
             $$.requireBundle("${targetName}");
         };`;
-    
+
     //ensure dir struct exists
     fsExt.createDir(path.dirname(output));
     fs.writeFileSync(output, result);
@@ -170,6 +189,20 @@ function endCallback(str){
     if(counter == expected) {
         console.log("Finished rebuilding");
     }
+}
+var external_counter = 0
+function copyToExternalDirectory(src){
+    var filename = path.basename(src);
+    var dest = path.join(externalTarget,filename);
+    var writableStream = fs.createWriteStream(dest)
+    fs.createReadStream(src).pipe(writableStream);
+    writableStream.on("finish",function(){
+        external_counter++;
+        if(external_counter === expected){
+            console.log("All targets were successfully copied to",externalTarget);
+        }
+    });
+
 }
 
 function buildTarget(targetName){
@@ -237,7 +270,6 @@ console.log("Reading other command arguments if any...");
 var i=1;
 var knowArgs = [inputArg, outputArg];
 while(i<args.length){
-    var arg = args[i];
     var found = false;
     for(var j=0; j<knowArgs.length; j++){
         if(args[i].indexOf("--"+knowArgs[j]+"=")!=-1){
@@ -250,7 +282,8 @@ while(i<args.length){
         value=value.replace("--", "").replace(found+"=", "");
         commandOptions[found] = path.join(process.cwd(), value);
         console.log(`Command option "${found}" set`, commandOptions[found]);
-    }else{
+    }else
+        if(externalTarget !== args[i]) {
         console.log("Ignored argument", args[i], "reason: unknown");
     }
     i++;
