@@ -211,7 +211,7 @@ function buildTarget(targetName){
 
     var overrideFile = path.join(commandOptions.input, targetName+".js");
     var overrideFileExists = fs.existsSync(overrideFile);
-console.log("OverrideFileExists", overrideFileExists, overrideFile);
+	
     doBrowserify(targetName,
         path.join(commandOptions.input, targetName + (overrideFileExists ? "" : "_intermediar")+".js"),
         path.join(commandOptions.output, targetName + ".js"),
