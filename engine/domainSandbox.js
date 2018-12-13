@@ -35,16 +35,19 @@ $$.remote.createRequestManager(1000);
 console.log('virtualmqEndpoint', `${config.endpoint}:${config.port}`, `${config.agentUrl}`);
 $$.remote.newEndPoint('virtualmqEndpoint', `${config.endpoint}:${config.port}`, `${config.agentUrl}`);
 
+require("../builds/devel/domain");
 
 $$.remote.virtualmqEndpoint.on('*', '*', function (err, res) {
     $$.PSK_PubSub.subscribe($$.CONSTANTS.SWARM_RETURN, (swarm) => {
         if(swarm && swarm.meta && swarm.meta.target && res.meta.homeSecurityContext == swarm.meta.target){
-        $$.remote.doHttpPost(swarm.meta.target, swarm, function(err, res){
-            if(err){
-                console.log(err);
-            }
-        });
-    }
+            $$.remote.doHttpPost(swarm.meta.target, swarm, function(err, res){
+                if(err){
+                    console.log(err);
+                }
+            });
+        }else{
+            console.log("Something happened and swarm will not be sent to network", swarm);
+        }
         // TODO: send swarm home
     }, () => false);
     $$.PSK_PubSub.publish($$.CONSTANTS.SWARM_FOR_EXECUTION, res);

@@ -138,18 +138,17 @@ function doBrowserify(targetName, src, dest, opt, externalModules, exportsModule
 
 function buildDependencyMap(targetName, configProperty, output) {
     var cfg = targets[targetName][depsNameProp];
-    var result = "if (false) {\n";
+    var result = `global.${targetName}LoadModules = function(){ \n`;
     splitStrToArray(cfg).map(function (item) {
         var ia = detectAlias(item);
-        var line = `$$.__runtimeModules["${ia.alias}"] = require("${ia.module}");\n`;
+        var line = `\t$$.__runtimeModules["${ia.alias}"] = require("${ia.module}");\n`;
 
         result += line;
     });
-    result += "}; \nglobal." + targetName + 'Require = require;' +
-        `
-        if (typeof $$ !== "undefined") {            
-            $$.requireBundle("${targetName}");
-        };`;
+    result += `}\nif (false) {\n\t${targetName}LoadModules();\n}; \nglobal.` + `${targetName}Require = require;\n` +
+    `if (typeof $$ !== "undefined") {            
+    $$.requireBundle("${targetName}");
+};`;
 
     //ensure dir struct exists
     fsExt.createDir(path.dirname(output));
@@ -212,7 +211,7 @@ function buildTarget(targetName){
 
     var overrideFile = path.join(commandOptions.input, targetName+".js");
     var overrideFileExists = fs.existsSync(overrideFile);
-
+console.log("OverrideFileExists", overrideFileExists, overrideFile);
     doBrowserify(targetName,
         path.join(commandOptions.input, targetName + (overrideFileExists ? "" : "_intermediar")+".js"),
         path.join(commandOptions.output, targetName + ".js"),

@@ -5,8 +5,9 @@
 //var config = require("util/configLoader.js")(process.args[1]);
 const fs = require("fs");
 const path = require("path");
-const SandboxCreator = require('./sandboxCreator');
 require('../builds/devel/pskruntime');
+require('../builds/devel/psknode');
+
 require('./core');
 
 let spaceName = "self";
@@ -48,9 +49,12 @@ console.log("Booting sandbox:", spaceName);
 // ??? why we need this? what changed?
 process.chdir($$.pathNormalize(path.join(process.env.PRIVATESKY_TMP, "sandboxes", spaceName)));
 
-const vm = SandboxCreator.createVM(["./builds/devel/pskruntime", "dicontainer", "launcher", "yazl", "yauzl", "double-check", "psk-http-client", "pskcrypto", "virtualmq", "dicontainer", "foldermq", "interact", "swarmutils", "pskdb"]);
 
 if(runInVM){
+
+    const SandboxCreator = require('./sandboxCreator');
+    const vm = SandboxCreator.createVM(["./builds/devel/pskruntime", "dicontainer", "launcher", "yazl", "yauzl", "double-check", "psk-http-client", "pskcrypto", "virtualmq", "dicontainer", "foldermq", "interact", "swarmutils", "pskdb"]);
+
     vm.run(`
         'strict mode';
         // console.error('entering sandbox');
