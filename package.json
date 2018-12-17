@@ -36,7 +36,7 @@
   "dependencies": {},
   "scripts": {
     "install": "node bin/scripts/node_version_check.js && node bin/scripts/build-devel.js && node deployer/gitStatusCheck.js .",
-    "update": "node bin/scripts/build-devel.js && node deployer/gitStatusCheck.js .",
+    "update": "git pull && node bin/scripts/build-devel.js && node deployer/gitStatusCheck.js .",
     "clear-stash": "node deployer/gitClearStash.js .",
     "release": "node bin/scripts/build-release.js",
     "build": "node ./bin/scripts/pskbuild.js ./builds/build.json",
