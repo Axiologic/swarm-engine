@@ -251,7 +251,7 @@ function ActionsRegistry(){
                             try{
                                 console.log("pullResult", pullResult.indexOf("Already up-to-date"));
 								let log = child_process.execSync("git log --max-count=1", basicProcOptions).toString().split("\n").slice(4).join("\n");
-								fs.appendFileSync(changeSet, "SmartLog"+log);
+								fs.appendFileSync(changeSet, log);
                             }catch(err){
                                 console.log(err);
                             }
