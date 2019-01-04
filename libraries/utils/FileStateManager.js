@@ -23,7 +23,12 @@ function FileStateManager(){
 			let target = path.join(dest, item, "/");
 
 			fsExt.rmDir(target);
-			fsExt.copy(src, target);
+			try{
+                fsExt.copy(src, target);
+			}catch(err){
+				//console.log("ignoring...", err);
+			}
+
 		}
 
 		if(typeof(callback) === 'function') {
@@ -35,10 +40,14 @@ function FileStateManager(){
 		var dest = _getStateDir();
 		console.log(`Starting restoring state from ${dest}.`);
 
-		for(var i=0; i < sources.length; i++) {
-			let item = sources[i];
-			fsExt.rmDir(item);
-			fsExt.copy(path.join(dest, item), item)
+		try{
+			for(var i=0; i < sources.length; i++) {
+				let item = sources[i];
+				fsExt.rmDir(item);
+				fsExt.copy(path.join(dest, item), item)
+			}
+		}catch(err){
+			//console.log("ignoring...", err);
 		}
 
 		fsExt.rmDir(dest);

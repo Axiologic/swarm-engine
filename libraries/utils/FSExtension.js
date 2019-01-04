@@ -75,10 +75,12 @@ function FSExtention(){
         dest = __resolvePath(dest);
 
         callback = callback || function(){};
+        let rethrow = false;
 
         try{
             if (!fs.existsSync(src)) {
-                throw  `Source directory or file ${src} does not exists!`;
+                rethrow = true;
+                throw `Source directory or file "${src}" does not exists!`;
             }
 
             let srcStat = fs.lstatSync(src);
@@ -89,6 +91,9 @@ function FSExtention(){
                 __copyFile(src, dest, options);
             }
         } catch (err) {
+            if(rethrow){
+                throw err;
+            }
             log(err, true);
             callback(err);
             return;
@@ -277,12 +282,11 @@ function FSExtention(){
             }
 
             __copy(src, dest, options);
-            __remove(src)
-        } catch(err) {
+            __remove(src);
+        }catch(err) {
             callback(err);
             return;
         }
-
         callback();
     }
 

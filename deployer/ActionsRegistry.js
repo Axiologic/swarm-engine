@@ -213,6 +213,8 @@ function ActionsRegistry(){
         _clone(dependency.src, target, options, dependency.credentials, function(err, res){
             if(!err){
                 callback(err, `Finished clone action on dependency "${dependency.name}"`);
+            }else{
+                callback(err);
             }
         });
     };
@@ -317,15 +319,21 @@ function ActionsRegistry(){
 
         child_process.exec(cmd,{stdio:[0, "pipe", "pipe"]}, function(err, stdout, stderr){
             var next = true;
+            var handled = false;
             if(err){
                 for (var prop in errorHandlers){
                     if(stdout && stdout.indexOf(prop) != -1 || stderr && stderr.indexOf(prop) != -1){
                         next = errorHandlers[prop]();
                         if(!next){
+                            handled = true;
                             callback(err, "");
                             break;
                         }
                     }
+                }
+                if(!handled){
+                    callback(err);
+                    return;
                 }
             }
             if(next && global.collectLog){
@@ -420,7 +428,7 @@ function ActionsRegistry(){
             throw "git command does not exist! Please install git and run again the program!"
         }
 
-        _commit(dependency.src, action.target, action.message, dependency.credentials, action.options.branch, callback);
+        _commit(dependency.src, action.target, action.message, dependency.credentials, action.options ? action.options.branch : undefined, callback);
     };
 
     var _commit = function(remote, workDir, message, credentials, branch, callback) {

@@ -100,8 +100,9 @@ function Deployer() {
                 }
             }
         } catch (error) {
-            if (self.callback)
+            if (self.callback){
                 self.callback(error, null);
+            }
         }
     };
 
@@ -250,6 +251,7 @@ function Deployer() {
             if (error) {
                 if (self.callback) {
                     self.callback(error, null);
+                    return;
                 }
             } else {
                 if (result) {
