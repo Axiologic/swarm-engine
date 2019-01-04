@@ -43,7 +43,7 @@
     "watch": "node ./bin/scripts/watcher.js --watch ./ --run ./bin/scripts/psknode.js --ignore=\"/engine/pskbuildtemp/,/builds/devel/,/tests/,/bin/\"",
     "start": "node ./bin/scripts/psknode.js",
     "git-status": "node deployer/gitStatusCheck.js .",
-    "run-tests": "node bin/scripts/testrunner.js",
+    "run-tests": "npm run build && node bin/scripts/testrunner.js",
     "browser-tests": "karma start karma.config.js"
   }
 }
