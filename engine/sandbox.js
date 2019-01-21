@@ -12,6 +12,7 @@ require('./core');
 
 let spaceName = "self";
 let runInVM = false;
+let constitutionPath = './builds/devel/domain.js';
 
 //---------------------------- ARGS pre-processing -----------------------------
 let argv;
@@ -29,10 +30,17 @@ if (argv.length < 1 || argv[0] === "") {
 	spaceName = argv[0];
 }
 
-if (argv.length < 2) {
+if (process.argv.length < 4) {
 	console.log("Failed to find root folder of installation into args. \nUsing default PRIVATESKY_ROOT_FOLDER value");
 }
-pskRootFolder = argv[1] || process.env.PRIVATESKY_ROOT_FOLDER;
+pskRootFolder = process.argv[3] || process.env.PRIVATESKY_ROOT_FOLDER;
+
+if (process.argv.length < 5) {
+	console.log("Failed to find constituion build file.");
+}
+if(process.argv[4]){
+	constitutionPath = process.argv[4];
+}
 
 //---------------------------- ARGS pre-processing -----------------------------
 
@@ -72,7 +80,8 @@ if(runInVM){
         console.log("Sandbox [${spaceName}] is running and waiting for swarms.");
 `, process.cwd() + "/vm.js");
 }else {
-	require('./builds/devel/domain.js');
+	console.log("Loading constitution from", constitutionPath);
+	require(constitutionPath);
 
     require("callflow").swarmInstanceManager;
 
@@ -81,5 +90,5 @@ if(runInVM){
     global.$$.PSK_PubSub = sand.create(process.cwd());
 
 
-    console.log("Sandbox [${spaceName}] is running and waiting for swarms.");
+    console.log(`Sandbox [${spaceName}] is running and waiting for swarms.`);
 }
