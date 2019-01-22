@@ -13,11 +13,11 @@ const path = require('path');
 var tmpDir = require("os").tmpdir();
 var confDir = path.resolve("conf");
 
-if(process.argv.length > 3){
+if(process.argv.length >= 3){
     confDir = path.resolve(process.argv[2]);
 }
 
-if(process.argv.length > 4){
+if(process.argv.length >= 4){
     tmpDir = path.resolve(process.argv[3]);
 }
 
@@ -69,6 +69,7 @@ $$.container.declareDependency($$.DI_components.swarmIsReady, [$$.DI_components.
         //launching domainSandbox based on info from blockchain
         let transaction = $$.blockchain.beginTransaction({});
         let domains = transaction.loadAssets("global.DomainReference");
+
         for(let i=0; i < domains.length; i++){
             let domain = domains[i];
             launchDomainSandbox(domain.alias, domain.getWorkspace());

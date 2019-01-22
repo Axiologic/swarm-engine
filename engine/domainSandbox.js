@@ -9,11 +9,11 @@ process.env.PRIVATESKY_DOMAIN_NAME = "AnonymousDomain";
 process.env.PRIVATESKY_TMP = path.resolve("../tmp");
 let confDir = path.resolve("../conf");
 
-if(process.argv.length > 3){
+if(process.argv.length >= 3){
     process.env.PRIVATESKY_DOMAIN_NAME = process.argv[2];
 }
 
-if(process.argv.length > 4){
+if(process.argv.length >= 4){
     confDir = process.argv[3];
 }
 
@@ -62,8 +62,10 @@ function connectLocally(alias, path2folder){
                         console.log(`\n[***]Alias <${alias}> listening local on ${path2folder}\n`);
                     }
                 });
-            que.registerConsumer((swarm) => {
-                $$.PSK_PubSub.publish($$.CONSTANTS.SWARM_FOR_EXECUTION, swarm);
+            que.registerConsumer((err, swarm) => {
+				if(!err){
+					$$.PSK_PubSub.publish($$.CONSTANTS.SWARM_FOR_EXECUTION, swarm);
+				}
             });
             queues[alias] = que;
         });
