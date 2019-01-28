@@ -5,36 +5,28 @@ require('../modules/psk-http-client');
 const folderMQ = require("foldermq");
 const path = require('path');
 
-process.env.PRIVATESKY_DOMAIN_NAME = "AnonymousDomain";
+process.env.PRIVATESKY_DOMAIN_NAME = process.argv[2] || "AnonymousDomain"+process.pid;
+process.env.PRIVATESKY_DOMAIN_BUILD = "../builds/devel/domain";
 process.env.PRIVATESKY_TMP = path.resolve("../tmp");
-let confDir = path.resolve("../conf");
 
-if(process.argv.length >= 3){
-    process.env.PRIVATESKY_DOMAIN_NAME = process.argv[2];
-}
-
-if(process.argv.length >= 4){
-    confDir = process.argv[3];
+const oldLogFnc = console.log;
+console.log = function(...args){
+    oldLogFnc(`[${process.env.PRIVATESKY_DOMAIN_NAME}]`, ...args);
 }
 
 $$.container = require('../modules/dicontainer').newContainer($$.errorHandler);
 $$.PSK_PubSub = require('../engine/pubSub/launcherPubSub').create(process.env.PRIVATESKY_TMP, path.resolve('..'));
 
-console.log(`Booting ${process.env.PRIVATESKY_DOMAIN_NAME} domain sandbox...`);
+console.log(`Booting domain sandbox...`);
+var domain = JSON.parse(process.env.config);
 
-//enabling blockchain
-require('pskdb').startDB(confDir);
-
-let transaction = $$.blockchain.beginTransaction({});
-var domain = transaction.lookup('global.DomainReference', process.env.PRIVATESKY_DOMAIN_NAME);
-process.env.PRIVATESKY_DOMAIN_BUILD = domain.constitution;
-//loading swarm definitions
-if(process.env.PRIVATESKY_DOMAIN_BUILD){
-    console.log("Loading...", process.env.PRIVATESKY_DOMAIN_BUILD);
-    require(domain.constitution);
-}else{
-    //require("../builds/devel/domain");
+if(typeof domain.constitution != "undefined" && domain.constitution != "undefined"){
+    process.env.PRIVATESKY_DOMAIN_BUILD = domain.constitution;
 }
+
+//loading swarm definitions
+console.log("Loading constitution file", process.env.PRIVATESKY_DOMAIN_BUILD);
+require(process.env.PRIVATESKY_DOMAIN_BUILD);
 
 for(let alias in domain.remoteInterfaces){
     let remoteUrl = domain.remoteInterfaces[alias];
@@ -56,7 +48,6 @@ function connectLocally(alias, path2folder){
         path2folder = path.resolve(path2folder);
         var flow = $$.flow.start("mkDirRec");
         flow.make(path2folder, (err, res)=>{
-            console.log("ERR RES", err, res);
             var que = folderMQ.createQue(path2folder, (err, res) => {
                     if(!err){
                         console.log(`\n[***]Alias <${alias}> listening local on ${path2folder}\n`);
