@@ -9,6 +9,7 @@ require('./../builds/devel/virtualMQ');
 exports.core = require(__dirname+"/core");
 const childProcess = require('child_process');
 const path = require('path');
+const beesHealer = require("swarmutils").beesHealer;
 
 var tmpDir = require("os").tmpdir();
 var confDir = path.resolve("conf");
@@ -72,7 +73,7 @@ $$.container.declareDependency($$.DI_components.swarmIsReady, [$$.DI_components.
 
         for(let i=0; i < domains.length; i++){
             let domain = domains[i];
-            launchDomainSandbox(domain.alias, domain.getWorkspace());
+            launchDomainSandbox(domain.alias, domain);
         }
 
         return true;
@@ -82,13 +83,13 @@ $$.container.declareDependency($$.DI_components.swarmIsReady, [$$.DI_components.
 
 const domainSandboxes = {};
 
-function launchDomainSandbox(name, folder) {
+function launchDomainSandbox(name, configuration) {
     if(!domainSandboxes[name]) {
-        const child = childProcess.fork('domainSandbox.js', [name, folder], {cwd: __dirname});
+        const child = childProcess.fork('domainSandbox.js', [name], {cwd: __dirname, env: {config: JSON.stringify(beesHealer.asJSON(configuration).publicVars)}});
         child.on('exit', (code, signal) => {
             console.log(`DomainSandbox [${name}] got an error code ${code}. Restarting...`);
             delete domainSandboxes[name];
-            launchDomainSandbox(name, folder);
+            launchDomainSandbox(name, configuration);
         });
 
         domainSandboxes[name] = child;
