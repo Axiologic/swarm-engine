@@ -132,7 +132,12 @@ const config = {
             ]
         },
         {
-            "name": "browserify chokidar karma mocha karma-mocha karma-chrome-launcher karma-firefox-launcher karma-html karma-ie-launcher karma-opera-launcher karma-safari-launcher busboy",
+            "name": "browserify chokidar busboy",
+            "src": "npm",
+            "actions": ["install"]
+        },
+        {
+            "name": "karma mocha karma-mocha karma-chrome-launcher karma-firefox-launcher karma-html karma-ie-launcher karma-opera-launcher karma-safari-launcher",
             "src": "npm",
             "actions": ["install"]
         }
