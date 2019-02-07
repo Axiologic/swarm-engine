@@ -48,7 +48,7 @@ function ActionsRegistry(){
             commandOpts.cwd = dependency.workDir;
         }
 
-        var cmd = "npm install " + target + " --no-save"
+        var cmd = "npm install " + target + " --no-save --no-package-lock"
         console.log(cmd);
         let error = null;
         let response = `Finished install action on dependency ${dependency.name}`;
