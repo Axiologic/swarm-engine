@@ -60,6 +60,10 @@ const baseDeps = [
     {
         "name": "pskadmin",
         "src": "https://github.com/PrivateSky/pskadmin.git"
+    },
+    {
+        "name": "csb-wizard",
+        "src": "https://github.com/PrivateSky/csb-wizard.git"
     }];
 
 const config = {

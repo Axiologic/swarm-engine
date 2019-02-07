@@ -8,10 +8,12 @@ const path = require("path");
 require('../../builds/devel/pskruntime');
 require('../../builds/devel/psknode');
 require('../../builds/devel/virtualMQ');
-const CSBServer  = require('pskwallet').CSBServer;
+require('../../builds/devel/consoleTools');
+const CSBWizard  = require('csb-wizard');
+
 
 function startServer (config) {
-	const csbServer = new CSBServer(Number.parseInt(config.port), path.resolve(config.folder));
+	const csbServer = new CSBWizard(Number.parseInt(config.port), path.resolve(config.folder));
 }
 
 const argv = process.argv;
