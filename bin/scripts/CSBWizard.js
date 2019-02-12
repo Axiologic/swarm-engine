@@ -4,12 +4,12 @@ const config = {
 };
 
 
-const path = require("path");
 require('../../builds/devel/pskruntime');
 require('../../builds/devel/psknode');
 require('../../builds/devel/virtualMQ');
 require('../../builds/devel/consoleTools');
-const CSBWizard  = require('csb-wizard');
+const CSBWizard  = require('../../modules/csb-wizard');
+const path = require("path");
 
 
 function startServer (config) {
