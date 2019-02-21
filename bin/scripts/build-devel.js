@@ -132,7 +132,7 @@ const config = {
             ]
         },
         {
-            "name": "browserify chokidar",
+            "name": "browserify chokidar qr-image",
             "src": "npm",
             "actions": ["install"]
         },
