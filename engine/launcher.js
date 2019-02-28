@@ -46,21 +46,6 @@ $$.loadLibrary("pds", __dirname+"/../libraries/localNode");
 //enabling blockchain from confDir
 require('pskdb').startDB(confDir);
 
-/*var launcher = $$.loadLibrary("launcher", __dirname + "/../libraries/launcher");
-
-let transaction = $$.blockchain.beginTransaction({});
-let localdomain = transaction.lookup("DomainReference", "local");
-localdomain.init("system", "local");
-localdomain.setWorkspace("../conf");
-localdomain.setConstitution("../builds/devel/localDomain.js");
-localdomain.addRemoteInterface("system", "http://127.0.0.1:8080");
-localdomain.addLocalInterface("local", "../tmp/localqueue/system");
-transaction.add(localdomain);
-$$.blockchain.commit(transaction);
-
-return;*/
-
-
 $$.container.declareDependency($$.DI_components.swarmIsReady, [$$.DI_components.sandBoxReady, /*$$.DI_components.localNodeAPIs*/], function(fail, sReady, localNodeAPIs){
     if(!fail){
         console.log("Node launching...");
