@@ -4,4 +4,9 @@ $$.swarms.describe("echo",{
     }
 });
 
+$$.swarms.describe("notifier",{
+    init: function(encryptedSeed){
+        this.encryptedSeed = encryptedSeed;
+    }
+});
 
