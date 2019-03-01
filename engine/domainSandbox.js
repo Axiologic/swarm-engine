@@ -24,6 +24,10 @@ if(typeof domain.constitution != "undefined" && domain.constitution != "undefine
     process.env.PRIVATESKY_DOMAIN_BUILD = domain.constitution;
 }
 
+//enabling blockchain from confDir
+console.log("COnfig", path.resolve(domain.workspace));
+require('pskdb').startDB(path.resolve(domain.workspace));
+
 //loading swarm definitions
 console.log("Loading constitution file", process.env.PRIVATESKY_DOMAIN_BUILD);
 require(process.env.PRIVATESKY_DOMAIN_BUILD);
