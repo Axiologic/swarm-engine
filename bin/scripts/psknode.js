@@ -25,15 +25,26 @@ function startProcess(filePath) {
 
     console.log('SPAWNED ', forkedProcesses[filePath].pid);
 
-    function errorHandler(error) {
-        console.log("Exception caught", error ? error : "");
-        if (shouldRestart) {
-            startProcess(filePath);
+    function errorHandler(filePath) {
+        return function (error) {
+            console.log(`\x1b[31mException caught on spawning file ${filePath} `, error ? error : "", "\x1b[0m"); //last string is to reset terminal colours
+            if (shouldRestart) {
+                startProcess(filePath);
+            }
         }
     }
 
-    forkedProcesses[filePath].on('error', errorHandler);
-    forkedProcesses[filePath].on('exit', errorHandler);
+    function exitHandler(filePath) {
+        return function () {
+            console.log(`\x1b[33mExit caught on spawned file ${filePath}`, "\x1b[0m"); //last string is to reset terminal colours
+            if (shouldRestart) {
+                startProcess(filePath);
+            }
+        }
+    }
+
+    forkedProcesses[filePath].on('error', errorHandler(filePath));
+    forkedProcesses[filePath].on('exit', exitHandler(filePath));
 }
 
 

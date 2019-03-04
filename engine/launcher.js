@@ -70,7 +70,14 @@ const domainSandboxes = {};
 
 function launchDomainSandbox(name, configuration) {
     if(!domainSandboxes[name]) {
-        const child = childProcess.fork('domainSandbox.js', [name], {cwd: __dirname, env: {config: JSON.stringify(beesHealer.asJSON(configuration).publicVars)}});
+        const env = {config: JSON.parse(JSON.stringify(beesHealer.asJSON(configuration).publicVars))};
+
+        if(Object.keys(env.config.remoteInterfaces).length  === 0 && Object.keys(env.config.localInterfaces).length === 0) {
+            console.log(`Skipping starting domain ${name} due to missing both remoteInterfaces and localInterfaces`);
+            return;
+        }
+
+        const child = childProcess.fork('domainSandbox.js', [name], {cwd: __dirname, env: {config: JSON.stringify(env.config)}});
         child.on('exit', (code, signal) => {
             console.log(`DomainSandbox [${name}] got an error code ${code}. Restarting...`);
             delete domainSandboxes[name];

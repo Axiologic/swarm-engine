@@ -8,11 +8,12 @@ const path = require('path');
 process.env.PRIVATESKY_DOMAIN_NAME = process.argv[2] || "AnonymousDomain"+process.pid;
 process.env.PRIVATESKY_DOMAIN_BUILD = "../builds/devel/domain";
 process.env.PRIVATESKY_TMP = path.resolve("../tmp");
+process.env.DOMAIN_WORKSPACE = path.resolve(process.env.PRIVATESKY_TMP, "domainsWorkspace", process.env.PRIVATESKY_DOMAIN_NAME);
 
 const oldLogFnc = console.log;
 console.log = function(...args){
     oldLogFnc(`[${process.env.PRIVATESKY_DOMAIN_NAME}]`, ...args);
-}
+};
 
 $$.container = require('../modules/dicontainer').newContainer($$.errorHandler);
 $$.PSK_PubSub = require('../engine/pubSub/launcherPubSub').create(process.env.PRIVATESKY_TMP, path.resolve('..'));
@@ -24,9 +25,14 @@ if(typeof domain.constitution != "undefined" && domain.constitution != "undefine
     process.env.PRIVATESKY_DOMAIN_BUILD = domain.constitution;
 }
 
+if(typeof domain.workspace !== "undefined" && domain.workspace !== "undefined") {
+    process.env.DOMAIN_WORKSPACE = domain.workspace;
+}
+
 //enabling blockchain from confDir
-console.log("COnfig", path.resolve(domain.workspace));
-require('pskdb').startDB(path.resolve(domain.workspace));
+//validate path exists
+console.log("Using workspace", path.resolve(process.env.DOMAIN_WORKSPACE));
+require('pskdb').startDB(path.resolve(process.env.DOMAIN_WORKSPACE));
 
 //loading swarm definitions
 console.log("Loading constitution file", process.env.PRIVATESKY_DOMAIN_BUILD);
@@ -65,7 +71,7 @@ function connectLocally(alias, path2folder){
             queues[alias] = que;
         });
     }else{
-       console.log("Alias ${alias} has allready a local queue attached.");
+       console.log(`Alias ${alias} has already a local queue attached.`);
     }
 
     if(!localReplyHandlerSet){
@@ -95,12 +101,14 @@ function connectToRemote(alias, remoteUrl){
     if(!virtualReplyHandlerSet){
         //subscribe on PubSub to catch all returning swarms and push them to network accordingly
         $$.PSK_PubSub.subscribe($$.CONSTANTS.SWARM_RETURN, (swarm) => {
-            if(swarm && swarm.meta && swarm.meta.target  && swarm.meta.target.indexOf("http:") != -1){
+            if(swarm && swarm.meta && swarm.meta.target  && !swarm.meta.target.startsWith("http:")){
                 $$.remote.doHttpPost(swarm.meta.target, swarm, function(err, res){
                     if(err){
                         console.log(err);
                     }
                 });
+            } else {
+                console.log(`Invalid target ${swarm.meta.target}`);
             }
         }, () => true);
         virtualReplyHandlerSet = true;
