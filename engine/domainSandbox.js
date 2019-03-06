@@ -76,7 +76,8 @@ function connectLocally(alias, path2folder){
 
     if(!localReplyHandlerSet){
         $$.PSK_PubSub.subscribe($$.CONSTANTS.SWARM_RETURN, (swarm) => {
-            if(swarm && swarm.meta && swarm.meta.target  && swarm.meta.target.indexOf("http:") == -1){
+            const urlRegex = new RegExp(/^(www|http:|https:)+[^\s]+[\w]/);
+            if (swarm && swarm.meta && swarm.meta.target && urlRegex.test(swarm.meta.target)) {
                 var q = folderMQ.createQue(swarm.meta.target, (err, res)=>{
                         if(!err){
                             q.getHandler().sendSwarmForExecution(swarm)
@@ -101,14 +102,13 @@ function connectToRemote(alias, remoteUrl){
     if(!virtualReplyHandlerSet){
         //subscribe on PubSub to catch all returning swarms and push them to network accordingly
         $$.PSK_PubSub.subscribe($$.CONSTANTS.SWARM_RETURN, (swarm) => {
-            if(swarm && swarm.meta && swarm.meta.target  && !swarm.meta.target.startsWith("http:")){
+            const urlRegex = new RegExp(/^(www|http:|https:)+[^\s]+[\w]/);
+            if (swarm && swarm.meta && swarm.meta.target && urlRegex.test(swarm.meta.target)) {
                 $$.remote.doHttpPost(swarm.meta.target, swarm, function(err, res){
                     if(err){
                         console.log(err);
                     }
                 });
-            } else {
-                console.log(`Invalid target ${swarm.meta.target}`);
             }
         }, () => true);
         virtualReplyHandlerSet = true;
