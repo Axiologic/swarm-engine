@@ -77,7 +77,7 @@ function connectLocally(alias, path2folder){
     if(!localReplyHandlerSet){
         $$.PSK_PubSub.subscribe($$.CONSTANTS.SWARM_RETURN, (swarm) => {
             const urlRegex = new RegExp(/^(www|http:|https:)+[^\s]+[\w]/);
-            if (swarm && swarm.meta && swarm.meta.target && urlRegex.test(swarm.meta.target)) {
+            if (swarm && swarm.meta && swarm.meta.target && !urlRegex.test(swarm.meta.target)) {
                 var q = folderMQ.createQue(swarm.meta.target, (err, res)=>{
                         if(!err){
                             q.getHandler().sendSwarmForExecution(swarm)
