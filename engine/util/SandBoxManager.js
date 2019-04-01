@@ -2,6 +2,9 @@ var mq = $$.require("foldermq");
 const path = require('path');
 var child_process = require("child_process");
 
+var sandboxes = {};
+var exitHandler = require("./../util/exitHandler")(sandboxes);
+
 var bootSandBox = $$.flow.describe("PrivateSky.swarm.engine.bootInLauncher", {
     boot:function(sandBox, spaceName, folder, codeFolder, callback){
         // console.log("Booting in ", folder, " context ", spaceName);
@@ -44,6 +47,7 @@ var bootSandBox = $$.flow.describe("PrivateSky.swarm.engine.bootInLauncher", {
             var args = [this.spaceName, process.env.PRIVATESKY_ROOT_FOLDER, process.env.PRIVATESKY_DOMAIN_BUILD];
             console.log("Running: ", mainFile, args);
             var child = child_process.fork(mainFile, args);
+            sandboxes[this.spaceName] = child;
             this.callback(null, child);
         } else {
             console.log("Error executing sandbox!:", err);

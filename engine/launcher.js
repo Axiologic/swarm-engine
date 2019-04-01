@@ -71,8 +71,7 @@ $$.container.declareDependency($$.DI_components.swarmIsReady, [$$.DI_components.
     return false;
 });
 
-const domainSandboxes = {};
-
+var domainSandboxes = {};
 function launchDomainSandbox(name, configuration) {
     if(!domainSandboxes[name]) {
         const env = {config: JSON.parse(JSON.stringify(beesHealer.asJSON(configuration).publicVars))};
