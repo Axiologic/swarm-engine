@@ -61,6 +61,11 @@ $$.container.declareDependency($$.DI_components.swarmIsReady, [$$.DI_components.
             launchDomainSandbox(domain.alias, domain);
         }
 
+        if(domains.length>0){
+            //if we have children launcher will send exit event to them before exiting...
+            require("./util/exitHandler")(domainSandboxes);
+        }
+
         return true;
     }
     return false;

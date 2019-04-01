@@ -51,14 +51,4 @@ function startProcess(filePath) {
 startProcess('./bin/scripts/virtualMq.js');
 startProcess('./engine/launcher.js');
 
-
-[`exit`, `SIGINT`, `SIGUSR1`, `SIGUSR2`, `uncaughtException`, `SIGTERM`].forEach((eventType) => {
-    process.on(eventType, () => {
-        console.log('Shutting down...');
-        shouldRestart = false;
-        Object.keys(forkedProcesses).forEach(childProcess => {
-            console.log('KILLING ', -forkedProcesses[childProcess].pid);
-            process.kill(-forkedProcesses[childProcess].pid);
-        });
-    })
-});
+require("./../../engine/util/exitHandler")(forkedProcesses);
