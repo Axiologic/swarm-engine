@@ -1,4 +1,4 @@
-const events = ["exit", "SIGINT", "SIGUSR1", "SIGUSR2", "uncaughtException", "SIGTERM"];
+const events = ["exit", "SIGINT", "SIGUSR1", "SIGUSR2", "uncaughtException", "SIGTERM", "SIGHUP"];
 
 module.exports = function manageShutdownProcess(childrenList){
 
@@ -11,9 +11,9 @@ module.exports = function manageShutdownProcess(childrenList){
             process.kill(child.pid);
         }
 
-        if(childrenNames.length>0){
+        setTimeout(()=>{
             process.exit(0);
-        }
+        }, 0);
     }
 
     process.stdin.resume();
