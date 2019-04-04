@@ -6,4 +6,4 @@
 
     They need to be valid certificates (not self signed or expired) or else VirtualMQ won't boot
 
-2. Go back one folder and open "currentVersion" file. Search for "remoteInterfaces" (without quotes) and change "http" to "https" for the address where VirtualMQ will live
+2. Run pskadmin console app and update the remote connections for each domain that needs to communicate via https
