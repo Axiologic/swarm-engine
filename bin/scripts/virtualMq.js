@@ -1,17 +1,40 @@
+const path = require("path");
+
 const config = {
     port: 8080,
-    folder: '../tmp'
+    folder: '../tmp',
+    sslFolder: path.resolve(__dirname, '../../conf/ssl')
 };
 
 
-const path = require("path");
 require('../../builds/devel/pskruntime');
 require('../../builds/devel/psknode');
 require('../../builds/devel/virtualMQ');
-const VirtualMQ  = require('virtualmq');
+const VirtualMQ = require('virtualmq').VirtualMQ;
+const fs = require('fs');
 
-function startServer (config) {
-    const virtualMq = VirtualMQ.createVirtualMQ(Number.parseInt(config.port), path.resolve(config.folder));
+function startServer(config) {
+    let sslConfig = undefined;
+    if (config.sslFolder) {
+        console.log('[VirtualMQ] Using certificates from path', path.resolve(config.sslFolder));
+
+        try {
+            sslConfig = {
+                cert: fs.readFileSync(path.join(config.sslFolder, 'server.cert')),
+                key: fs.readFileSync(path.join(config.sslFolder, 'server.key'))
+            };
+        } catch (e) {
+            console.log('[VirtualMQ] No certificates found, VirtualMQ will start using HTTP');
+        }
+    }
+
+    const virtualMqConfig = {
+        listeningPort: Number.parseInt(config.port),
+        rootFolder: path.resolve(config.folder),
+        sslConfig: sslConfig
+    };
+
+    const virtualMq = new VirtualMQ(virtualMqConfig);
 }
 
 const argv = process.argv;
@@ -39,7 +62,7 @@ for(let i = 0; i < argv.length; ++i) {
 }
 
 function editConfig(key, value) {
-    if(!config[key]) {
+    if(!config.hasOwnProperty(key)) {
         throw new Error(`Invalid argument ${key}`);
     }
 

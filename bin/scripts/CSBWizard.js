@@ -1,6 +1,7 @@
 const config = {
 	port: 8081,
-	folder: '../tmp'
+	folder: '../tmp',
+	sslFolder: undefined
 };
 
 
@@ -10,10 +11,31 @@ require('../../builds/devel/virtualMQ');
 require('../../builds/devel/consoleTools');
 const CSBWizard  = require('../../modules/csb-wizard');
 const path = require("path");
+const fs = require('fs');
 
 
 function startServer (config) {
-	const csbServer = new CSBWizard(Number.parseInt(config.port), path.resolve(config.folder));
+	let sslConfig = undefined;
+	if(config.sslFolder) {
+		console.log('[CSBWizard] Using certificates from path', path.resolve(config.sslFolder));
+
+		try {
+			sslConfig = {
+				cert: fs.readFileSync(path.join(config.sslFolder, 'server.cert')),
+				key: fs.readFileSync(path.join(config.sslFolder, 'server.key'))
+			};
+		} catch (e) {
+			console.log('[CSBWizard] No certificates found, CSBWizard will start using HTTP');
+		}
+	}
+
+	const csbWizardConfig = {
+		listeningPort: 	Number.parseInt(config.port),
+		rootFolder: path.resolve(config.folder),
+		sslConfig: sslConfig
+	};
+
+	const csbServer = new CSBWizard(csbWizardConfig);
 }
 
 const argv = process.argv;
@@ -41,7 +63,7 @@ for(let i = 0; i < argv.length; ++i) {
 }
 
 function editConfig(key, value) {
-	if(!config[key]) {
+	if(!config.hasOwnProperty(key)) {
 		throw new Error(`Invalid argument ${key}`);
 	}
 
