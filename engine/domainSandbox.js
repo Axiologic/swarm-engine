@@ -7,7 +7,7 @@ const path = require('path');
 
 process.env.PRIVATESKY_DOMAIN_NAME = process.argv[2] || "AnonymousDomain"+process.pid;
 process.env.PRIVATESKY_DOMAIN_BUILD = "../builds/devel/domain";
-process.env.PRIVATESKY_TMP = path.resolve("../tmp");
+process.env.PRIVATESKY_TMP = process.env.PRIVATESKY_TMP || path.resolve("../tmp");
 process.env.DOMAIN_WORKSPACE = path.resolve(process.env.PRIVATESKY_TMP, "domainsWorkspace", process.env.PRIVATESKY_DOMAIN_NAME);
 
 const oldLogFnc = console.log;
