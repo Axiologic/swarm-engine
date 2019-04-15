@@ -3,7 +3,7 @@ const events = ["exit", "SIGINT", "SIGUSR1", "SIGUSR2", "uncaughtException", "SI
 module.exports = function manageShutdownProcess(childrenList){
 
     function handler(){
-        console.log("Handling exit event on", process.pid);
+        console.log("Handling exit event on", process.pid, "arguments:", arguments);
         var childrenNames = Object.keys(childrenList);
         for(let j=0; j<childrenNames.length; j++){
             var child = childrenList[childrenNames[j]];

@@ -45,9 +45,14 @@ var bootSandBox = $$.flow.describe("PrivateSky.swarm.engine.bootInLauncher", {
         if(!err){
             var mainFile = path.join(this.folder, "code/engine/sandbox.js");
             var args = [this.spaceName, process.env.PRIVATESKY_ROOT_FOLDER, process.env.PRIVATESKY_DOMAIN_BUILD];
-            console.log("Running: ", mainFile, args);
+            var opts = {stdio: [0, 1, 2, "ipc"]};
+            console.log("Running: ", mainFile, args, opts);
             var child = child_process.fork(mainFile, args);
             sandboxes[this.spaceName] = child;
+
+            this.sandBox.inbound.setIPCChannel(child);
+            this.sandBox.outbound.setIPCChannel(child);
+
             this.callback(null, child);
         } else {
             console.log("Error executing sandbox!:", err);
@@ -68,7 +73,11 @@ function SandBoxHandler(spaceName, folder, codeFolder, resultCallBack){
             self.childProcess = childProcess;
 
 
-            self.outbound.registerConsumer(function(err, swarm){
+            /*self.outbound.registerConsumer(function(err, swarm){
+                $$.PSK_PubSub.publish($$.CONSTANTS.SWARM_FOR_EXECUTION, swarm);
+            });*/
+
+            self.outbound.registerAsIPCConsumer(function(err, swarm){
                 $$.PSK_PubSub.publish($$.CONSTANTS.SWARM_FOR_EXECUTION, swarm);
             });
 
