@@ -11,7 +11,7 @@ const childProcess = require('child_process');
 const path = require('path');
 const beesHealer = require("swarmutils").beesHealer;
 
-var tmpDir = require("os").tmpdir();
+var tmpDir = "../tmp";
 var confDir = path.resolve("conf");
 
 if(process.argv.length >= 3){
@@ -81,7 +81,11 @@ function launchDomainSandbox(name, configuration) {
             return;
         }
 
-        const child = childProcess.fork('domainSandbox.js', [name], {cwd: __dirname, env: {config: JSON.stringify(env.config), PRIVATESKY_TMP: process.env.PRIVATESKY_TMP, PRIVATESKY_ROOT_FOLDER: process.env.PRIVATESKY_ROOT_FOLDER}});
+		var child_env = JSON.parse(JSON.stringify(process.env));
+		child_env.config = JSON.stringify(env.config);
+		child_env.PRIVATESKY_TMP = process.env.PRIVATESKY_TMP;
+		child_env.PRIVATESKY_ROOT_FOLDER = process.env.PRIVATESKY_ROOT_FOLDER;
+        const child = childProcess.fork('domainSandbox.js', [name], {cwd: __dirname, env: child_env});
         child.on('exit', (code, signal) => {
             console.log(`DomainSandbox [${name}] got an error code ${code}. Restarting...`);
             delete domainSandboxes[name];
