@@ -1,6 +1,6 @@
 const correctionSizeForSubVersion = 2;
 
-let requiredVersion="6.4.0";
+let requiredVersion="10.15.3";
 let currentVersion=process.version.slice(1);
 
 function matchRequiredVersion(requiredVersion, version){
