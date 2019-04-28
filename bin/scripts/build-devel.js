@@ -64,7 +64,11 @@ const baseDeps = [
     {
         "name": "csb-wizard",
         "src": "https://github.com/PrivateSky/csb-wizard.git"
-    }];
+    },
+	{
+		"name": "pskbuffer",
+		"src": "https://github.com/PrivateSky/pskbuffer.git"
+	}];
 
 const config = {
     "workDir": ".",
