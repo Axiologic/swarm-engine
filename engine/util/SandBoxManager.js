@@ -1,6 +1,8 @@
 var mq = $$.require("foldermq");
 const path = require('path');
 var child_process = require("child_process");
+const RESTART_TIMEOUT = 500;
+const RESTART_TIMEOUT_LIMIT = 50000;
 
 var sandboxes = {};
 var exitHandler = require("./../util/exitHandler")(sandboxes);
@@ -14,6 +16,7 @@ var bootSandBox = $$.flow.describe("PrivateSky.swarm.engine.bootInLauncher", {
         this.spaceName  = spaceName;
         this.sandBox    = sandBox;
         this.codeFolder    = codeFolder;
+        this.timeoutMultiplier = 1;
 
         var task = this.serial(this.ensureFoldersExists);
 
@@ -46,14 +49,32 @@ var bootSandBox = $$.flow.describe("PrivateSky.swarm.engine.bootInLauncher", {
             var mainFile = path.join(this.folder, "code/engine/sandbox.js");
             var args = [this.spaceName, process.env.PRIVATESKY_ROOT_FOLDER, process.env.PRIVATESKY_DOMAIN_BUILD];
             var opts = {stdio: [0, 1, 2, "ipc"]};
-            console.log("Running: ", mainFile, args, opts);
-            var child = child_process.fork(mainFile, args);
-            sandboxes[this.spaceName] = child;
 
-            this.sandBox.inbound.setIPCChannel(child);
-            this.sandBox.outbound.setIPCChannel(child);
+            var startChild = (mainFile, args, opts) => {
+				console.log("Running: ", mainFile, args, opts);
+				var child = child_process.fork(mainFile, args);
+				sandboxes[this.spaceName] = child;
 
-            this.callback(null, child);
+				this.sandBox.inbound.setIPCChannel(child);
+				this.sandBox.outbound.setIPCChannel(child);
+
+				child.on("exit", (code, signal)=>{
+				    if(code === 0){
+				        console.log(`Sandbox <${this.spaceName}> shutting down.`);
+				        return;
+                    }
+				    let timeout = (this.timeoutMultiplier*RESTART_TIMEOUT) % RESTART_TIMEOUT_LIMIT;
+				    console.log(`Sandbox <${this.spaceName}> exits with code ${code}. Restarting in ${timeout} ms.`);
+					setTimeout(()=>{
+						startChild(mainFile, args, opts);
+                        this.timeoutMultiplier *= 1.5;
+                    }, timeout);
+				});
+
+				return child;
+            };
+
+            this.callback(null, startChild(mainFile, args, opts));
         } else {
             console.log("Error executing sandbox!:", err);
             this.callback(err, null);
