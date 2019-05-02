@@ -1,5 +1,5 @@
-var pubSub = $$.require("soundpubsub").soundPubSub;
-var mq = $$.require("foldermq");
+var pubSub = require("soundpubsub").soundPubSub;
+var mq = require("foldermq");
 var path = require("path");
 
 exports.create = function(folder, core){

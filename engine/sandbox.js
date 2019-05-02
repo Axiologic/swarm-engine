@@ -60,25 +60,66 @@ process.chdir($$.pathNormalize(path.join(process.env.PRIVATESKY_TMP, "sandboxes"
 
 if(runInVM){
 
-    const SandboxCreator = require('./sandboxCreator');
-    const vm = SandboxCreator.createVM(["./builds/devel/pskruntime", "dicontainer", "launcher", "yazl", "yauzl", "double-check", "psk-http-client", "pskcrypto", "virtualmq", "dicontainer", "foldermq", "interact", "swarmutils", "pskdb"]);
+	const IsolatedVM = require('../modules/isolationModule');
+	console.log('got isolated vm', process.env.PRIVATESKY_TMP);
+	const shimsBundle = fs.readFileSync(`./builds/devel/sandboxBase.js`);
+	console.log('shims bundle ready');
+	const pskruntime = fs.readFileSync('./builds/devel/pskruntime.js');
+	const pskNode = fs.readFileSync('./builds/devel/psknode.js');
+	const constitution = fs.readFileSync(constitutionPath.substr(1));
 
-    vm.run(`
-        'strict mode';
-        // console.error('entering sandbox');
-        require('./builds/devel/pskruntime');
-        //require('./code/engine/core.js');
+	IsolatedVM.getDefaultIsolate({shimsBundle: shimsBundle, browserifyBundles: [pskruntime, pskNode, constitution], config: IsolatedVM.IsolateConfig.defaultConfig}, (err, isolate) => {
+		if (err) {
+			throw err;
+		}
 
-        require("callflow").swarmInstanceManager;
-        
-        const sand = require('./code/engine/pubSub/sandboxPubSub');
-        
-        global.$$.PSK_PubSub = sand.create(__dirname);
 
-        $$.loadLibrary('testSwarms', 'code/libraries/testSwarms');
-        
-        console.log("Sandbox [${spaceName}] is running and waiting for swarms.");
-`, process.cwd() + "/vm.js");
+		isolate.run(`
+			// console.log("Loading constitution from", constitutionPath);
+       
+
+            require("callflow").swarmInstanceManager;
+
+            //const sand = require('./code/engine/pubSub/sandboxPubSub.js');
+            const sand = {};
+            const pubSub = require("soundpubsub").soundPubSub;
+			const mq = require("foldermq");
+			const path = require("path");
+
+			sand.create = function(folder, core){
+    			const inbound = mq.createQue(path.join(folder, "/mq/inbound/"), $$.defaultErrorHandlingImplementation);
+    			let outbound = mq.createQue(path.join(folder, "/mq/outbound/"), $$.defaultErrorHandlingImplementation);
+        		outbound.setIPCChannel(process);
+        		outbound = outbound.getHandler();
+
+    			inbound.setIPCChannel(process);
+    			inbound.registerAsIPCConsumer(function(err, swarm){
+        			//restore and execute this tasty swarm
+        		global.$$.swarmsInstancesManager.revive_swarm(swarm);
+    		});
+
+			/*inbound.registerConsumer(function(err, swarm){
+			   //restore and execute this tasty swarm
+				global.$$.swarmsInstancesManager.revive_swarm(swarm);
+			});*/
+
+			pubSub.subscribe($$.CONSTANTS.SWARM_FOR_EXECUTION, function(swarm){
+				outbound.sendSwarmForExecution(swarm);
+			});
+		
+			return pubSub;
+};
+
+            global.$$.PSK_PubSub = sand.create("${process.cwd()}");
+
+
+            console.log("Sandbox [${spaceName}] is running and waiting for swarms.");
+		`).catch((...errs) => console.error(...errs));
+	});
+
+    // const SandboxCreator = require('./sandboxCreator');
+    // const vm = SandboxCreator.createVM(["./builds/devel/pskruntime", "dicontainer", "launcher", "yazl", "yauzl", "double-check", "psk-http-client", "pskcrypto", "virtualmq", "dicontainer", "foldermq", "interact", "swarmutils", "pskdb"]);
+
 }else {
 	console.log("Loading constitution from", constitutionPath);
 	require(constitutionPath);
