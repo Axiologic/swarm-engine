@@ -60,61 +60,58 @@ process.chdir($$.pathNormalize(path.join(process.env.PRIVATESKY_TMP, "sandboxes"
 
 if(runInVM){
 
-	const IsolatedVM = require('../modules/isolationModule');
+	const IsolatedVM = require('../modules/pskisolates');
 	console.log('got isolated vm', process.env.PRIVATESKY_TMP);
 	const shimsBundle = fs.readFileSync(`./builds/devel/sandboxBase.js`);
 	console.log('shims bundle ready');
 	const pskruntime = fs.readFileSync('./builds/devel/pskruntime.js');
 	const pskNode = fs.readFileSync('./builds/devel/psknode.js');
-	const constitution = fs.readFileSync(constitutionPath.substr(1));
+	const constitution = fs.readFileSync(constitutionPath);
 
 	IsolatedVM.getDefaultIsolate({shimsBundle: shimsBundle, browserifyBundles: [pskruntime, pskNode, constitution], config: IsolatedVM.IsolateConfig.defaultConfig}, (err, isolate) => {
 		if (err) {
 			throw err;
 		}
 
+		let folder = process.cwd();
+        const sand = {};
+    	const pubSub = require("soundpubsub").soundPubSub;
+    	const mq = require("foldermq");
+    	const path = require("path");
+
+        const inbound = mq.createQue(path.join(folder, "/mq/inbound/"), $$.defaultErrorHandlingImplementation);
+        let outbound = mq.createQue(path.join(folder, "/mq/outbound/"), $$.defaultErrorHandlingImplementation);
+        outbound.setIPCChannel(process);
+        outbound = outbound.getHandler();
+
+        var self = global;
+		isolate.globalSetSync('returnSwarm', function(swarm) {
+            outbound.sendSwarmForExecution.call(self, JSON.parse(swarm));
+		});
+
+        function catchingErrors(err){
+            console.log("Got some errors", err);
+            throw err;
+        }
 
 		isolate.run(`
-			// console.log("Loading constitution from", constitutionPath);
-       
+            global.$$.PSK_PubSub.subscribe($$.CONSTANTS.SWARM_FOR_EXECUTION, function(swarm){
+                console.log("returning");
+                returnSwarm.apply(undefined, [JSON.stringify(swarm)]);
+            });
+		`).catch(catchingErrors);
 
-            require("callflow").swarmInstanceManager;
+        inbound.setIPCChannel(process);
+        inbound.registerAsIPCConsumer(function(err, swarm){
+			swarm = JSON.stringify(swarm);
 
-            //const sand = require('./code/engine/pubSub/sandboxPubSub.js');
-            const sand = {};
-            const pubSub = require("soundpubsub").soundPubSub;
-			const mq = require("foldermq");
-			const path = require("path");
+			isolate.run(`
+				require("callflow").swarmInstanceManager;
+				//restore and execute this tasty swarm
+				global.$$.swarmsInstancesManager.revive_swarm(JSON.parse('${swarm}'));
+			`).catch(catchingErrors);
+        });
 
-			sand.create = function(folder, core){
-    			const inbound = mq.createQue(path.join(folder, "/mq/inbound/"), $$.defaultErrorHandlingImplementation);
-    			let outbound = mq.createQue(path.join(folder, "/mq/outbound/"), $$.defaultErrorHandlingImplementation);
-        		outbound.setIPCChannel(process);
-        		outbound = outbound.getHandler();
-
-    			inbound.setIPCChannel(process);
-    			inbound.registerAsIPCConsumer(function(err, swarm){
-        			//restore and execute this tasty swarm
-        		global.$$.swarmsInstancesManager.revive_swarm(swarm);
-    		});
-
-			/*inbound.registerConsumer(function(err, swarm){
-			   //restore and execute this tasty swarm
-				global.$$.swarmsInstancesManager.revive_swarm(swarm);
-			});*/
-
-			pubSub.subscribe($$.CONSTANTS.SWARM_FOR_EXECUTION, function(swarm){
-				outbound.sendSwarmForExecution(swarm);
-			});
-		
-			return pubSub;
-};
-
-            global.$$.PSK_PubSub = sand.create("${process.cwd()}");
-
-
-            console.log("Sandbox [${spaceName}] is running and waiting for swarms.");
-		`).catch((...errs) => console.error(...errs));
 	});
 
     // const SandboxCreator = require('./sandboxCreator');
@@ -126,7 +123,7 @@ if(runInVM){
 
     require("callflow").swarmInstanceManager;
 
-    const sand = require('./code/engine/pubSub/sandboxPubSub');
+    let sand = require('./code/engine/pubSub/sandboxPubSub');
 
     global.$$.PSK_PubSub = sand.create(process.cwd());
 
