@@ -68,6 +68,10 @@ const baseDeps = [
 	{
 		"name": "pskbuffer",
 		"src": "https://github.com/PrivateSky/pskbuffer.git"
+	},
+    {
+		"name": "csb-core",
+		"src": "https://github.com/PrivateSky/csb-core.git"
 	}];
 
 const config = {
@@ -136,7 +140,7 @@ const config = {
             ]
         },
         {
-            "name": "browserify chokidar qr-image",
+            "name": "browserify chokidar",
             "src": "npm",
             "actions": ["install"]
         },
