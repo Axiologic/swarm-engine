@@ -140,7 +140,7 @@ const config = {
             ]
         },
         {
-            "name": "browserify chokidar",
+            "name": "browserify chokidar zeromq",
             "src": "npm",
             "actions": ["install"]
         },
@@ -182,7 +182,7 @@ config.dependencies = baseDeps.concat(config.dependencies, pskWalletConfig.depen
 pskWalletConfig.dependencies = baseDeps.concat(pskWalletConfig.dependencies);
 
 
-const argv = process.argv;
+const argv = Object.assign([], process.argv);
 argv.shift();
 argv.shift();
 

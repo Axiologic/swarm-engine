@@ -4,7 +4,7 @@ const child_process = require("child_process");
 
 let startingDir = "./../";
 
-const argv = process.argv;
+const argv = Object.assign([], process.argv);
 argv.shift();
 argv.shift();
 if(argv.length>0){

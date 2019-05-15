@@ -6,6 +6,15 @@ const config = {
     sslFolder: path.resolve(__dirname, '../../conf/ssl')
 };
 
+process
+    .on('unhandledRejection', (reason, p) => {
+        console.error(reason, 'Unhandled Rejection at Promise', p);
+    })
+    .on('uncaughtException', err => {
+        console.error(err, 'Uncaught Exception thrown');
+        process.exit(1);
+    });
+
 
 require('../../builds/devel/pskruntime');
 require('../../builds/devel/psknode');
@@ -37,7 +46,7 @@ function startServer(config) {
     const virtualMq = new VirtualMQ(virtualMqConfig);
 }
 
-const argv = process.argv;
+const argv = Object.assign([], process.argv);
 argv.shift();
 argv.shift();
 
