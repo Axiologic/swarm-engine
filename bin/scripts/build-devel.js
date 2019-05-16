@@ -140,7 +140,7 @@ const config = {
             ]
         },
         {
-            "name": "browserify chokidar zeromq",
+            "name": "browserify chokidar",
             "src": "npm",
             "actions": ["install"]
         },
