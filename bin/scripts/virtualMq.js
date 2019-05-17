@@ -7,6 +7,7 @@ const config = {
 };
 
 
+
 require('../../builds/devel/pskruntime');
 require('../../builds/devel/psknode');
 require('../../builds/devel/virtualMQ');
@@ -37,7 +38,7 @@ function startServer(config) {
     const virtualMq = new VirtualMQ(virtualMqConfig);
 }
 
-const argv = process.argv;
+const argv = Object.assign([], process.argv);
 argv.shift();
 argv.shift();
 

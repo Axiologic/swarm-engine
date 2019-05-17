@@ -38,7 +38,7 @@ function startServer (config) {
 	const csbServer = new CSBWizard(csbWizardConfig);
 }
 
-const argv = process.argv;
+const argv = Object.assign([], process.argv);
 argv.shift();
 argv.shift();
 
