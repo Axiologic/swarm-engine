@@ -5,9 +5,8 @@
   "virtualMQ": "virtualmq",
   "consoleTools":"yazl, yauzl, psk-http-client, pskwallet, pskdb, interact, foldermq, signsensus, buffer-crc32, node-fd-slicer, csb-wizard",
   "psknode": "yazl, yauzl, pskwallet, signsensus, foldermq, pskdb, buffer-crc32, node-fd-slicer, interact, psk-http-client",
-  "reactClient":{"deps":"interact, soundpubsub,swarmutils", "bare":false, "bundleExternal": true},
-  "domain":"localDomain",
+  "reactClient":{"deps":"interact, soundpubsub,swarmutils, pskbuffer", "bare":false, "bundleExternal": true},
+  "domain": {"deps":"localDomain, psk-examples", "autoLoad":true},
   "httpinteract":"interact, psk-http-client",
   "sandboxBase": {"deps": "callflow, swarmutils, soundpubsub, pskbuffer, assert, buffer, events, path, querystring, stream, string_decoder, timers, url, util, inherits, zlib, ieee754, base64-js, process/browser.js", "insertGlobals":true, "bare": false, "bundleExternal": false}
-
 }
