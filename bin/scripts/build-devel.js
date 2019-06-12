@@ -108,14 +108,6 @@ const config = {
                 {
                     "type": "smartClone",
                     "target": "tests"
-                },
-                {
-                    "type": "copy",
-                    "src": "tests/psk-integration-testing/core/testSwarms",
-                    "target": "libraries/testSwarms",
-                    "options": {
-                        "overwrite": true
-                    }
                 }
             ]
         },
@@ -140,16 +132,26 @@ const config = {
             ]
         },
         {
-            "name": "browserify chokidar",
-            "src": "npm",
-            "actions": ["install"]
+            "name": "psk-browser-tests",
+            "src": "https://github.com/PrivateSky/psk-browser-tests.git",
+            "actions": [
+                {
+                    "type": "smartClone",
+                    "target": "tests"
+                }
+            ]
         },
         {
-            "name": "karma mocha karma-mocha karma-chrome-launcher karma-firefox-launcher karma-html karma-ie-launcher karma-opera-launcher karma-safari-launcher",
+            "name": "",
+            "src": "npm",
+            "actions": ["install"],
+            "workDir": "tests/psk-browser-tests"
+        },
+        {
+            "name": "browserify chokidar qr-image",
             "src": "npm",
             "actions": ["install"]
         }
-
     ]
 };
 
@@ -182,7 +184,7 @@ config.dependencies = baseDeps.concat(config.dependencies, pskWalletConfig.depen
 pskWalletConfig.dependencies = baseDeps.concat(pskWalletConfig.dependencies);
 
 
-const argv = Object.assign([], process.argv);
+const argv = process.argv;
 argv.shift();
 argv.shift();
 
