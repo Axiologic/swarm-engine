@@ -194,6 +194,7 @@ function runDeployer(config, callback = () => {}) {
     deployer.run(config, function (error, result) {
         if (error) {
             console.log("[Builder - Error]", error);
+            process.exit(1);
         } else {
             console.log("[Builder - Result]", result);
         }

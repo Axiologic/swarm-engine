@@ -48,7 +48,7 @@ function ActionsRegistry(){
             commandOpts.cwd = dependency.workDir;
         }
 
-        var cmd = "npm install " + target + " --no-save --no-package-lock"
+        var cmd = "npm install " + target + " --no-save --no-package-lock --only=prod"
         console.log(cmd);
         let error = null;
         let response = `Finished install action on dependency ${dependency.name}`;
@@ -251,7 +251,7 @@ function ActionsRegistry(){
                         pullResult = pullResult.toString();
                         if(pullResult.indexOf("Already up-to-date") == -1){
                             try{
-                                console.log("pullResult", pullResult.indexOf("Already up-to-date"));
+                                //console.log("pullResult", pullResult.indexOf("Already up-to-date"));
 								let log = child_process.execSync("git log --max-count=1", basicProcOptions).toString().split("\n").slice(4).join("\n");
 								fs.appendFileSync(changeSet, log);
                             }catch(err){
@@ -266,7 +266,9 @@ function ActionsRegistry(){
                         if(err.message.indexOf("No stash") != -1){
                             //ignore
                         }else{
-                            console.log(err);
+                            console.log("\n\ngit pull process failed! Usualy there is a merge issue. Please resolve conflicts and try again.\n\n");
+                            callback(err);
+                            return;
                         }
                     }
                     callback(err, `Finished update action on dependency ${dependency.name}`);
