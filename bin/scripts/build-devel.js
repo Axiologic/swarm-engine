@@ -72,7 +72,23 @@ const baseDeps = [
     {
 		"name": "csb-core",
 		"src": "https://github.com/PrivateSky/csb-core.git"
-	}];
+	},
+    {
+        "name": "blockchain",
+        "src": "https://github.com/PrivateSky/blockchain.git"
+    },
+    {
+        "name": "bar",
+        "src": "https://github.com/PrivateSky/bar.git"
+    },
+    {
+        "name": "edfs",
+        "src": "https://github.com/PrivateSky/edfs.git"
+    },
+    {
+        "name": "psklogger",
+        "src": "https://github.com/PrivateSky/psklogger.git"
+    }];
 
 const config = {
     "workDir": ".",
