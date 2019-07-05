@@ -4,9 +4,8 @@
  Code License: LGPL or MIT.
  */
 
-require("callflow");
 
-var core = require("launcher");
+var core = require("privatesky/psknode/core/launcher");
 
 //TODO: SHOULD be moved in $$.__globals
 $$.ensureFolderExists = function(folder, callback){

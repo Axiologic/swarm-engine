@@ -1,6 +1,6 @@
-require('../builds/devel/pskruntime');
-require('../builds/devel/psknode');
-require('../engine/core');
+require('../psknode/builds/devel/pskruntime');
+require('../psknode/builds/devel/psknode');
+require('../../../engine/core');
 require('../modules/psk-http-client');
 const folderMQ = require("foldermq");
 const path = require('path');
@@ -16,7 +16,7 @@ console.log = function(...args){
 };
 
 $$.container = require('../modules/dicontainer').newContainer($$.errorHandler);
-$$.PSK_PubSub = require('../engine/pubSub/launcherPubSub').create(process.env.PRIVATESKY_TMP, path.resolve('..'));
+$$.PSK_PubSub = require('./internalPubSubs/domainPubSub').create(process.env.PRIVATESKY_TMP, path.resolve('..'));
 
 console.log(`Booting domain sandbox...`);
 var domain = JSON.parse(process.env.config);
@@ -56,8 +56,7 @@ var localReplyHandlerSet = false;
 function connectLocally(alias, path2folder){
     if(!queues[alias]){
         path2folder = path.resolve(path2folder);
-        var flow = $$.flow.start("mkDirRec");
-        flow.make(path2folder, (err, res)=>{
+        fs.mkdir(path2folder, {recursive: true}, (err, res)=>{
             var que = folderMQ.createQue(path2folder, (err, res) => {
                     if(!err){
                         console.log(`\n[***]Alias <${alias}> listening local on ${path2folder}\n`);

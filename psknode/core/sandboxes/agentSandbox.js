@@ -5,10 +5,10 @@
 //var config = require("util/configLoader.js")(process.args[1]);
 const fs = require("fs");
 const path = require("path");
-require('../builds/devel/pskruntime');
-require('../builds/devel/psknode');
+require('../psknode/builds/devel/pskruntime');
+require('../psknode/builds/devel/psknode');
 
-require('./core');
+require('../../../engine/core');
 
 let spaceName = "self";
 let runInVM = false;

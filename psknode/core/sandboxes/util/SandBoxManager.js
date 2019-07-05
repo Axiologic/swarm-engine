@@ -1,11 +1,14 @@
 var mq = $$.require("foldermq");
+
 const path = require('path');
-var child_process = require("child_process");
+const child_process = require("child_process");
+const fs = require('fs');
+
 const RESTART_TIMEOUT = 500;
 const RESTART_TIMEOUT_LIMIT = 50000;
 
 var sandboxes = {};
-var exitHandler = require("./../util/exitHandler")(sandboxes);
+var exitHandler = require("../../utils/exitHandler")(sandboxes);
 
 var bootSandBox = $$.flow.describe("PrivateSky.swarm.engine.bootInLauncher", {
     boot:function(sandBox, spaceName, folder, codeFolder, callback){
@@ -25,7 +28,7 @@ var bootSandBox = $$.flow.describe("PrivateSky.swarm.engine.bootInLauncher", {
         task.folderShouldExist(path.join(this.folder, "tmp"),   task.progress);
     },
     folderShouldExist:  function(path, progress){
-        $$.ensureFolderExists(path, progress);
+        fs.mkdir(path, {recursive: true}, progress);
     },
     linkShouldExist:    function(existingPath, newPath, progress){
         $$.ensureLinkExists(existingPath, newPath, progress);

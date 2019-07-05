@@ -1,4 +1,9 @@
-const deployer = require("./../../deployer/Deployer.js");
+/*
+* script to install al PSK deployment
+*/
+
+const path = require("path");
+const deployer = require(path.resolve(path.join(__dirname, "./../../deployer/Deployer.js")));
 
 const baseDeps = [
     {

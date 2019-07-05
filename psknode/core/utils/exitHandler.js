@@ -21,5 +21,5 @@ module.exports = function manageShutdownProcess(childrenList){
         var eventType = events[i];
         process.on(eventType, handler);
     }
-    console.log("Exit handler setup!", `[${process.pid}]`);
+    //console.log("Exit handler setup!", `[${process.pid}]`);
 };

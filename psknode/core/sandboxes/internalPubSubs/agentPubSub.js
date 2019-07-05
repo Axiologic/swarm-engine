@@ -1,10 +1,10 @@
-var pubSub = require("soundpubsub").soundPubSub;
-var mq = require("foldermq");
-var path = require("path");
+const pubSub = require("soundpubsub").soundPubSub;
+const mq = require("foldermq");
+const path = require("path");
 
 exports.create = function(folder, vm){
-    var inbound = mq.createQue(path.join(folder, "/mq/inbound/"), $$.defaultErrorHandlingImplementation);
-    var outbound = mq.createQue(path.join(folder, "/mq/outbound/"), $$.defaultErrorHandlingImplementation);
+    var inbound = mq.createQue(path.join(folder, "mq", "inbound"), $$.defaultErrorHandlingImplementation);
+    var outbound = mq.createQue(path.join(folder, "mq", "outbound"), $$.defaultErrorHandlingImplementation);
         outbound.setIPCChannel(process);
         outbound = outbound.getHandler();
 
@@ -15,6 +15,7 @@ exports.create = function(folder, vm){
             global.$$.swarmsInstancesManager.revive_swarm(swarm);
         }else{
             console.log("Got an error", err);
+            //TODO: what happens with the serialization if there where an error???
         }
 
     });
