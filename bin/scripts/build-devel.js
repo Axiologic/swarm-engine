@@ -40,7 +40,7 @@ const baseDeps = [
     },
     {
         "name": "psk-http-client",
-        "src": "https://github.com/PrivateSky/psk-http-clielaunnt.git"
+        "src": "https://github.com/PrivateSky/psk-http-client.git"
     },
     {
         "name": "psk-browser-utils",
