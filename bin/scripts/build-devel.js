@@ -1,5 +1,5 @@
 /*
-* script to install al PSK deployment
+* script to install all PSK deployment deps
 */
 
 const path = require("path");
@@ -40,7 +40,7 @@ const baseDeps = [
     },
     {
         "name": "psk-http-client",
-        "src": "https://github.com/PrivateSky/psk-http-client.git"
+        "src": "https://github.com/PrivateSky/psk-http-clielaunnt.git"
     },
     {
         "name": "psk-browser-utils",

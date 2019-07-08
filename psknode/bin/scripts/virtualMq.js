@@ -6,11 +6,9 @@ const config = {
     sslFolder: path.resolve(__dirname, '../../conf/ssl')
 };
 
+require('../../bundles/pskruntime');
+require('../../bundles/virtualMQ');
 
-
-require('../../../builds/devel/pskruntime');
-require('../../../builds/devel/psknode');
-require('../../../builds/devel/virtualMQ');
 const VirtualMQ = require('virtualmq').VirtualMQ;
 const fs = require('fs');
 

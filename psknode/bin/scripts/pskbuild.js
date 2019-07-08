@@ -20,7 +20,7 @@ const outputArg = "output";
 
 var commandOptions = {
     input: path.join(process.cwd(), "psknode", "builds", "tmp"),
-    output: path.join(process.cwd(), "psknode", "builds", "bundles")
+    output: path.join(process.cwd(), "psknode", "bundles")
 };
 
 var modulesPath = [path.resolve(process.cwd(), "modules"), path.resolve(process.cwd(), "libraries")];

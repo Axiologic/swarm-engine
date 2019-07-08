@@ -47,8 +47,7 @@ function startProcess(filePath) {
     forkedProcesses[filePath].on('exit', exitHandler(filePath));
 }
 
+startProcess('./psknode/bin/scripts/virtualMq.js');
+startProcess('./psknode/core/launcher.js');
 
-startProcess('./bin/scripts/virtualMq.js');
-startProcess('./engine/launcher.js');
-
-require("./../../engine/util/exitHandler")(forkedProcesses);
+require('./../../core/utils/exitHandler.js')(forkedProcesses);

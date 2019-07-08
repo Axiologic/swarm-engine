@@ -2,16 +2,16 @@
 //the first argument is a path to a configuration folder
 //the second argument is a path to a temporary folder
 
-require("../psknode/builds/devel/pskruntime.js");
-require('../psknode/builds/devel/psknode');
-//require('../psknode/builds/devel/virtualMQ');
+require('../bundles/pskruntime.js');
+require('../bundles/psknode.js');
 
 const childProcess = require('child_process');
-const fs = require("fs");
+const fs = require('fs');
 const path = require('path');
-const beesHealer = require("swarmutils").beesHealer;
+const beesHealer = require('swarmutils').beesHealer;
 
 //exports.core = require(__dirname+"/core");
+require('launcher');
 
 require("callflow");
 
@@ -39,11 +39,9 @@ if(!process.env.PRIVATESKY_ROOT_FOLDER){
 	process.env.PRIVATESKY_ROOT_FOLDER = codeFolder;
 }
 
-$$.container = require("../modules/dicontainer").newContainer($$.errorHandler);
+$$.container = require("dicontainer").newContainer($$.errorHandler);
 
 $$.PSK_PubSub = require("./sandboxes/internalPubSubs/domainPubSub.js").create(basePath, codeFolder);
-
-$$.loadLibrary("pds", __dirname+"/../libraries/localNode");
 
 //enabling blockchain from confDir
 require('pskdb').startDB(confDir);
@@ -62,7 +60,7 @@ function launchDomainSandbox(name, configuration) {
         child_env.config = JSON.stringify(env.config);
         child_env.PRIVATESKY_TMP = process.env.PRIVATESKY_TMP;
         child_env.PRIVATESKY_ROOT_FOLDER = process.env.PRIVATESKY_ROOT_FOLDER;
-        const child = childProcess.fork('domainSandbox.js', [name], {cwd: __dirname, env: child_env});
+        const child = childProcess.fork('sandboxes/domainSandbox.js', [name], {cwd: __dirname, env: child_env});
         child.on('exit', (code, signal) => {
             console.log(`DomainSandbox [${name}] got an error code ${code}. Restarting...`);
         delete domainSandboxes[name];
@@ -92,7 +90,7 @@ $$.container.declareDependency($$.DI_components.swarmIsReady, [$$.DI_components.
 
         if(domains.length>0){
             //if we have children launcher will send exit event to them before exiting...
-            require("./utils/exitHandler")(domainSandboxes);
+            require('./utils/exitHandler')(domainSandboxes);
         }
 
         return true;
