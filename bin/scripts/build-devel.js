@@ -70,8 +70,8 @@ const baseDeps = [
 		"src": "https://github.com/PrivateSky/pskbuffer.git"
 	},
     {
-		"name": "csb-core",
-		"src": "https://github.com/PrivateSky/csb-core.git"
+		"name": "edfs",
+		"src": "https://github.com/PrivateSky/edfs.git"
 	}];
 
 const config = {

@@ -10,6 +10,7 @@ const config = {
 require('../../builds/devel/pskruntime');
 require('../../builds/devel/psknode');
 require('../../builds/devel/virtualMQ');
+require('../../builds/devel/consoleTools');
 const VirtualMQ = require('virtualmq').VirtualMQ;
 const fs = require('fs');
 
