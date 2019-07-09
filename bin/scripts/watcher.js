@@ -15,7 +15,9 @@ const config = {
 let forkedProcess;
 let execProcess;
 
-const argv = process.argv.slice(2);
+const argv = Object.assign([], process.argv);
+argv.shift();
+argv.shift();
 
 
 for (let i = 0; i < argv.length; ++i) {

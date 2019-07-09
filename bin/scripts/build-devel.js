@@ -72,7 +72,24 @@ const baseDeps = [
     {
 		"name": "edfs",
 		"src": "https://github.com/PrivateSky/edfs.git"
-	}];
+	},
+    {
+        "name": "blockchain",
+        "src": "https://github.com/PrivateSky/blockchain.git"
+    },
+    {
+        "name": "bar",
+        "src": "https://github.com/PrivateSky/bar.git"
+    },
+    {
+        "name": "edfs",
+        "src": "https://github.com/PrivateSky/edfs.git"
+    },
+    {
+        "name": "psklogger",
+        "src": "https://github.com/PrivateSky/psklogger.git"
+    }];
+
 
 const config = {
     "workDir": ".",
@@ -108,14 +125,6 @@ const config = {
                 {
                     "type": "smartClone",
                     "target": "tests"
-                },
-                {
-                    "type": "copy",
-                    "src": "tests/psk-integration-testing/core/testSwarms",
-                    "target": "libraries/testSwarms",
-                    "options": {
-                        "overwrite": true
-                    }
                 }
             ]
         },
@@ -140,16 +149,26 @@ const config = {
             ]
         },
         {
-            "name": "browserify chokidar",
-            "src": "npm",
-            "actions": ["install"]
+            "name": "psk-browser-tests",
+            "src": "https://github.com/PrivateSky/psk-browser-tests.git",
+            "actions": [
+                {
+                    "type": "smartClone",
+                    "target": "tests"
+                }
+            ]
         },
         {
-            "name": "karma mocha karma-mocha karma-chrome-launcher karma-firefox-launcher karma-html karma-ie-launcher karma-opera-launcher karma-safari-launcher",
+            "name": "",
+            "src": "npm",
+            "actions": ["install"],
+            "workDir": "tests/psk-browser-tests"
+        },
+        {
+            "name": "browserify chokidar qr-image",
             "src": "npm",
             "actions": ["install"]
         }
-
     ]
 };
 
@@ -192,6 +211,7 @@ function runDeployer(config, callback = () => {}) {
     deployer.run(config, function (error, result) {
         if (error) {
             console.log("[Builder - Error]", error);
+            process.exit(1);
         } else {
             console.log("[Builder - Result]", result);
         }

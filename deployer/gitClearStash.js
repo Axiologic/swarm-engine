@@ -13,7 +13,7 @@ console.log = function(...args){
 
 let startingDir = "./../";
 
-const argv = process.argv;
+const argv = Object.assign([], process.argv);
 argv.shift();
 argv.shift();
 if(argv.length>0){

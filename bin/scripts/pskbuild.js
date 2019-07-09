@@ -138,6 +138,7 @@ function doBrowserify(targetName, src, dest, opt, externalModules, exportsModule
 
 function buildDependencyMap(targetName, configProperty, output) {
     var cfg = targets[targetName][depsNameProp];
+    var autoLoad = configProperty.autoLoad || false;
     var result = `global.${targetName}LoadModules = function(){ \n`;
     splitStrToArray(cfg).map(function (item) {
         var ia = detectAlias(item);
@@ -145,7 +146,7 @@ function buildDependencyMap(targetName, configProperty, output) {
 
         result += line;
     });
-    result += `}\nif (false) {\n\t${targetName}LoadModules();\n}; \nglobal.` + `${targetName}Require = require;\n` +
+    result += `}\nif (${autoLoad}) {\n\t${targetName}LoadModules();\n}; \nglobal.` + `${targetName}Require = require;\n` +
     `if (typeof $$ !== "undefined") {            
     $$.requireBundle("${targetName}");
 };`;
