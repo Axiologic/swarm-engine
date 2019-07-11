@@ -82,10 +82,6 @@ const baseDeps = [
         "src": "https://github.com/PrivateSky/bar.git"
     },
     {
-        "name": "edfs",
-        "src": "https://github.com/PrivateSky/edfs.git"
-    },
-    {
         "name": "psklogger",
         "src": "https://github.com/PrivateSky/psklogger.git"
     }];
