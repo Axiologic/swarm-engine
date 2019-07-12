@@ -1,7 +1,7 @@
 {
  "cset": {
   "global.DomainReference/aliases": "{\"local\":\"jjcOyi7aRZLvXOuIt1ou5JowDYbIgeN6yYeiOChObw\"}",
-  "global.DomainReference/jjcOyi7aRZLvXOuIt1ou5JowDYbIgeN6yYeiOChObw": "{\"meta\":{\"swarmTypeName\":\"global.DomainReference\",\"swarmId\":\"jjcOyi7aRZLvXOuIt1ou5JowDYbIgeN6yYeiOChObw\",\"homeSecurityContext\":\"system\",\"command\":\"stored\"},\"publicVars\":{\"role\":\"system\",\"alias\":\"local\",\"addresses\":{},\"constitution\":\"../builds/devel/domain.js\",\"workspace\":\"../conf\",\"remoteInterfaces\":{\"system\":\"http://127.0.0.1:8080\"},\"localInterfaces\":{\"local\":\"../tmp/localqueue/system\"}},\"privateVars\":{}}"
+  "global.DomainReference/jjcOyi7aRZLvXOuIt1ou5JowDYbIgeN6yYeiOChObw": "{\"meta\":{\"swarmTypeName\":\"global.DomainReference\",\"swarmId\":\"jjcOyi7aRZLvXOuIt1ou5JowDYbIgeN6yYeiOChObw\",\"homeSecurityContext\":\"system\",\"command\":\"stored\"},\"publicVars\":{\"role\":\"system\",\"alias\":\"local\",\"addresses\":{},\"constitution\":\"../bundles/domain.js\",\"workspace\":\"../conf\",\"remoteInterfaces\":{\"system\":\"http://127.0.0.1:8080\"},\"localInterfaces\":{\"local\":\"../tmp/localqueue/system\"}},\"privateVars\":{}}"
  },
  "writeSetVersions": {
   "global.DomainReference/aliases": null,

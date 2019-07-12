@@ -14,7 +14,7 @@ exports.create = function(folder, codeFolder ){
         //TODO: maybe it is ok to call process.exit ???
     }
 
-    $$.SandBoxManager = require("../util/SandBoxManager").create(sandBoxesRoot, codeFolder, function(err, res){
+    $$.SandBoxManager = require("../../psknode/core/sandboxes/util/SandBoxManager").create(sandBoxesRoot, codeFolder, function(err, res){
         console.log($$.DI_components.sandBoxReady, err, res);
         $$.container.resolve($$.DI_components.sandBoxReady, true);
     });

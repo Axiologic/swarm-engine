@@ -41,7 +41,7 @@ if(!process.env.PRIVATESKY_ROOT_FOLDER){
 
 $$.container = require("dicontainer").newContainer($$.errorHandler);
 
-$$.PSK_PubSub = require("./sandboxes/internalPubSubs/domainPubSub.js").create(basePath, codeFolder);
+$$.PSK_PubSub = require("domainBase").domainPubSub.create(basePath, codeFolder);
 
 //enabling blockchain from confDir
 require('pskdb').startDB(confDir);

@@ -5,10 +5,6 @@
 //var config = require("util/configLoader.js")(process.args[1]);
 const fs = require("fs");
 const path = require("path");
-require('../psknode/builds/devel/pskruntime');
-require('../psknode/builds/devel/psknode');
-
-require('../../../engine/core');
 
 let spaceName = "self";
 let runInVM = false;
@@ -55,14 +51,20 @@ console.log("Booting sandbox:", spaceName);
 
 //TODO
 // ??? why we need this? what changed?
-process.chdir($$.pathNormalize(path.join(process.env.PRIVATESKY_TMP, "sandboxes", spaceName)));
+process.chdir(path.join(process.env.PRIVATESKY_TMP, "sandboxes", spaceName));
+console.log("CWD", process.cwd(), fs.existsSync(path.join(process.cwd(), "bundles", "pskruntime.js")));
 
+require(path.join(process.cwd(), "bundles", "pskruntime.js"));
+require(path.join(process.cwd(), "bundles", "psknode.js"));
+require(path.join(process.cwd(), "bundles", "sandboxBase.js"));
+
+require('launcher');
 
 if(runInVM){
 
 	const IsolatedVM = require('../modules/pskisolates');
 	console.log('got isolated vm', process.env.PRIVATESKY_TMP);
-	const shimsBundle = fs.readFileSync(`./builds/devel/sandboxBase.js`);
+	const shimsBundle = fs.readFileSync(`./bundles/sandboxBase.js`);
 	console.log('shims bundle ready');
 	const pskruntime = fs.readFileSync('./builds/devel/pskruntime.js');
 	const pskNode = fs.readFileSync('./builds/devel/psknode.js');
@@ -123,7 +125,7 @@ if(runInVM){
 
     require("callflow").swarmInstanceManager;
 
-    let sand = require('./code/engine/pubSub/sandboxPubSub');
+    let sand = require('agentBase').agentPubSub;
 
     global.$$.PSK_PubSub = sand.create(process.cwd());
 

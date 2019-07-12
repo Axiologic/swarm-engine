@@ -3,9 +3,10 @@ require('../../bundles/psknode');
 
 require('psk-http-client');
 const folderMQ = require("foldermq");
+const fs = require('fs');
 const path = require('path');
 
-require('../../../engine/core');
+require('launcher');
 
 process.env.PRIVATESKY_DOMAIN_NAME = process.argv[2] || "AnonymousDomain"+process.pid;
 process.env.PRIVATESKY_DOMAIN_BUILD = "../builds/devel/domain";
@@ -18,12 +19,12 @@ console.log = function(...args){
 };
 
 $$.container = require('dicontainer').newContainer($$.errorHandler);
-$$.PSK_PubSub = require('./internalPubSubs/domainPubSub').create(process.env.PRIVATESKY_TMP, path.resolve('..'));
+$$.PSK_PubSub = require('../../../libraries/domainBase/domainPubSub').create(process.env.PRIVATESKY_TMP, path.resolve('..'));
 
 console.log(`Booting domain sandbox...`);
 var domain = JSON.parse(process.env.config);
 
-if(typeof domain.constitution != "undefined" && domain.constitution != "undefined"){
+if(typeof domain.constitution !== "undefined" && domain.constitution !== "undefined"){
     process.env.PRIVATESKY_DOMAIN_BUILD = domain.constitution;
 }
 

@@ -30,18 +30,16 @@ var bootSandBox = $$.flow.describe("PrivateSky.swarm.engine.bootInLauncher", {
     folderShouldExist:  function(path, progress){
         fs.mkdir(path, {recursive: true}, progress);
     },
-    linkShouldExist:    function(existingPath, newPath, progress){
-        $$.ensureLinkExists(existingPath, newPath, progress);
+    copyFolder: function(sourcePath, targetPath, callback){
+        let fsExt = require("utils").fsExt;
+        fsExt.copy(sourcePath, targetPath, {overwrite: true}, callback);
     },
     ensureFoldersExists: function(err, res){
         if(err){
             console.log(err);
         } else {
             var task = this.parallel(this.runCode);
-            task.linkShouldExist(path.join(this.codeFolder, "engine"),      path.join(this.folder, "code/engine"),       task.progress );
-            task.linkShouldExist(path.join(this.codeFolder, "modules"),     path.join(this.folder, "code/modules"),      task.progress );
-            task.linkShouldExist(path.join(this.codeFolder, "libraries"),   path.join(this.folder, "code/libraries"),    task.progress );
-            task.linkShouldExist(path.join(this.codeFolder, "builds"),      path.join(this.folder, "builds"),            task.progress );
+            task.copyFolder(path.join(this.codeFolder, "bundles"), path.join(this.folder, "bundles"), task.progress);
             this.sandBox.inbound = mq.createQue(path.join(this.folder, "mq/inbound"), task.progress);
             this.sandBox.outbound = mq.createQue(path.join(this.folder, "mq/outbound"), task.progress);
         }
@@ -49,7 +47,7 @@ var bootSandBox = $$.flow.describe("PrivateSky.swarm.engine.bootInLauncher", {
     },
     runCode: function(err, res){
         if(!err){
-            var mainFile = path.join(this.folder, "code/engine/sandbox.js");
+            var mainFile = path.join(process.env.PRIVATESKY_ROOT_FOLDER, "core", "sandboxes", "agentSandbox.js");
             var args = [this.spaceName, process.env.PRIVATESKY_ROOT_FOLDER, path.resolve(process.env.PRIVATESKY_DOMAIN_BUILD)];
             var opts = {stdio: [0, 1, 2, "ipc"]};
 
