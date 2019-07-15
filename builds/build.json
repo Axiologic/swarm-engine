@@ -1,7 +1,7 @@
 {
   "webshims": {"deps": "psk-browser-utils, assert,crypto,zlib, util, path,os, events,stream, browserfs-dist, pskwebfs:fs, buffer, timers", "bare": false, "bundleExternal": true},
-  "pskclient": {"deps":"interact, psk-http-client, swarmutils", "bare": false, "bundleExternal": true},
-  "pskruntime": "callflow, launcher, double-check, pskcrypto, dicontainer, swarmutils, soundpubsub, pskbuffer, foldermq",
+  "pskclient": {"deps":"interact, psk-http-client, swarmutils, @msgpack/msgpack", "bare": false, "bundleExternal": true},
+  "pskruntime": "callflow, launcher, double-check, pskcrypto, dicontainer, swarmutils, soundpubsub, pskbuffer, foldermq, @msgpack/msgpack",
   "virtualMQ": "virtualmq",
   "consoleTools":"yazl, yauzl, psk-http-client, edfs, pskwallet, pskdb, interact, foldermq, signsensus, buffer-crc32, node-fd-slicer, csb-wizard",
   "psknode": "yazl, yauzl, pskwallet, signsensus, foldermq, pskdb, buffer-crc32, node-fd-slicer, interact, psk-http-client",
