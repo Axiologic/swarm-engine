@@ -52,7 +52,6 @@ console.log("Booting sandbox:", spaceName);
 //TODO
 // ??? why we need this? what changed?
 process.chdir(path.join(process.env.PRIVATESKY_TMP, "sandboxes", spaceName));
-console.log("CWD", process.cwd(), fs.existsSync(path.join(process.cwd(), "bundles", "pskruntime.js")));
 
 require(path.join(process.cwd(), "bundles", "pskruntime.js"));
 require(path.join(process.cwd(), "bundles", "psknode.js"));

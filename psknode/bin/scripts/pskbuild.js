@@ -19,7 +19,7 @@ const inputArg = "input";
 const outputArg = "output";
 
 var commandOptions = {
-    input: path.join(process.cwd(), "psknode", "builds", "tmp"),
+    input: path.join(process.cwd(), "builds", "tmp"),
     output: path.join(process.cwd(), "psknode", "bundles")
 };
 

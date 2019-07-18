@@ -1,12 +1,12 @@
 .idea
 node_modules
 modules
-builds/devel
+psknode/bundles
+builds/tmp/*_intermediar.js
 tests
-libraries/testSwarms
+libraries
 tmp
 package-lock.json
 latest-change-set.txt
-engine/pskbuildtemp
 /Report-latest.html
 /Report-latest.txt

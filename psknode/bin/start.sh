@@ -1,2 +1,2 @@
 #!/bin/bash
-node "$(dirname $(readlink -f $0))/../engine/launcher.js" "$@"
+node "$(dirname $(readlink -f $0))/scripts/psknode.js" "$@"

@@ -15,7 +15,7 @@ require('launcher');
 
 require("callflow");
 
-var tmpDir = "../tmp";
+var tmpDir = "../../tmp";
 var confDir = path.resolve("conf");
 
 if(process.argv.length >= 3){
@@ -42,6 +42,11 @@ if(!process.env.PRIVATESKY_ROOT_FOLDER){
 $$.container = require("dicontainer").newContainer($$.errorHandler);
 
 $$.PSK_PubSub = require("domainBase").domainPubSub.create(basePath, codeFolder);
+
+//TODO: cum ar fi mai bine oare sa tratam cazul in care nu se gaseste configuratia nodului PSK????
+if (!fs.existsSync(confDir)) {
+    console.log(`\n[::] Could not find conf directory!\n`);
+}
 
 //enabling blockchain from confDir
 require('pskdb').startDB(confDir);
@@ -91,6 +96,8 @@ $$.container.declareDependency($$.DI_components.swarmIsReady, [$$.DI_components.
         if(domains.length>0){
             //if we have children launcher will send exit event to them before exiting...
             require('./utils/exitHandler')(domainSandboxes);
+        }else{
+            console.log(`\n[::] No domains were deployed.\n`);
         }
 
         return true;

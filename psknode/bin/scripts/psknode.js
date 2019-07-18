@@ -6,15 +6,6 @@
 
 const {spawnSync, fork, spawn} = require('child_process');
 
-const builderProcess = spawnSync('node', ['./bin/scripts/pskbuild.js', './builds/build.json'], {stdio: ['inherit', 'inherit', null]});
-if(builderProcess.stderr && builderProcess.stderr.length !== 0) {
-    console.error(builderProcess.stderr.toString('utf8'));
-    process.exit();
-}
-
-console.log("Build done!");
-
-
 let shouldRestart = true;
 const forkedProcesses = {};
 
