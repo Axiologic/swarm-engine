@@ -65,12 +65,15 @@ function launchDomainSandbox(name, configuration) {
         child_env.config = JSON.stringify(env.config);
         child_env.PRIVATESKY_TMP = process.env.PRIVATESKY_TMP;
         child_env.PRIVATESKY_ROOT_FOLDER = process.env.PRIVATESKY_ROOT_FOLDER;
+
         const child = childProcess.fork('sandboxes/domainSandbox.js', [name], {cwd: __dirname, env: child_env});
         child.on('exit', (code, signal) => {
-            console.log(`DomainSandbox [${name}] got an error code ${code}. Restarting...`);
-        delete domainSandboxes[name];
-        launchDomainSandbox(name, configuration);
-    });
+            setTimeout(()=>{
+                console.log(`DomainSandbox [${name}] got an error code ${code}. Restarting...`);
+                delete domainSandboxes[name];
+                launchDomainSandbox(name, configuration);
+            }, 100);
+        });
 
         domainSandboxes[name] = child;
     } else {

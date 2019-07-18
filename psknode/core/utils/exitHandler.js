@@ -2,18 +2,32 @@ const events = ["exit", "SIGINT", "SIGUSR1", "SIGUSR2", "uncaughtException", "SI
 
 module.exports = function manageShutdownProcess(childrenList){
 
+    let shutting = false;
     function handler(){
         //console.log("Handling exit event on", process.pid, "arguments:", arguments);
         var childrenNames = Object.keys(childrenList);
         for(let j=0; j<childrenNames.length; j++){
             var child = childrenList[childrenNames[j]];
             //console.log(`[${process.pid}]`, "Sending kill signal to PID:", child.pid);
-            process.kill(child.pid);
+            try{
+                process.kill(child.pid);
+            }catch(err){
+                //...
+            }
+        }
+
+        if(!shutting){
+            try{
+                process.stdout.cursorTo(0);
+                process.stdout.write(`[PID: ${process.pid}] [Timestamp: ${new Date().getTime()}] [Process argv: ${process.argv}]- Shutting down...\n`);
+            }catch(err)
+            {
+                //...
+            }
+            shutting = true;
         }
 
         setTimeout(()=>{
-            process.stdout.cursorTo(0);
-            process.stdout.write(`[PID: ${process.pid}] [Timestamp: ${new Date().getTime()}] [Process argv: ${process.argv}]- Shutting down...\n`);
             process.exit(0);
         }, 0);
     }
