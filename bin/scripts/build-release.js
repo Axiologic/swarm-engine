@@ -28,7 +28,7 @@ const config = {
             "actions": [
                 {
                     "type": "remove",
-                    "target": "./psknode/builds"
+                    "target": `../${PSK_RELEASE_REPO_NAME}/psknode`
                 },
                 {
                     "type": "copy",
