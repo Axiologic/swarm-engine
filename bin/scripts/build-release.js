@@ -4,8 +4,10 @@
 
 const path = require("path");
 const deployer = require(path.resolve(path.join(__dirname, "./../../deployer/Deployer.js")));
+const TAG = "[Prepare Release]";
+deployer.setTag(TAG);
 
-const PSK_RELEASE_REPO_NAME = "pskruntime"
+const PSK_RELEASE_REPO_NAME = "pskruntime";
 
 const config = {
     workingDir:".",
@@ -35,29 +37,26 @@ const config = {
                     "options":{
                         "overwrite": true
                     }
+                },
+                {
+                    "type": "copy",
+                    "src": "./conf",
+                    "target": `../${PSK_RELEASE_REPO_NAME}/conf`,
+                    "options":{
+                        "overwrite": true
+                    }
                 }
             ]
         }
     ]};
 
-/*
- {
- "type": "copy",
- "src": "tests/psk-integration-testing/core/testSwarms",
- "target": "libraries/testSwarms",
- "options": {
- "overwrite": true
- }
- }
-
-*/
-
+console.log("");
 deployer.run(config, function (error, result) {
     if (error) {
-        console.log("[Prepare Release - Error]", error);
+        console.log(TAG, "Error", error);
         process.exit(1);
     } else {
-        console.log("[Prepare Release - Result]", result);
+        console.log(TAG, result);
     }
 });
 

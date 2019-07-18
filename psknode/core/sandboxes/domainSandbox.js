@@ -19,7 +19,7 @@ console.log = function(...args){
 };
 
 $$.container = require('dicontainer').newContainer($$.errorHandler);
-$$.PSK_PubSub = require('../../../libraries/domainBase/domainPubSub').create(process.env.PRIVATESKY_TMP, path.resolve('..'));
+$$.PSK_PubSub = require('domainBase').domainPubSub.create(process.env.PRIVATESKY_TMP, path.resolve('..'));
 
 console.log(`Booting domain sandbox...`);
 var domain = JSON.parse(process.env.config);
