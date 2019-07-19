@@ -1,7 +1,6 @@
 var fs = require("fs");
 var path = require("path");
 var browserify = require('browserify');
-var fsExt = require("../../../libraries/utils/FSExtension").fsExt;
 
 var args = process.argv.slice(2);
 var externalTarget = process.argv[3];
@@ -116,7 +115,13 @@ function doBrowserify(targetName, src, dest, opt, externalModules, exportsModule
             });
         }
         //ensure dir struct exists
-        fsExt.createDir(path.dirname(dest));
+        try{
+            fs.mkdirSync(path.dirname(dest), {recursive:true});
+        }catch(err){
+            if(err.code !== "EEXIST"){
+                console.log(err);
+            }
+        }
 
         var out = fs.createWriteStream(dest);
         package.bundle().pipe(out);
@@ -153,7 +158,15 @@ function buildDependencyMap(targetName, configProperty, output) {
 };`;
 
     //ensure dir struct exists
-    fsExt.createDir(path.dirname(output));
+    try{
+        fs.mkdirSync(path.dirname(output), {recursive:true});
+    }catch(err){
+        if(err.code !== "EEXIST"){
+            console.log(err);
+        }
+    }
+
+
     fs.writeFileSync(output, result);
 }
 
