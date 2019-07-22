@@ -1,10 +1,10 @@
 {
   "webshims": {"deps": "psk-browser-utils, assert,crypto,zlib, util, path,os, events,stream, browserfs-dist, pskwebfs:fs, buffer, timers", "bare": false, "bundleExternal": true},
-  "pskclient": {"deps":"interact, psk-http-client, swarmutils", "bare": false, "bundleExternal": true},
-  "pskruntime": "callflow, launcher, double-check, pskcrypto, dicontainer, swarmutils, soundpubsub, pskbuffer, foldermq, domainBase, utils",
+  "pskclient": {"deps":"interact, psk-http-client, swarmutils, @msgpack/msgpack", "bare": false, "bundleExternal": true},
+  "pskruntime": "callflow, launcher, double-check, pskcrypto, dicontainer, swarmutils, soundpubsub, pskbuffer, foldermq, domainBase, utils, @msgpack/msgpack",
   "virtualMQ": "virtualmq, foldermq, yazl, yauzl, buffer-crc32, node-fd-slicer, edfs, pskdb, psk-http-client, signsensus",
   "consoleTools":"yazl, yauzl, psk-http-client, pskwallet, pskdb, interact, foldermq, signsensus, buffer-crc32, node-fd-slicer, csb-wizard",
-  "psknode": "yazl, yauzl, pskwallet, signsensus, foldermq, pskdb, buffer-crc32, node-fd-slicer, interact, psk-http-client",
+  "psknode": "yazl, yauzl, pskwallet, signsensus, foldermq, pskdb, buffer-crc32, node-fd-slicer, interact, psk-http-client, edfs, bar, edfs-brick-storage, domainBase",
   "reactClient":{"deps":"interact, soundpubsub,swarmutils, pskbuffer", "bare":false, "bundleExternal": true},
   "httpinteract":"interact, psk-http-client",
   "sandboxBase": {"deps": "callflow, swarmutils, soundpubsub, pskbuffer, agentBase, assert, buffer, events, path, querystring, stream, string_decoder, timers, url, util, inherits, zlib, ieee754, base64-js, process/browser.js", "insertGlobals":true, "bare": false, "bundleExternal": false}

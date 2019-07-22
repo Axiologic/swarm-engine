@@ -8,6 +8,8 @@ const config = {
 
 require('../../bundles/pskruntime.js');
 require('../../bundles/virtualMQ.js');
+require('../../bundles/psknode');
+require('../../bundles/consoleTools');
 
 const VirtualMQ = require('virtualmq').VirtualMQ;
 const fs = require('fs');

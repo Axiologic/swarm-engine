@@ -5,6 +5,7 @@ require('psk-http-client');
 const folderMQ = require("foldermq");
 const fs = require('fs');
 const path = require('path');
+const msgpack = require('@msgpack/msgpack');
 
 require('launcher');
 
@@ -106,7 +107,7 @@ function connectToRemote(alias, remoteUrl){
         $$.PSK_PubSub.subscribe($$.CONSTANTS.SWARM_RETURN, (swarm) => {
             const urlRegex = new RegExp(/^(www|http:|https:)+[^\s]+[\w]/);
             if (swarm && swarm.meta && swarm.meta.target && urlRegex.test(swarm.meta.target)) {
-                $$.remote.doHttpPost(swarm.meta.target, swarm, function(err, res){
+                $$.remote.doHttpPost(swarm.meta.target, msgpack.encode(swarm), function(err, res){
                     if(err){
                         console.log(err);
                     }

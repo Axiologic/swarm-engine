@@ -75,13 +75,26 @@ const baseDeps = [
 		"src": "https://github.com/PrivateSky/pskbuffer.git"
 	},
     {
-        "name": "edfs",
-        "src": "https://github.com/PrivateSky/edfs.git"
+		"name": "edfs",
+		"src": "https://github.com/PrivateSky/edfs.git"
+	},
+    {
+        "name": "blockchain",
+        "src": "https://github.com/PrivateSky/blockchain.git"
     },
     {
-		"name": "csb-core",
-		"src": "https://github.com/PrivateSky/csb-core.git"
-	}];
+        "name": "bar",
+        "src": "https://github.com/PrivateSky/bar.git"
+    },
+    {
+        "name": "edfs-brick-storage",
+        "src": "https://github.com/PrivateSky/edfs-brick-storage.git"
+    },
+    {
+        "name": "psklogger",
+        "src": "https://github.com/PrivateSky/psklogger.git"
+    }];
+
 
 const config = {
     "workDir": ".",
@@ -157,7 +170,7 @@ const config = {
             "workDir": "tests/psk-browser-tests"
         },
         {
-            "name": "browserify chokidar qr-image",
+            "name": "browserify chokidar qr-image @msgpack/msgpack zeromq@4.6.0",
             "src": "npm",
             "actions": ["install"]
         }
