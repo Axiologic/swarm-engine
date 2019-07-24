@@ -1,0 +1,1 @@
+exports.fsExt = require("./FSExtension").fsExt;
