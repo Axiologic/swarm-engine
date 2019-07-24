@@ -47,7 +47,7 @@ if(process.argv[4]){
 var oldLog = console.log;
 console.log = function(...args){
 	oldLog.apply(this, ["["+spaceName+"]"].concat(args));
-}
+};
 
 console.log("pskRootFolder", pskRootFolder);
 
@@ -63,10 +63,11 @@ if(runInVM){
 	const IsolatedVM = require('../modules/pskisolates');
 	console.log('got isolated vm', process.env.PRIVATESKY_TMP);
 	const shimsBundle = fs.readFileSync(`./builds/devel/sandboxBase.js`);
-	console.log('shims bundle ready');
 	const pskruntime = fs.readFileSync('./builds/devel/pskruntime.js');
 	const pskNode = fs.readFileSync('./builds/devel/psknode.js');
 	const constitution = fs.readFileSync(constitutionPath);
+
+	$$.event('sandbox.start', {spaceName});
 
 	IsolatedVM.getDefaultIsolate({shimsBundle: shimsBundle, browserifyBundles: [pskruntime, pskNode, constitution], config: IsolatedVM.IsolateConfig.defaultConfig}, (err, isolate) => {
 		if (err) {
@@ -74,8 +75,6 @@ if(runInVM){
 		}
 
 		let folder = process.cwd();
-        const sand = {};
-    	const pubSub = require("soundpubsub").soundPubSub;
     	const mq = require("foldermq");
     	const path = require("path");
 
@@ -84,7 +83,7 @@ if(runInVM){
         outbound.setIPCChannel(process);
         outbound = outbound.getHandler();
 
-        var self = global;
+		const self = global;
 		isolate.globalSetSync('returnSwarm', function(swarm) {
             outbound.sendSwarmForExecution.call(self, JSON.parse(swarm));
 		});
@@ -111,6 +110,19 @@ if(runInVM){
 				global.$$.swarmsInstancesManager.revive_swarm(JSON.parse('${swarm}'));
 			`).catch(catchingErrors);
         });
+
+		setInterval(async () => {
+			const rawIsolate = isolate.rawIsolate;
+			const cpuTime = rawIsolate.cpuTime;
+			const wallTime = rawIsolate.wallTime;
+
+			const heapStatistics = await rawIsolate.getHeapStatistics();
+			const activeCPUTime = (cpuTime[0] + cpuTime[1] / 1e9) * 1000;
+			const totalCPUTime = (wallTime[0] + wallTime[1] / 1e9) * 1000;
+			const idleCPUTime = totalCPUTime - activeCPUTime;
+			$$.event('sandbox.metrics', {heapStatistics, activeCPUTime, totalCPUTime, idleCPUTime});
+
+		}, 10 * 1000) // 10 seconds
 
 	});
 
