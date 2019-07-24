@@ -18,7 +18,7 @@ const cluster = require('cluster');
  */
 
 if(cluster.isMaster) {
-    // needs to be different process, otherwise it might loose messages if subscribers are slow
+    // needs to be different process, otherwise it might lose messages if subscribers are slow
 
     const PubSubProxy = PSKLogger.PubSubProxyModule.PubSubProxy;
     new PubSubProxy(config);
