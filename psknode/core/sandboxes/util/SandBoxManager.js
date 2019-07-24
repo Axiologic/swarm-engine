@@ -24,7 +24,7 @@ var bootSandBox = $$.flow.describe("PrivateSky.swarm.engine.bootInLauncher", {
         var task = this.serial(this.ensureFoldersExists);
 
         task.folderShouldExist(path.join(this.folder, "mq"),    task.progress);
-        task.folderShouldExist(path.join(this.folder, "code"),  task.progress);
+        task.folderShouldExist(path.join(this.folder, "bundles"),  task.progress);
         task.folderShouldExist(path.join(this.folder, "tmp"),   task.progress);
     },
     folderShouldExist:  function(path, progress){
@@ -32,16 +32,22 @@ var bootSandBox = $$.flow.describe("PrivateSky.swarm.engine.bootInLauncher", {
     },
     copyFolder: function(sourcePath, targetPath, callback){
         let fsExt = require("utils").fsExt;
-        fsExt.copy(sourcePath, targetPath, {overwrite: true}, callback);
+        try{
+            fsExt.copy(sourcePath, targetPath, {overwrite: true}, callback);
+        }catch(err){
+            console.log("Got something...", err);
+        }
     },
     ensureFoldersExists: function(err, res){
         if(err){
             console.log(err);
         } else {
             var task = this.parallel(this.runCode);
-            task.copyFolder(path.join(this.codeFolder, "bundles"), path.join(this.folder, "bundles"), task.progress);
-            this.sandBox.inbound = mq.createQue(path.join(this.folder, "mq/inbound"), task.progress);
-            this.sandBox.outbound = mq.createQue(path.join(this.folder, "mq/outbound"), task.progress);
+            this.sandBox.inbound = mq.createQue(path.join(this.folder, "mq/inbound"), this.progress);
+            this.sandBox.outbound = mq.createQue(path.join(this.folder, "mq/outbound"), this.progress);
+
+            console.log("Preparing to copy", path.join(this.codeFolder, "bundles"), path.resolve(path.join(this.folder, "bundles")));
+            this.copyFolder(path.join(this.codeFolder, "bundles"), path.resolve(path.join(this.folder, "bundles")), task.progress);
         }
 
     },

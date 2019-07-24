@@ -7,7 +7,7 @@ const deployer = require(path.resolve(path.join(__dirname, "./../../deployer/Dep
 const TAG = "[Prepare Release]";
 deployer.setTag(TAG);
 
-const PSK_RELEASE_REPO_NAME = "pskruntime";
+const PSK_RELEASE_REPO_NAME = "psk-release";
 
 const config = {
     workingDir:".",
