@@ -49,6 +49,8 @@ console.log("pskRootFolder", pskRootFolder);
 
 console.log("Booting sandbox:", spaceName);
 
+process.env.PRIVATESKY_AGENT_NAME = spaceName;
+
 //TODO
 // ??? why we need this? what changed?
 process.chdir(path.join(process.env.PRIVATESKY_TMP, "sandboxes", spaceName));
@@ -61,10 +63,10 @@ require('launcher');
 
 if(runInVM){
 
-	const IsolatedVM = require('../modules/pskisolates');
-	const shimsBundle = fs.readFileSync(`./bundles/sandboxBase.js`);
-	const pskruntime = fs.readFileSync('./builds/devel/pskruntime.js');
-	const pskNode = fs.readFileSync('./builds/devel/psknode.js');
+	const IsolatedVM = require('../../../modules/pskisolates');
+	const shimsBundle = fs.readFileSync(path.join(process.cwd(), "bundles", "sandboxBase.js"));
+	const pskruntime = fs.readFileSync(path.join(process.cwd(), "bundles", "pskruntime.js"));
+	const pskNode = fs.readFileSync(path.join(process.cwd(), "bundles", "psknode.js"));
 	const constitution = fs.readFileSync(constitutionPath);
 
 	$$.event('sandbox.start', {spaceName});

@@ -1,18 +1,23 @@
+const path = require('path');
+
+/**
+ * These need to be first to allow customization of behavior of libraries in bundles
+ * Currently PSKLogger (used inside callflow) uses this
+ */
+process.env.PRIVATESKY_DOMAIN_NAME = process.argv[2] || "AnonymousDomain"+process.pid;
+process.env.PRIVATESKY_DOMAIN_BUILD = "../bundles/domain.js";
+process.env.PRIVATESKY_TMP = process.env.PRIVATESKY_TMP || path.resolve("../tmp");
+process.env.DOMAIN_WORKSPACE = path.resolve(process.env.PRIVATESKY_TMP, "domainsWorkspace", process.env.PRIVATESKY_DOMAIN_NAME);
+
 require('../../bundles/pskruntime');
 require('../../bundles/psknode');
 
 require('psk-http-client');
 const folderMQ = require("foldermq");
 const fs = require('fs');
-const path = require('path');
 const msgpack = require('@msgpack/msgpack');
 
 require('launcher');
-
-process.env.PRIVATESKY_DOMAIN_NAME = process.argv[2] || "AnonymousDomain"+process.pid;
-process.env.PRIVATESKY_DOMAIN_BUILD = "../bundles/domain.js";
-process.env.PRIVATESKY_TMP = process.env.PRIVATESKY_TMP || path.resolve("../tmp");
-process.env.DOMAIN_WORKSPACE = path.resolve(process.env.PRIVATESKY_TMP, "domainsWorkspace", process.env.PRIVATESKY_DOMAIN_NAME);
 
 const oldLogFnc = console.log;
 console.log = function(...args){

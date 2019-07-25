@@ -59,6 +59,8 @@ var bootSandBox = $$.flow.describe("PrivateSky.swarm.engine.bootInLauncher", {
 
             var startChild = (mainFile, args, opts) => {
 				console.log("Running: ", mainFile, args, opts);
+
+				// passing options.env might break the agentSandbox, it relies on some inherited env variables from domain
 				var child = child_process.fork(mainFile, args);
 				sandboxes[this.spaceName] = child;
 
