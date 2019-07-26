@@ -71,7 +71,14 @@ if(runInVM){
 
 	$$.event('sandbox.start', {spaceName});
 
-	IsolatedVM.getDefaultIsolate({shimsBundle: shimsBundle, browserifyBundles: [pskruntime, pskNode, constitution], config: IsolatedVM.IsolateConfig.defaultConfig}, (err, isolate) => {
+	const config = IsolatedVM.IsolateConfig.defaultConfig;
+	config.logger = {
+		send ([logChannel, logObject]) {
+			$$.redirectLog(logChannel, logObject)
+		}
+	};
+
+	IsolatedVM.getDefaultIsolate({shimsBundle: shimsBundle, browserifyBundles: [pskruntime, pskNode, constitution], config: config}, (err, isolate) => {
 		if (err) {
 			throw err;
 		}
