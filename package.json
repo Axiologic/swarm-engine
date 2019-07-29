@@ -35,7 +35,7 @@
   "comment_for_dependencies": "  // Should remain empty. Add in bin/scripts/build-devel.js",
   "dependencies": {},
   "scripts": {
-    "install": "node bin/scripts/node_version_check.js && node bin/scripts/build-devel.js && node deployer/gitStatusCheck.js . && npm link",
+    "install": "node bin/scripts/node_version_check.js && node bin/scripts/build-devel.js && node deployer/gitStatusCheck.js .",
     "update": "git pull && node bin/scripts/build-devel.js && node deployer/gitStatusCheck.js .",
     "clear-stash": "node deployer/gitClearStash.js .",
     "release": "node ./bin/scripts/pskbuild.js ./builds/build.json && node bin/scripts/build-release.js",
