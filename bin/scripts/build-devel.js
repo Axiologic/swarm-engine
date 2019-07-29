@@ -93,7 +93,16 @@ const baseDeps = [
     {
         "name": "psklogger",
         "src": "https://github.com/PrivateSky/psklogger.git"
-    }];
+    },
+    {
+        "name": "pskisolates",
+        "src": "https://github.com/PrivateSky/pskisolates.git"
+    },
+    {
+        "name": "pskbuffer",
+        "src": "https://github.com/PrivateSky/pskbuffer.git"
+    }
+];
 
 
 const config = {
@@ -170,7 +179,7 @@ const config = {
             "workDir": "tests/psk-browser-tests"
         },
         {
-            "name": "browserify chokidar qr-image @msgpack/msgpack zeromq@4.6.0",
+            "name": "browserify chokidar qr-image @msgpack/msgpack",
             "src": "npm",
             "actions": ["install"]
         }
