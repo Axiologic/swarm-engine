@@ -35,7 +35,7 @@
   "comment_for_dependencies": "  // Should remain empty. Add in bin/scripts/build-devel.js",
   "dependencies": {},
   "scripts": {
-    "install": "node bin/scripts/node_version_check.js && node bin/scripts/build-devel.js && node deployer/gitStatusCheck.js .",
+    "install": "node bin/scripts/node_version_check.js && node bin/scripts/build-devel.js && node deployer/gitStatusCheck.js . && npm link",
     "update": "git pull && node bin/scripts/build-devel.js && node deployer/gitStatusCheck.js .",
     "clear-stash": "node deployer/gitClearStash.js .",
     "release": "node ./bin/scripts/pskbuild.js ./builds/build.json && node bin/scripts/build-release.js",
@@ -45,5 +45,9 @@
     "git-status": "node deployer/gitStatusCheck.js .",
     "run-tests": "npm run build && node bin/scripts/testrunner.js",
     "browser-tests": "karma start karma.config.js"
+  },
+  "bin": {
+    "selectRemote": "./psknode/bin/cmds/usePSKCommand.js",
+    "startSwarm": "./psknode/bin/cmds/startSwarmCommand.js"
   }
 }
