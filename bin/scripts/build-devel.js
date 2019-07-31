@@ -91,6 +91,10 @@ const baseDeps = [
         "src": "https://github.com/PrivateSky/edfs-brick-storage.git"
     },
     {
+        "name": "csb",
+        "src": "https://github.com/PrivateSky/csb.git"
+    },
+    {
         "name": "psklogger",
         "src": "https://github.com/PrivateSky/psklogger.git"
     },
