@@ -26,6 +26,7 @@
     "lib": "./engine"
   },
   "main": "./engine/core.js",
+  "license": "MIT",
   "licenses": [
     {
       "type": "LGPL",

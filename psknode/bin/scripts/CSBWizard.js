@@ -5,11 +5,12 @@ const config = {
 };
 
 
-require('../../../builds/devel/pskruntime');
-require('../../../builds/devel/psknode');
-require('../../../builds/devel/virtualMQ');
-require('../../../builds/devel/consoleTools');
-const CSBWizard  = require('../../modules/csb-wizard');
+require('../../bundles/pskruntime');
+require('../../bundles/psknode');
+require('../../bundles/virtualMQ');
+require('../../bundles/consoleTools');
+
+const CSBWizard  = require('csb-wizard');
 const path = require("path");
 const fs = require('fs');
 
