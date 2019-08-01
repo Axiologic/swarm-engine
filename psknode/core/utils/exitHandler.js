@@ -1,4 +1,5 @@
 const events = ["exit", "SIGINT", "SIGUSR1", "SIGUSR2", "uncaughtException", "SIGTERM", "SIGHUP"];
+const os = require("os");
 
 module.exports = function manageShutdownProcess(childrenList){
 
@@ -32,7 +33,13 @@ module.exports = function manageShutdownProcess(childrenList){
         }, 0);
     }
 
-    process.stdin.resume();
+    //TODO: find a better solution to replace process.stdin.resume()
+    if(os.patform === "win32" && process.env.SHELL === "/bin/bash"){
+        console.log("Could not execute resume() on stdin. Please use command prompt on windows to run PSK!!!\n\n\n");
+    }else{
+        process.stdin.resume();
+    }
+
     for(let i=0; i<events.length; i++){
         var eventType = events[i];
         process.on(eventType, handler);
