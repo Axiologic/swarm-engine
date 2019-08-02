@@ -48,7 +48,8 @@
     "start": "npm run build && node ./bin/scripts/psknode.js",
     "git-status": "node deployer/gitStatusCheck.js .",
     "run-tests": "npm run build && node bin/scripts/testrunner.js",
-    "browser-tests": "karma start karma.config.js"
+    "browser-tests": "karma start karma.config.js",
+    "bash": "scl enable devtoolset-7 bash"
   },
   "bin": {
     "selectRemote": "./psknode/bin/cmds/usePSKCommand.js",
