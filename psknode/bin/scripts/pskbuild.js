@@ -6,10 +6,9 @@ var args = process.argv.slice(2);
 var externalTarget = process.argv[3];
 //check if fil exists and if it is a directory
 let skipShims = false;
-let skipList = ["webshims", "reactClient", "httpinteract","pskclient"];
 
 if(externalTarget){
-    if(externalTarget == "--quick"){
+    if(externalTarget.indexOf("quick") != -1){
         skipShims = true;
     } else {
         var copyToExternalTarget = fs.existsSync(externalTarget) && fs.lstatSync(externalTarget).isDirectory();
@@ -20,6 +19,7 @@ if(externalTarget){
 
 }
 
+let skipList = skipShims ? ["webshims", "reactClient", "httpinteract","pskclient"] : [];
 
 const depsNameProp = "deps";
 const inputArg = "input";
