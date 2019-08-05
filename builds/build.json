@@ -4,7 +4,7 @@
   "pskruntime": "callflow, launcher, double-check, pskcrypto, dicontainer, swarmutils, soundpubsub, pskbuffer, foldermq, domainBase, utils, @msgpack/msgpack, psklogger",
   "virtualMQ": "virtualmq, foldermq, yazl, yauzl, buffer-crc32, node-fd-slicer, edfs, pskdb, psk-http-client, signsensus",
   "consoleTools":"yazl, yauzl, psk-http-client, pskwallet, pskdb, interact, foldermq, signsensus, buffer-crc32, node-fd-slicer, csb-wizard",
-  "psknode": "yazl, yauzl, pskwallet, signsensus, foldermq, pskdb, buffer-crc32, node-fd-slicer, interact, psk-http-client, edfs, bar, edfs-brick-storage, domainBase",
+  "psknode": "yazl, yauzl, pskwallet, signsensus, foldermq, pskdb, buffer-crc32, node-fd-slicer, interact, psk-http-client, edfs, bar, csb, edfs-brick-storage, domainBase",
   "reactClient":{"deps":"interact, soundpubsub,swarmutils, pskbuffer", "bare":false, "bundleExternal": true},
   "httpinteract":"interact, psk-http-client, swarmutils, foldermq",
   "domain": {"deps":"basicTestSwarms","autoLoad": true},

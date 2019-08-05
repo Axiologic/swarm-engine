@@ -5,11 +5,19 @@ var browserify = require('browserify');
 var args = process.argv.slice(2);
 var externalTarget = process.argv[3];
 //check if fil exists and if it is a directory
+let skipShims = false;
+let skipList = ["webshims", "reactClient", "httpinteract","pskclient"];
+
 if(externalTarget){
-    var copyToExternalTarget = fs.existsSync(externalTarget) && fs.lstatSync(externalTarget).isDirectory();
-    if(!copyToExternalTarget){
-        console.error("ERROR", externalTarget, "is not accesible!" )
+    if(externalTarget == "--quick"){
+        skipShims = true;
+    } else {
+        var copyToExternalTarget = fs.existsSync(externalTarget) && fs.lstatSync(externalTarget).isDirectory();
+        if(!copyToExternalTarget){
+            console.error("ERROR", externalTarget, "is not accesible!" )
+        }
     }
+
 }
 
 
@@ -220,7 +228,8 @@ function copyToExternalDirectory(src){
 }
 
 function buildTarget(targetName){
-    console.log("building target", targetName);
+    if(skipList.indexOf(targetName) != -1) return;
+    console.log("Building target", targetName);
 
     buildDependencyMap(targetName, constructOptions(targetName, targets[targetName]), path.join(commandOptions.input, targetName+"_intermediar.js"));
 
@@ -277,7 +286,7 @@ for(var prop in mapJson){
             throw new Error(`Wrong format of target <${prop}> found in project map file!`);
         }
     }
-    console.log("Identified and prepared target", prop, targets[prop]);
+    //console.log("Identified and prepared target", prop, targets[prop]);
 }
 
 console.log("Reading other command arguments if any...");
