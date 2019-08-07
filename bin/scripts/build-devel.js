@@ -19,6 +19,10 @@ const baseDeps = [
         "src": "https://github.com/PrivateSky/callflow.git"
     },
     {
+        "name": "browser-server",
+        "src": "https://github.com/PrivateSky/browser-server"
+    },
+    {
         "name": "browserfs-dist",
         "src": "https://github.com/PrivateSky/browserfs-dist"
     },
