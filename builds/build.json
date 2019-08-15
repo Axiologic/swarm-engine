@@ -8,5 +8,6 @@
   "reactClient":{"deps":"interact, soundpubsub,swarmutils, pskbuffer", "bare":false, "bundleExternal": true},
   "httpinteract":"interact, psk-http-client, swarmutils, foldermq",
   "domain": {"deps":"basicTestSwarms","autoLoad": true},
-  "sandboxBase": {"deps": "callflow, psklogger, swarmutils, soundpubsub, pskbuffer, agentBase, assert, buffer, events, path, querystring, stream, string_decoder, timers, url, util, inherits, zlib, ieee754, base64-js, process/browser.js", "insertGlobals":true, "bare": false, "bundleExternal": false}
+  "sandboxBase": {"deps": "callflow, psklogger, swarmutils, soundpubsub, pskbuffer, agentBase, assert, buffer, events, path, querystring, stream, string_decoder, timers, url, util, inherits, zlib, ieee754, base64-js, process/browser.js", "insertGlobals":true, "bare": false, "bundleExternal": false},
+  "edfsBar": "bar, psk-http-client, edfs-brick-storage"
 }
