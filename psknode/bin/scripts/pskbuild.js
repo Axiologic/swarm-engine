@@ -131,8 +131,62 @@ function doBrowserify(targetName, src, dest, opt, externalModules, exportsModule
             }
         }
 
-        var out = fs.createWriteStream(dest);
-        package.bundle().pipe(out);
+        /** Code for extracting source maps from bundles and writing them on disk **/
+
+        const {Transform} = require('stream');
+
+        function SourceMapExtractor() {
+            Transform.call(this);
+        }
+
+        const util = require('util');
+        util.inherits(SourceMapExtractor, Transform);
+
+        SourceMapExtractor.prototype._transform = function (chunk, encoding, callback) {
+            const data = chunk.toString();
+            let sourceMapIndex = data.indexOf('//# sourceMappingURL');
+
+            if (sourceMapIndex !== -1) {
+                // finding source map location in bundle, it assumes a chunk will contain the entire source map
+                const separatorPos = data.indexOf(',') + 1;
+                const encodedSourceMap = data.substring(separatorPos);
+
+                // decoding source map from base64 and parsing it as JSON
+                const decodedSourceMap = Buffer.from(encodedSourceMap, 'base64').toString('utf8');
+                const sourceMapAsObject = JSON.parse(decodedSourceMap);
+
+                // source map is relative to PrivateSky root when building so it must specify a path back to it
+                // relative to the folder where it will be written to
+                sourceMapAsObject.sourceRoot = path.relative(path.dirname(dest), process.cwd());
+                const sourceMapFileName = path.basename(dest) + '.map';
+
+                // replace the source map data with the name of the file inside the bundle
+                // this is how source map standard has support for external source maps
+                this.push(`\n//# sourceMappingURL=${sourceMapFileName}`);
+
+                // relative path from where source map will be written to PrivateSky root folder
+                const pathToWriteSourceMapTo = path.join(path.dirname(dest), sourceMapFileName);
+
+                // writing source map to the same folder as the bundle
+                fs.writeFile(pathToWriteSourceMapTo, JSON.stringify(sourceMapAsObject), (err) => {
+                    if (err) {
+                        console.error('Error writing the source map file', err);
+                    }
+                });
+            } else {
+                // no source map was found in this chunk, passing it further as is
+                this.push(chunk);
+            }
+
+            callback()
+        };
+
+
+        /** Generating bundles and writing them to disk **/
+
+        const sourceMapExtractor = new SourceMapExtractor();
+        const out = fs.createWriteStream(dest);
+        package.bundle().pipe(sourceMapExtractor).pipe(out);
         endCallback(targetName);
 
         if (externalTarget && copyToExternalTarget) {
@@ -163,7 +217,10 @@ function buildDependencyMap(targetName, configProperty, output) {
     result += `}\nif (${autoLoad}) {\n\t${targetName}LoadModules();\n}; \nglobal.` + `${targetName}Require = require;\n` +
     `if (typeof $$ !== "undefined") {            
     $$.requireBundle("${targetName}");
-};`;
+};
+
+require('source-map-support').install({});
+`;
 
     //ensure dir struct exists
     try{

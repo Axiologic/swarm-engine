@@ -187,7 +187,7 @@ const config = {
             "workDir": "tests/psk-browser-tests"
         },
         {
-            "name": "browserify chokidar qr-image @msgpack/msgpack",
+            "name": "browserify chokidar qr-image @msgpack/msgpack source-map-support",
             "src": "npm",
             "actions": ["install"]
         }
