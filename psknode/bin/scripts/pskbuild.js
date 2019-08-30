@@ -77,6 +77,21 @@ const defaultMap = {
     pskclient: ""
 };
 
+const sharedDefaultMapForProduction = 'source-map-support, source-map';
+
+function getDefaultMapForTarget(targetName) {
+    let mapForTarget = '';
+    if(defaultMap.hasOwnProperty(targetName)) {
+        mapForTarget = defaultMap[targetName];
+    }
+
+    if(!config.isProduction) {
+        mapForTarget = concatDependencyMaps(sharedDefaultMapForProduction, mapForTarget);
+    }
+
+    return mapForTarget;
+}
+
 
 // removing dependencies duplicates in target and uniformize targets,
 // meaning tansforming targets that are strings in object with properties as needed by browserify
@@ -86,7 +101,7 @@ for (const targetName in projectMap) {
     const target = projectMap[targetName];
     if (typeof target === 'string' || target instanceof String) {
         const targetObject = {};
-        targetObject[depsNameProp] = concatDependencyMaps(defaultMap[targetName], projectMap[targetName]);
+        targetObject[depsNameProp] = concatDependencyMaps(getDefaultMapForTarget(targetName), projectMap[targetName]);
         targets[targetName] = targetObject;
     } else {
         if (target instanceof Object && !Array.isArray(target)) {
@@ -95,7 +110,7 @@ for (const targetName in projectMap) {
                 if(!projectMap[targetName].hasOwnProperty(p)) {continue;}
 
                 if (p === depsNameProp) {
-                    targetObject[p] = concatDependencyMaps(defaultMap[targetName], projectMap[targetName][p]);
+                    targetObject[p] = concatDependencyMaps(getDefaultMapForTarget(targetName), projectMap[targetName][p]);
                 } else {
                     targetObject[p] = projectMap[targetName][p];
                 }
@@ -106,7 +121,7 @@ for (const targetName in projectMap) {
         }
     }
 
-    // console.log("Identified and prepared target", targetName, targets[targetName]);
+    console.log("Identified and prepared target", targetName, targets[targetName]);
 }
 
 
