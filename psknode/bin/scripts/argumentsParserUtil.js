@@ -21,7 +21,7 @@ module.exports = {
 
         for (let i = 0; i < argv.length; ++i) {
             if (!argv[i].startsWith('--')) {
-                throw new InvalidArgumentError(`Invalid argument ${argv[i]}`);
+                throw new InvalidArgumentError(argv[i]);
             }
 
             const argument = argv[i].substr(2);
@@ -41,7 +41,7 @@ module.exports = {
 
         function editConfig(key, value) {
             if (!configObject.hasOwnProperty(key)) {
-                throw new Error(`Invalid argument ${key}`);
+                throw new InvalidArgumentError(key);
             }
 
             configObject[key] = value;

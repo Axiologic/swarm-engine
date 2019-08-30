@@ -20,14 +20,14 @@ try {
 } catch (e) {
     if(e instanceof argumentsParser.Errors.InvalidArgumentError) {
         console.warn(`Invalid argument found: ${e.argumentName}`);
-        console.warn('If running with npm run, try preceding argument list with -- (ex: npm run build -- --quick=true)')
+        console.warn('If running with npm run, try preceding argument list with -- (ex: npm run build -- --quick=true)');
         process.exit(1);
     }
 
     throw e;
 }
 
-
+// translating arguments in properties with more suitable names
 config.isProduction = config.prod;
 config.skipShims = config.quick;
 
@@ -42,7 +42,7 @@ if(config.externalTarget) {
     const isExternalTargetAccessible = fs.existsSync(config.externalTarget) && fs.lstatSync(config.externalTarget).isDirectory();
 
     if(!isExternalTargetAccessible) {
-        console.error("ERROR", config.externalTarget, "is not accesible!" );
+        console.error("ERROR", config.externalTarget, "is not accessible!" );
         config.externalTarget = undefined;
     }
 }
@@ -105,7 +105,8 @@ for (const targetName in projectMap) {
             throw new Error(`Wrong format of target <${targetName}> found in project map file!`);
         }
     }
-    //console.log("Identified and prepared target", prop, targets[prop]);
+
+    // console.log("Identified and prepared target", targetName, targets[targetName]);
 }
 
 
