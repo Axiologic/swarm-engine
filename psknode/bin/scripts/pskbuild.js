@@ -47,6 +47,15 @@ if(config.externalTarget) {
     }
 }
 
+/** Preparing needed global variables **/
+
+const skipList = config.skipShims ? ["webshims", "reactClient", "httpinteract", "pskclient"] : [];
+const modulesPath = [path.resolve(process.cwd(), "modules"), path.resolve(process.cwd(), "libraries")];
+const externals = {
+    pskruntime: "webshims"
+};
+
+
 /** Preparing "projectMap" object used to describe targets and their dependencies **/
 
 let projectMap = {};
@@ -77,16 +86,20 @@ const defaultMap = {
     pskclient: ""
 };
 
-const sharedDefaultMapForProduction = 'source-map-support, source-map';
+const sharedDefaultMapForDebugMode = 'source-map-support, source-map, buffer-from';
 
+const cachedExternalValues = Object.values(externals);
 function getDefaultMapForTarget(targetName) {
     let mapForTarget = '';
+
     if(defaultMap.hasOwnProperty(targetName)) {
         mapForTarget = defaultMap[targetName];
     }
 
     if(!config.isProduction) {
-        mapForTarget = concatDependencyMaps(sharedDefaultMapForProduction, mapForTarget);
+        if(!cachedExternalValues.includes(targetName)) {
+            mapForTarget = concatDependencyMaps(sharedDefaultMapForDebugMode, mapForTarget);
+        }
     }
 
     return mapForTarget;
@@ -96,7 +109,10 @@ function getDefaultMapForTarget(targetName) {
 // removing dependencies duplicates in target and uniformize targets,
 // meaning tansforming targets that are strings in object with properties as needed by browserify
 for (const targetName in projectMap) {
-    if(!projectMap.hasOwnProperty(targetName)) {continue;}
+    if(!projectMap.hasOwnProperty(targetName)) {
+        console.error('skipping target with name', targetName);
+        continue;
+    }
 
     const target = projectMap[targetName];
     if (typeof target === 'string' || target instanceof String) {
@@ -107,7 +123,10 @@ for (const targetName in projectMap) {
         if (target instanceof Object && !Array.isArray(target)) {
             const targetObject = {};
             for (const p in projectMap[targetName]) {
-                if(!projectMap[targetName].hasOwnProperty(p)) {continue;}
+                if(!projectMap[targetName].hasOwnProperty(p)) {
+                    console.error('skipping target with name', targetName);
+                    continue;
+                }
 
                 if (p === depsNameProp) {
                     targetObject[p] = concatDependencyMaps(getDefaultMapForTarget(targetName), projectMap[targetName][p]);
@@ -121,17 +140,9 @@ for (const targetName in projectMap) {
         }
     }
 
-    console.log("Identified and prepared target", targetName, targets[targetName]);
+    // console.log("Identified and prepared target", targetName, targets[targetName]);
 }
 
-
-/** Preparing needed global variables **/
-
-const skipList = config.skipShims ? ["webshims", "reactClient", "httpinteract", "pskclient"] : [];
-const modulesPath = [path.resolve(process.cwd(), "modules"), path.resolve(process.cwd(), "libraries")];
-const externals = {
-    pskruntime: "webshims"
-};
 
 /** Cleanup output folder if in production mode **/
 
@@ -157,18 +168,25 @@ if(config.isProduction) {
 
 /** Utility functions **/
 
-function concatDependencyMaps(d1, d2) {
-    if (!d1 || d1.length === 0) return d2;
-    if (!d2 || d2.length === 0) return d1;
+function splitStrToSet(str, set) {
+    const arr = str.split(',')
+        .map((str) => str.trim())
+        .filter(str => str !== '');
 
-    let d3Arr = splitStrToArray(d2);
-    for(let i=0; i<d3Arr.length; i++){
-        if(d1.indexOf(d3Arr[i])!==-1){
-            //removing duplicates deps from map
-            d2 = d2.replace(new RegExp("[, ]*("+d3Arr[i]+")\\b"), "");
-        }
+    for (let i = 0; i < arr.length; ++i) {
+        set.add(arr[i]);
     }
-    return (d1+","+d2).replace(/(,+(\s+,+)+)|,+/g, ',');
+}
+
+function concatDependencyMaps(dep1, dep2) {
+    if (!dep1 || dep1.length === 0) return dep2;
+    if (!dep2 || dep2.length === 0) return dep1;
+
+    const resultingSet = new Set();
+    splitStrToSet(dep1, resultingSet);
+    splitStrToSet(dep2, resultingSet);
+
+    return Array.from(resultingSet.values()).join(', ');
 }
 
 function detectAlias(str){
@@ -194,7 +212,7 @@ function doBrowserify(targetName, src, dest, opt, externalModules, exportsModule
             }
         });
 
-        const package = browserify(src, opt);
+        const browserifyPackage = browserify(src, opt);
         const mapForExpose = {};
 
         exportsModules.map(function (item) {
@@ -202,7 +220,7 @@ function doBrowserify(targetName, src, dest, opt, externalModules, exportsModule
             mapForExpose[i.module] = i;
         })
 
-        package.on('file', function (file, id, parent) {
+        browserifyPackage.on('file', function (file, id, parent) {
 
             const i = mapForExpose[id];
             //console.log(file, id, i);
@@ -213,7 +231,7 @@ function doBrowserify(targetName, src, dest, opt, externalModules, exportsModule
             }
         });
 
-        package.bundle().pipe(writable).on("finish", function (err, res) {
+        browserifyPackage.bundle().pipe(writable).on("finish", function (err, res) {
             //console.log(mapForExpose);
             callback(null, mapForExpose);
         });
@@ -222,15 +240,15 @@ function doBrowserify(targetName, src, dest, opt, externalModules, exportsModule
     function doWork(err, mapForExpose) {
         //console.log("Processing ", src, "into", dest, "\n" /*, JSON.stringify(mapForExpose, 2)*/);
 
-        const package = browserify(src, opt);
+        const browserifyPackage = browserify(src, opt);
 
         if (externalModules) {
-            package.external(externalModules);
+            browserifyPackage.external(externalModules);
         }
 
         for (const v in mapForExpose) {
             //console.log("Expose:", v, mapForExpose[v]);
-            package.require(mapForExpose[v], {
+            browserifyPackage.require(mapForExpose[v], {
                 expose: v
             });
         }
@@ -318,7 +336,7 @@ function doBrowserify(targetName, src, dest, opt, externalModules, exportsModule
 
         const sourceMapExtractor = new SourceMapExtractor();
         const out = fs.createWriteStream(dest);
-        package.bundle().pipe(sourceMapExtractor).pipe(out);
+        browserifyPackage.bundle().pipe(sourceMapExtractor).pipe(out);
         endCallback(targetName);
 
         if (config.externalTarget) {
@@ -388,7 +406,13 @@ function constructOptions(targetName, opts){
 }
 
 function splitStrToArray(str){
-    return (typeof str === 'string' || str instanceof String) ? str.split(/\s*,\s*/) : [];
+    if(!(typeof str === 'string' || str instanceof String)) {
+        return [];
+    }
+
+    return str.split(',')
+        .map((str) => str.trim())
+        .filter(str => str !== '');
 }
 
 let counter = 0;
