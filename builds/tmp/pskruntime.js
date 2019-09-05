@@ -2,6 +2,6 @@ require("../../modules/callflow/lib/overwriteRequire")
 
 require("./pskruntime_intermediar");
 
-require("callflow");
+require("callflow").enableObsoleteAssetsAndTransactions();
 
 console.log("Loading runtime: callflow module ready");

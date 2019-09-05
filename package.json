@@ -35,7 +35,11 @@
   ],
   "comment_for_dependencies": "  // Should remain empty. Add in bin/scripts/build-devel.js",
   "dependencies": {
-    "isolated-vm": "^2.0.0",
+    "@msgpack/msgpack": "^1.8.0",
+    "browserify": "^16.5.0",
+    "chokidar": "^3.0.2",
+    "isolated-vm": "^2.0.1",
+    "source-map-support": "^0.5.13",
     "zeromq": "4.6.0"
   },
   "scripts": {
@@ -43,7 +47,7 @@
     "update": "git pull && npm install",
     "clear-stash": "node deployer/gitClearStash.js .",
     "release": "node ./bin/scripts/pskbuild.js ./builds/build.json && node bin/scripts/build-release.js",
-    "build": "node ./bin/scripts/pskbuild.js ./builds/build.json",
+    "build": "node ./bin/scripts/pskbuild.js --projectMap=./builds/build.json",
     "watch": "node ./bin/scripts/watcher.js --watch ./ --run ./bin/scripts/psknode.js --ignore=\"/engine/pskbuildtemp/,/builds/devel/,/tests/,/bin/\"",
     "start": "npm run build && node ./bin/scripts/psknode.js",
     "git-status": "node deployer/gitStatusCheck.js .",
