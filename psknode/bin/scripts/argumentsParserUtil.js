@@ -18,8 +18,10 @@ module.exports = {
         const argv = Object.assign([], process.argv);
         argv.shift();
         argv.shift();
-
         for (let i = 0; i < argv.length; ++i) {
+            if(argv[i] == "quick"){
+                argv[i] = '--quick=true';
+            }
             if (!argv[i].startsWith('--')) {
                 throw new InvalidArgumentError(argv[i]);
             }
