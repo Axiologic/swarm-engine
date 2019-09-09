@@ -64,7 +64,7 @@ process.nextTick(() => {
     dependencies = {
         common: {
             node: VersionRequirement.from('10.15.3'),
-            python: VersionRequirement.upToNextMajor('2.7.15'),
+            python: VersionRequirement.upToNextMajor('2.7.0'),
         },
         linux: {
             compiler: {
@@ -520,11 +520,16 @@ function checkDependencies() {
 
                 log('Running validation for dependency:', dep, 'with constraint', isValidVersionFn.toString());
 
-                const result = dependenciesRunners[dep](isValidVersionFn);
+                try {
+                    const result = dependenciesRunners[dep](isValidVersionFn);
 
-                if (!result.valid) {
-                    dependencyCheckFailed(result.reason);
+                    if (!result.valid) {
+                        dependencyCheckFailed(result.reason);
+                    }
+                } catch (e) {
+                    dependencyCheckFailed(`Could not find any version installed for ${dep}, expected minimum version ${isValidVersionFn.targetVersion}`);
                 }
+
 
             } else if (typeof isValidVersionFn === 'object') {
                 const dependencyWithStrategy = isValidVersionFn; // rename for more clarity
@@ -568,11 +573,15 @@ const possibleStrategies = {
             depName = `${platform}-${depName}`;
             log('Running validation for dependency:', depName, 'with constraint', isValidVersionFn.toString());
 
-            const result = dependenciesRunners[depName](isValidVersionFn);
+            try {
+                const result = dependenciesRunners[depName](isValidVersionFn);
 
-            if (result.valid) {
-                dependencyFound = true;
-                break;
+                if (result.valid) {
+                    dependencyFound = true;
+                    break;
+                }
+            } catch (e) {
+                // ignore error, dependency not found, will be treated later
             }
         }
 
