@@ -315,8 +315,15 @@ function getDependencyRunnerFor(dependencyName, helperLink) {
      * @return {?RegExpMatchArray}
      */
     function spawnAndGetVersion(processToSpawn) {
-        const compilerCallOutput = childProcess.spawnSync(processToSpawn, ['--version']);
-        const compilerVersion = compilerCallOutput.stdout.toString().split('\n')[0];
+        const execOutput = childProcess.execSync(`${processToSpawn} --version`);
+
+        if (!execOutput) {
+            return null;
+        }
+
+        const endOfLine = JSON.stringify(os.EOL);
+
+        const compilerVersion = execOutput.toString().split(endOfLine)[0];
         return compilerVersion.match(/(\d+.\d+.\d+)/)
     }
 
@@ -336,7 +343,7 @@ function getDependencyRunnerFor(dependencyName, helperLink) {
 
         if (!isValidVersion(currentVersion)) {
             let helperLinkMessage = '';
-            if(helperLink) {
+            if (helperLink) {
                 helperLinkMessage = `For more instructions on how to resolve this, see: ${helperLink}`;
             }
 
@@ -379,6 +386,13 @@ const dependenciesRunners = {
     /** @param {function(Version):boolean} isValidVersion */
     python: function (isValidVersion) {
         const pythonCallOutput = childProcess.spawnSync('python', ['--version']);
+        if (pythonCallOutput.stderr === null) {
+            return {
+                valid: false,
+                reason: `Could not find any version of python installed in the system, expected minimum version ${isValidVersion.targetVersion}`
+            }
+        }
+
         const pythonVersion = pythonCallOutput.stderr.toString(); // python outputs version on stderr
         const currentVersion = pythonVersionParser(pythonVersion);
 
@@ -399,6 +413,14 @@ const dependenciesRunners = {
         const vsWherePath = 'C:\\Program Files (x86)\\Microsoft Visual Studio\\Installer\\vswhere.exe';
 
         const output = childProcess.spawnSync(vsWherePath, ['-products', '*']);
+
+        if (output === null) {
+            const helperMessage = 'For more instructions on how to resolve this, see: https://github.com/nodejs/node-gyp';
+            return {
+                valid: false,
+                reason: `No version found for Visual Studio, expected minimum "${isValidVersion.targetVersion}". ${helperMessage}`
+            }
+        }
 
         // result is string formatted as: "installationVersion: 15.9.15.284"
         const lineWithInstallationVersion =
@@ -470,8 +492,8 @@ function checkDependencies() {
             const isValidVersionFn = dependencies[dep];
 
             if (typeof isValidVersionFn === 'function') {
-                if(!dependenciesRunners.hasOwnProperty(dep)) {
-                    if(dependenciesRunners.hasOwnProperty(`${platform}-${dep}`)) {
+                if (!dependenciesRunners.hasOwnProperty(dep)) {
+                    if (dependenciesRunners.hasOwnProperty(`${platform}-${dep}`)) {
                         dep = `${platform}-${dep}`
                     } else {
                         throw new Error('Could not find a dependency runner for ' + dep);
