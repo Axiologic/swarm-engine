@@ -438,19 +438,19 @@ const dependenciesRunners = {
                 reason: `Invalid version for Visual Studio Build Tools, expected minimum "${isValidVersion.targetVersion}" but got "${currentVersion}". ${helperMessage}`
             };
         }
-        
+
         const msvsVersion = childProcess.execSync('npm config get msvs_version');
 
-        if(msvsVersion === null) {
+        if (msvsVersion === null) {
             return {
                 valid: false,
                 reason: `msvs_version is not set, run: npm config set msvs_version 2017`
             };
         }
 
-        const msvsVersionString = msvsVersion.toString();
+        const msvsVersionString = msvsVersion.toString().substring(0, msvsVersion.length - 1); // removes \n from end of string ;
 
-        if(msvsVersionString !== '2017' || msvsVersionString !== '2019') {
+        if (!['2017', '2019'].includes(msvsVersionString)) {
             return {
                 valid: false,
                 reason: `msvs_version is not set, run: npm config set msvs_version 2017`
