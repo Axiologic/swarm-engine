@@ -51,7 +51,11 @@
     "watch": "node ./bin/scripts/watcher.js --watch ./ --run ./bin/scripts/psknode.js --ignore=\"/engine/pskbuildtemp/,/builds/devel/,/tests/,/bin/\"",
     "start": "npm run build && node ./bin/scripts/psknode.js",
     "git-status": "node deployer/gitStatusCheck.js .",
-    "run-tests": "npm run build && node bin/scripts/testrunner.js",
+    "run-tests": "npm run build && cd tests && node ../bin/scripts/testrunner.js",
+    "unit-tests": "npm run build && node ./bin/scripts/testrunner.js --config='./test-suites.json'",
+    "integration-tests": "npm run build && node ./bin/scripts/testrunner.js --directory='./tests/psk-integration-testing'",
+    "smoke-tests": "npm run build && node ./bin/scripts/testrunner.js --directory='./tests/psk-smoke-testing'",
+    "benchmark-tests": "npm run build && node ./bin/scripts/testrunner.js --directory='./tests/psk-benchmark-testing'",
     "browser-tests": "karma start karma.config.js",
     "bash": "scl enable devtoolset-7 bash"
   },

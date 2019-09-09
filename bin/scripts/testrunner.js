@@ -1,2 +1,4 @@
 require("../../psknode/bundles/pskruntime");
-require("../../modules/double-check/bin/testRunner");
+require("../../psknode/bin/scripts/testrunner");
+/*
+require("../../modules/double-check/bin/testRunner");*/

@@ -18,8 +18,10 @@ module.exports = {
         const argv = Object.assign([], process.argv);
         argv.shift();
         argv.shift();
-
         for (let i = 0; i < argv.length; ++i) {
+            if(argv[i] == "quick"){
+                argv[i] = '--quick=true';
+            }
             if (!argv[i].startsWith('--')) {
                 throw new InvalidArgumentError(argv[i]);
             }
@@ -31,11 +33,12 @@ module.exports = {
                 editConfig(argumentPair[0], argumentPair[1]);
             } else {
                 if (argv[i + 1].startsWith('--')) {
-                    throw new MissingValueError(`Missing value for argument ${argument}`);
+                    //if next arg in line starts with -- default value of our arg is true
+                    editConfig(argument, true);
+                }else{
+                    editConfig(argument, argv[i + 1]);
+                    i += 1;
                 }
-
-                editConfig(argument, argv[i + 1]);
-                i += 1;
             }
         }
 
