@@ -51,6 +51,7 @@
 
 const childProcess = require('child_process');
 const os = require('os');
+const util = require('util');
 const inspect = Symbol.for('nodejs.util.inspect.custom');
 
 let dependencies = {};
@@ -468,30 +469,35 @@ const dependenciesRunners = {
  * Logs the dependency object for current platform in an easy to read manner
  */
 function logDependencies() {
-    const util = require('util');
+    const depsObject = {};
     const deps = getDependencyListForCurrentPlatform();
 
-    log(util.inspect(deps, {compact: false}));
+    deps.forEach(({dependencyName, dependencyResolver}) => {
+        depsObject[dependencyName] = dependencyResolver;
+    });
+
+    log(util.inspect(depsObject, {compact: false}));
 }
 
 /**
  * Combines the common dependencies with the platform specific ones
+ * @return {{dependencyName: string, dependencyResolver: function|Object}[]}
  */
 function getDependencyListForCurrentPlatform() {
-    const dependenciesForCurrentPlatform = {};
+    const dependenciesForCurrentPlatform = [];
 
-    Object.entries(dependencies.common).forEach(([dependencyName, depResolver]) => {
-        dependenciesForCurrentPlatform[dependencyName] = depResolver;
+    Object.entries(dependencies.common).forEach(([dependencyName, dependencyResolver]) => {
+        dependenciesForCurrentPlatform.push({dependencyName, dependencyResolver});
     });
 
     if (dependencies.hasOwnProperty(platform)) {
-        Object.entries(dependencies[platform]).forEach(([dependencyName, depResolver]) => {
-            dependenciesForCurrentPlatform[dependencyName] = depResolver;
+        Object.entries(dependencies[platform]).forEach(([dependencyName, dependencyResolver]) => {
+            dependenciesForCurrentPlatform.push({dependencyName, dependencyResolver});
         });
     }
 
-    Object.entries(dependencies.lateCommon).forEach(([dependencyName, depResolver]) => {
-        dependenciesForCurrentPlatform[dependencyName] = depResolver;
+    Object.entries(dependencies.lateCommon).forEach(([dependencyName, dependencyResolver]) => {
+        dependenciesForCurrentPlatform.push({dependencyName, dependencyResolver});
     });
 
     return dependenciesForCurrentPlatform;
@@ -506,28 +512,29 @@ function checkDependencies() {
         logDependencies();
 
         const dependencies = getDependencyListForCurrentPlatform();
-        Object.keys(dependencies).forEach(dep => {
-            const isValidVersionFn = dependencies[dep];
+
+        dependencies.forEach(({dependencyName, dependencyResolver}) => {
+            const isValidVersionFn = dependencyResolver;
 
             if (typeof isValidVersionFn === 'function') {
-                if (!dependenciesRunners.hasOwnProperty(dep)) {
-                    if (dependenciesRunners.hasOwnProperty(`${platform}-${dep}`)) {
-                        dep = `${platform}-${dep}`
+                if (!dependenciesRunners.hasOwnProperty(dependencyName)) {
+                    if (dependenciesRunners.hasOwnProperty(`${platform}-${dependencyName}`)) {
+                        dependencyName = `${platform}-${dependencyName}`
                     } else {
-                        throw new Error('Could not find a dependency runner for ' + dep);
+                        throw new Error('Could not find a dependency runner for ' + dependencyName);
                     }
                 }
 
-                log('Running validation for dependency:', dep, 'with constraint', isValidVersionFn.toString());
+                log('Running validation for dependency:', dependencyName, 'with constraint', isValidVersionFn.toString());
 
                 try {
-                    const result = dependenciesRunners[dep](isValidVersionFn);
+                    const result = dependenciesRunners[dependencyName](isValidVersionFn);
 
                     if (!result.valid) {
                         dependencyCheckFailed(result.reason);
                     }
                 } catch (e) {
-                    dependencyCheckFailed(`Could not find any version installed for ${dep}, expected minimum version ${isValidVersionFn.targetVersion}`);
+                    dependencyCheckFailed(`Could not find any version installed for ${dependencyName}, expected minimum version ${isValidVersionFn.targetVersion}`);
                 }
 
 
@@ -543,7 +550,8 @@ function checkDependencies() {
                 const dependencyFound = resolveStrategy(strategyType, dependencyWithStrategy[strategyType]);
 
                 if (!dependencyFound) {
-                    dependencyCheckFailed(`Could not resolve any dependency for ${dep}`);
+                    const reason = util.inspect(dependencyWithStrategy, {compact: false});
+                    dependencyCheckFailed(`Could not resolve any dependency for ${dependencyName}, expected ${reason}`);
                 }
             }
         });
