@@ -179,7 +179,7 @@ function nodeJsVersionParser(version) {
  * @return {Version}
  */
 function pythonVersionParser(version) {
-    return basicVersionParser(version.split(' ')[1]);
+    return basicVersionParser(version.match(/(\d+.\d+.\d+)/)[0]);
 }
 
 /**
