@@ -38,9 +38,7 @@
     "@msgpack/msgpack": "^1.8.0",
     "browserify": "^16.5.0",
     "chokidar": "^3.0.2",
-    "isolated-vm": "^2.0.1",
-    "source-map-support": "^0.5.13",
-    "zeromq": "4.6.0"
+    "source-map-support": "^0.5.13"
   },
   "scripts": {
     "preinstall": "node bin/scripts/preinstall-checks.js",
@@ -58,7 +56,9 @@
     "smoke-tests": "npm run build && node ./bin/scripts/testrunner.js --directory='./tests/psk-smoke-testing'",
     "benchmark-tests": "npm run build && node ./bin/scripts/testrunner.js --directory='./tests/psk-benchmark-testing'",
     "browser-tests": "karma start karma.config.js",
-    "bash": "scl enable devtoolset-7 bash"
+    "bash": "scl enable devtoolset-7 bash",
+    "link": "node ./psknode/bin/scripts/link.js",
+    "unlink": "node ./psknode/bin/scripts/link.js --unlink"
   },
   "bin": {
     "selectRemote": "./psknode/bin/cmds/usePSKCommand.js",
