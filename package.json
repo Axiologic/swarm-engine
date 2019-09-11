@@ -43,7 +43,8 @@
     "zeromq": "4.6.0"
   },
   "scripts": {
-    "postinstall": "node bin/scripts/node_version_check.js && node bin/scripts/build-devel.js && node deployer/gitStatusCheck.js .",
+    "preinstall": "node bin/scripts/preinstall-checks.js",
+    "postinstall": "node bin/scripts/build-devel.js && node deployer/gitStatusCheck.js .",
     "update": "git pull && npm install",
     "clear-stash": "node deployer/gitClearStash.js .",
     "release": "node ./bin/scripts/pskbuild.js ./builds/build.json && node bin/scripts/build-release.js",
