@@ -70,24 +70,24 @@ process.nextTick(() => {
         linux: {
             compiler: {
                 oneOf: {
-                    'g++': VersionRequirement.from('6.0.0'),
+                    'g++': VersionRequirement.from('5.3.1'),
                     clang: VersionRequirement.from('5.0.0')
-                }
+                }.onFailure('For more information, see: https://github.com/PrivateSky/privatesky/wiki/Setup')
             }
         },
         darwin: {
             compiler: {
                 oneOf: {
-                    'g++': VersionRequirement.from('6.0.0'),
+                    'g++': VersionRequirement.from('5.3.1'),
                     clang: VersionRequirement.from('5.0.0')
-                }
+                }.onFailure('For more information, see: https://github.com/PrivateSky/privatesky/wiki/Setup')
             }
         },
         win32: {
             VisualStudio: VersionRequirement.from('15.9') // Visual Studio 2017
         },
         lateCommon: {
-            'node-gyp': VersionRequirement.from('5.0.0')
+            npm: VersionRequirement.from('6.11.0')
         }
     };
 });
@@ -97,6 +97,15 @@ process.nextTick(() => {
 checkDependencies();
 
 /********************** UTILITY FUNCTIONS **********************/
+
+const failureMessage = Symbol('failureMessage');
+
+Object.prototype.onFailure = function (message) {
+    Object.defineProperty(this, failureMessage, {
+        value: message
+    });
+    return this;
+};
 
 function dependencyCheckFailed(reason) {
     console.error(reason);
@@ -345,7 +354,7 @@ function getDependencyRunnerFor(dependencyName, helperLink) {
         if (!isValidVersion(currentVersion)) {
             let helperLinkMessage = '';
             if (helperLink) {
-                helperLinkMessage = `For more instructions on how to resolve this, see: ${helperLink}`;
+                helperLinkMessage = `To resolve this, you might try: ${helperLink}`;
             }
 
             return {
@@ -406,6 +415,7 @@ const dependenciesRunners = {
 
         return {valid: true};
     },
+    npm: getDependencyRunnerFor('npm', 'npm install -g npm'),
     'node-gyp': getDependencyRunnerFor('node-gyp'),
     'linux-g++': getDependencyRunnerFor('g++'),
     'linux-clang': getDependencyRunnerFor('clang'),
@@ -551,7 +561,8 @@ function checkDependencies() {
 
                 if (!dependencyFound) {
                     const reason = util.inspect(dependencyWithStrategy, {compact: false});
-                    dependencyCheckFailed(`Could not resolve any dependency for ${dependencyName}, expected ${reason}`);
+                    const helper = dependencyWithStrategy[strategyType][failureMessage] || '';
+                    dependencyCheckFailed(`Could not resolve any dependency for ${dependencyName}, expected ${reason} \n${helper}`);
                 }
             }
         });
