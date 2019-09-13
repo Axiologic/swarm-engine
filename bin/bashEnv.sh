@@ -16,3 +16,4 @@ current_bin_path="${current_path}/bin"
 psknode_bin_path="${current_path}/psknode/bin"
 
 export PATH="${current_bin_path}:${psknode_bin_path}:$PATH"
+export PS1="[PSK-BASH \W]$ "
