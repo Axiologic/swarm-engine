@@ -6,6 +6,14 @@ const path = require("path");
 const deployer = require(path.resolve(path.join(__dirname, "./../../deployer/Deployer.js")));
 
 const baseDeps = [
+    { //TOBE: deleted
+        "name": "yazl",
+        "src": "https://github.com/PrivateSky/yazl.git"
+    },
+    {//TOBE: deleted
+        "name": "yauzl",
+        "src": "https://github.com/PrivateSky/yauzl.git"
+    },
     {
         "name": "foldermq",
         "src": "https://github.com/PrivateSky/foldermq.git"
@@ -49,14 +57,6 @@ const baseDeps = [
     {
         "name": "psk-browser-utils",
         "src": "https://github.com/PrivateSky/psk-browser-utils.git"
-    },
-    {
-        "name": "yazl",
-        "src": "https://github.com/PrivateSky/yazl.git"
-    },
-    {
-        "name": "yauzl",
-        "src": "https://github.com/PrivateSky/yauzl.git"
     },
     {
         "name": "buffer-crc32",
@@ -117,10 +117,6 @@ const config = {
     "workDir": ".",
     "dependencies": [
         {
-            "name": "signsensus",
-            "src": "https://github.com/PrivateSky/signsensus.git"
-        },
-        {
             "name": "dicontainer",
             "src": "https://github.com/PrivateSky/dicontainer.git"
         },
@@ -136,10 +132,6 @@ const config = {
             "name": "swarmutils",
             "src": "https://github.com/PrivateSky/swarmutils.git"
         },
-		{
-			"name": "psk-combo-utils",
-			"src": "https://github.com/PrivateSky/psk-combo-utils.git",
-		},
         {
             "name": "psk-integration-testing",
             "src": "https://github.com/PrivateSky/psk-integration-testing.git",
