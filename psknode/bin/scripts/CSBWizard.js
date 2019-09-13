@@ -4,14 +4,14 @@ const config = {
 	sslFolder: undefined
 };
 
+const path = require('path');
 
-require('../../bundles/pskruntime');
-require('../../bundles/psknode');
-require('../../bundles/virtualMQ');
-require('../../bundles/consoleTools');
+require(path.join(__dirname, '../../bundles/pskruntime'));
+require(path.join(__dirname, '../../bundles/psknode'));
+require(path.join(__dirname, '../../bundles/virtualMQ'));
+require(path.join(__dirname, '../../bundles/consoleTools'));
 
 const CSBWizard  = require('csb-wizard');
-const path = require("path");
 const fs = require('fs');
 
 

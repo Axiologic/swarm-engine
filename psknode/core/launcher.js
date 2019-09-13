@@ -1,13 +1,13 @@
 //command line script
 //the first argument is a path to a configuration folder
 //the second argument is a path to a temporary folder
+const path = require('path');
 
-require('../bundles/pskruntime.js');
-require('../bundles/psknode.js');
+require(path.join(__dirname, '../bundles/pskruntime.js'));
+require(path.join(__dirname, '../bundles/psknode.js'));
 
 const childProcess = require('child_process');
 const fs = require('fs');
-const path = require('path');
 const beesHealer = require('swarmutils').beesHealer;
 
 //exports.core = require(__dirname+"/core");
@@ -15,8 +15,8 @@ require('launcher');
 
 require("callflow");
 
-var tmpDir = "../../tmp";
-var confDir = path.resolve("conf");
+var tmpDir = path.join(__dirname, "../../tmp");
+var confDir = path.resolve(path.join(__dirname, "conf"));
 
 if(process.argv.length >= 3){
     confDir = path.resolve(process.argv[2]);
@@ -66,7 +66,7 @@ function launchDomainSandbox(name, configuration) {
         child_env.PRIVATESKY_TMP = process.env.PRIVATESKY_TMP;
         child_env.PRIVATESKY_ROOT_FOLDER = process.env.PRIVATESKY_ROOT_FOLDER;
 
-        const child = childProcess.fork('sandboxes/domainSandbox.js', [name], {cwd: __dirname, env: child_env});
+        const child = childProcess.fork(path.join(__dirname,'sandboxes/domainSandbox.js'), [name], {cwd: __dirname, env: child_env});
         child.on('exit', (code, signal) => {
             setTimeout(()=>{
                 console.log(`DomainSandbox [${name}] got an error code ${code}. Restarting...`);

@@ -2,7 +2,7 @@ const os = require('os');
 const fs = require('fs');
 const path = require('path');
 const childProcess = require('child_process');
-const argumentsParser = require('./argumentsParserUtil');
+const argumentsParser = require(path.join(__dirname, './argumentsParserUtil'));
 
 const config = {
     unlink: false
