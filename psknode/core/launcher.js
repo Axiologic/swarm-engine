@@ -16,7 +16,7 @@ require('launcher');
 require("callflow");
 
 var tmpDir = path.join(__dirname, "../../tmp");
-var confDir = path.resolve(path.join(__dirname, "conf"));
+var confDir = path.resolve(path.join(__dirname, "../../conf"));
 
 if(process.argv.length >= 3){
     confDir = path.resolve(process.argv[2]);
@@ -45,7 +45,7 @@ $$.PSK_PubSub = require("domainBase").domainPubSub.create(basePath, codeFolder);
 
 //TODO: cum ar fi mai bine oare sa tratam cazul in care nu se gaseste configuratia nodului PSK????
 if (!fs.existsSync(confDir)) {
-    console.log(`\n[::] Could not find conf directory!\n`);
+    console.log(`\n[::] Could not find conf <${confDir}> directory!\n`);
 }
 
 //enabling blockchain from confDir
@@ -87,7 +87,7 @@ function launchDomainSandbox(name, configuration) {
     }
 }
 
-$$.container.declareDependency($$.DI_components.swarmIsReady, [$$.DI_components.sandBoxReady, /*$$.DI_components.localNodeAPIs*/], function(fail, sReady, localNodeAPIs){
+$$.container.declareDependency($$.DI_components.swarmIsReady, [$$.DI_components.sandBoxReady], function(fail, sReady, localNodeAPIs){
     if(!fail){
         console.log("PSK Node launching...");
         $$.localNodeAPIs = localNodeAPIs;
@@ -109,8 +109,6 @@ $$.container.declareDependency($$.DI_components.swarmIsReady, [$$.DI_components.
                 console.log(`\n[::] No domains were deployed.\n`);
             }
         });
-
-
         return true;
     }
     return false;
