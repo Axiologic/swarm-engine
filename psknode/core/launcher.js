@@ -39,7 +39,7 @@ if(!process.env.PRIVATESKY_ROOT_FOLDER){
 	process.env.PRIVATESKY_ROOT_FOLDER = codeFolder;
 }
 
-$$.container = require("dicontainer").newContainer($$.errorHandler);
+$$.container = require("dicontainer").newContainer({throwError:console.log});
 
 $$.PSK_PubSub = require("domainBase").domainPubSub.create(basePath, codeFolder);
 
@@ -49,7 +49,13 @@ if (!fs.existsSync(confDir)) {
 }
 
 //enabling blockchain from confDir
-require('pskdb').startDB(confDir);
+const blockchain = require('blockchain');
+let worldStateCache = blockchain.createWorldStateCache("fs", confDir);
+let historyStorage = blockchain.createHistoryStorage("fs", confDir);
+let consensusAlgorithm = blockchain.createConsensusAlgorithm("direct");
+let signatureProvider  =  blockchain.createSignatureProvider("permissive");
+
+blockchain.createBlockchain(worldStateCache, historyStorage, consensusAlgorithm, signatureProvider, true, false);
 
 var domainSandboxes = {};
 function launchDomainSandbox(name, configuration) {
@@ -85,23 +91,25 @@ $$.container.declareDependency($$.DI_components.swarmIsReady, [$$.DI_components.
     if(!fail){
         console.log("PSK Node launching...");
         $$.localNodeAPIs = localNodeAPIs;
-        //launchDomainSandbox('localhost');
 
         //launching domainSandbox based on info from blockchain
-        let transaction = $$.blockchain.beginTransaction({});
-        let domains = transaction.loadAssets("global.DomainReference");
 
-        for(let i=0; i < domains.length; i++){
-            let domain = domains[i];
-            launchDomainSandbox(domain.alias, domain);
-        }
+        $$.blockchain.start(()=>{
+            let domains = $$.blockchain.loadAssets("DomainReference");
 
-        if(domains.length>0){
-            //if we have children launcher will send exit event to them before exiting...
-            require('./utils/exitHandler')(domainSandboxes);
-        }else{
-            console.log(`\n[::] No domains were deployed.\n`);
-        }
+            for(let i=0; i < domains.length; i++){
+                let domain = domains[i];
+                launchDomainSandbox(domain.alias, domain);
+            }
+
+            if(domains.length>0){
+                //if we have children launcher will send exit event to them before exiting...
+                require('./utils/exitHandler')(domainSandboxes);
+            }else{
+                console.log(`\n[::] No domains were deployed.\n`);
+            }
+        });
+
 
         return true;
     }

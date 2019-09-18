@@ -176,7 +176,7 @@ const Tir = function() {
       constitutionFile = createConstitution(domainConfig.workspace, domainConfig.constitution);
     }
 
-    $$.blockchain.startTransactionAs("secretAgent", "Domain", "add", domainConfig.name, "system", domainConfig.workspace, domainConfig.constitution, domainConfig.inbound);
+    $$.blockchain.startTransactionAs("secretAgent", "Domain", "add", domainConfig.name, "system", domainConfig.workspace, constitutionFile, domainConfig.inbound);
 
     if (domainConfig.agents && Array.isArray(domainConfig.agents) && domainConfig.agents.length > 0){
 
