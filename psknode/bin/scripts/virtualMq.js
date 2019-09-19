@@ -3,7 +3,7 @@ const argumentsParser = require(path.join(__dirname, './argumentsParserUtil'));
 
 const config = {
     port: 8080,
-    folder: path.join(__dirname, '../tmp'),
+    folder: path.join(__dirname, '../../../tmp'),
     sslFolder: path.resolve(__dirname, '../../conf/ssl')
 };
 
