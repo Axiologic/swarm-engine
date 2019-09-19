@@ -1,0 +1,21 @@
+{
+ "blockset": {
+  "81143604347588e52a5cbea7db089f712f1ce529bed04dab882a787af76314ad": {
+   "swarmType": "global.Domain",
+   "input": {},
+   "output": {
+    "global.DomainReference/JAA8KYgzHrXYdd3gcNcFd6wh7kjGcUCjmpyauPIY": "{\"meta\":{\"SecurityParadigm\":{\"mainParadigm\":\"Restricted\",\"data\":{}},\"swarmTypeName\":\"global.DomainReference\",\"swarmId\":\"JAA8KYgzHrXYdd3gcNcFd6wh7kjGcUCjmpyauPIY\",\"homeSecurityContext\":\"system\",\"command\":\"stored\"},\"publicVars\":{\"role\":\"system\",\"alias\":\"local\",\"addresses\":{},\"constitution\":\"../bundles/domain.js\",\"workspace\":\"../../conf\",\"remoteInterfaces\":{},\"localInterfaces\":{}},\"privateVars\":{}}"
+   },
+   "second": 261538,
+   "nanosecod": 738662162,
+   "transactionPulse": 0,
+   "digest": "81143604347588e52a5cbea7db089f712f1ce529bed04dab882a787af76314ad",
+   "signatures": [
+    "Signature from agent undefined should be here!"
+   ]
+  }
+ },
+ "pulse": 0,
+ "previous": "Genesis Block",
+ "hash": "1f0a2cee37c18ee48c3ae8b61c5f3496e84311e696bb80d76206d3b0e3ccdd44"
+}
