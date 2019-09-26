@@ -1,0 +1,23 @@
+{
+ "blockset": {
+  "762be1d6dd751328da6468ed4d013e4de9415c0620250dd5adf25896c123d9bd": {
+   "swarmType": "global.Domain",
+   "input": {
+    "global.DomainReference/JAA8KYgzHrXYdd3gcNcFd6wh7kjGcUCjmpyauPIY": 0
+   },
+   "output": {
+    "global.DomainReference/JAA8KYgzHrXYdd3gcNcFd6wh7kjGcUCjmpyauPIY": "{\"meta\":{\"SecurityParadigm\":{\"mainParadigm\":\"Restricted\",\"data\":{}},\"swarmTypeName\":\"global.DomainReference\",\"swarmId\":\"JAA8KYgzHrXYdd3gcNcFd6wh7kjGcUCjmpyauPIY\",\"homeSecurityContext\":\"system\",\"command\":\"stored\"},\"publicVars\":{\"role\":\"system\",\"alias\":\"local\",\"addresses\":{},\"constitution\":\"../bundles/domain.js\",\"workspace\":\"../../conf\",\"remoteInterfaces\":{\"system\":\"http://127.0.0.1:8080\"},\"localInterfaces\":{}},\"privateVars\":{}}"
+   },
+   "second": 261538,
+   "nanosecod": 741288556,
+   "transactionPulse": 1,
+   "digest": "762be1d6dd751328da6468ed4d013e4de9415c0620250dd5adf25896c123d9bd",
+   "signatures": [
+    "Signature from agent undefined should be here!"
+   ]
+  }
+ },
+ "pulse": 1,
+ "previous": "1f0a2cee37c18ee48c3ae8b61c5f3496e84311e696bb80d76206d3b0e3ccdd44",
+ "hash": "f58470fe70a9238983fdb120fd30efb9a4c07a38f0d515a733e24f963fb974de"
+}

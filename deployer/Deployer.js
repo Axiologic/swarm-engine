@@ -158,10 +158,15 @@ function Deployer() {
 		}
 
 		let config = {};
-		if (typeof configFileOrObject === "object") {
-			config = configFileOrObject;
-		} else {
-			config = __readConfig(configFileOrObject)
+		switch (typeof configFileOrObject){
+            case "object":
+                config = configFileOrObject;
+                break;
+            case "string":
+                config = __readConfig(configFileOrObject);
+                break;
+            default:
+                throw "Wrong type of config provided!";
 		}
 
 		return config;

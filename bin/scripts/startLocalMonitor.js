@@ -4,7 +4,8 @@ const config = {
     addressForCollector: 'tcp://127.0.0.1:5558'
 };
 
-const PSKLogger = require('../../modules/psklogger');
+const path = require("path");
+const PSKLogger = require(path.join(__dirname, '../../modules/psklogger'));
 const cluster = require('cluster');
 
 /**

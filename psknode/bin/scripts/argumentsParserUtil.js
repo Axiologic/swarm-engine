@@ -32,7 +32,7 @@ module.exports = {
             if (argumentPair.length > 1) {
                 editConfig(argumentPair[0], argumentPair[1]);
             } else {
-                if (argv[i + 1].startsWith('--')) {
+                if (typeof argv[i + 1] === "undefined" || argv[i + 1].startsWith('--')) {
                     //if next arg in line starts with -- default value of our arg is true
                     editConfig(argument, true);
                 }else{

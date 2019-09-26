@@ -156,7 +156,7 @@ function FSExtention(){
             if (fs.existsSync(dest)) {
                 // silently fail if overwrite is set to false and the destination exists.
                 let error = `Silent fail - cannot copy. Destination file ${dest} already exists and overwrite option is set to false! Continuing...`;
-                log(error, true);
+                log(error);
                 return;
             }
         }
@@ -209,7 +209,7 @@ function FSExtention(){
         dir = __resolvePath(dir);
 
         if (!fs.existsSync(dir)) {
-            log(`Directory ${dir} does not exist!`, true);
+            log(`Directory ${dir} does not exist!`, false);
             return;
         }
 
@@ -275,7 +275,7 @@ function FSExtention(){
                 if (fs.existsSync(dest)) {
                     // silently fail if overwrite is set to false and the destination exists.
                     let error = `Silent fail - cannot move. Destination file ${dest} already exists and overwrite option is set to false! Continuing...`;
-                    log(error, true);
+                    log(error);
                     callback();
                     return;
                 }

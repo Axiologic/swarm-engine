@@ -1,7 +1,7 @@
 const fs = require("fs");
 const path = require("path");
 const browserify = require('browserify');
-const argumentsParser = require('./argumentsParserUtil');
+const argumentsParser = require(path.join(__dirname, './argumentsParserUtil'));
 
 
 /** Arguments processing **/

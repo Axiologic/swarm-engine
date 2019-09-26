@@ -15,7 +15,7 @@ const fs = require('fs');
 const interact = require('interact');
 
 const child_process = require('child_process');
-const pskdb = require('pskdb');
+const blockchain = require('blockchain');
 
 const createKey = function(name) {
   let parsed = '' + name;
@@ -130,7 +130,13 @@ const Tir = function() {
     const confFolder = path.join(rootFolder, 'conf');
 
     console.info('[TIR] pskdb on', confFolder);
-    pskdb.startDB(confFolder);
+
+    let worldStateCache = blockchain.createWorldStateCache("fs", confFolder);
+    let historyStorage = blockchain.createHistoryStorage("fs", confFolder);
+    let consensusAlgorithm = blockchain.createConsensusAlgorithm("direct");
+    let signatureProvider  =  blockchain.createSignatureProvider("permissive");
+
+    blockchain.createBlockchain(worldStateCache, historyStorage, consensusAlgorithm, signatureProvider, true, false);
 
     fs.mkdirSync(path.join(rootFolder, 'nodes'));
 
@@ -170,34 +176,21 @@ const Tir = function() {
       constitutionFile = createConstitution(domainConfig.workspace, domainConfig.constitution);
     }
 
-    let transaction = $$.blockchain.beginTransaction({});
-    let domain = transaction.lookup('DomainReference', domainConfig.name);
-    domain.init('system', domainConfig.name);
-    domain.setWorkspace(domainConfig.workspace);
-    domain.setConstitution(constitutionFile);
-    domain.addLocalInterface('local', domainConfig.inbound);
-    console.log('>>DOMAIN<<', domainConfig.name, domain.localInterfaces);
-    try {
-      transaction.add(domain);
-      $$.blockchain.commit(transaction);
-    } catch (err) {
-      console.log('Got an error', err);
-    }
+    $$.blockchain.startTransactionAs("secretAgent", "Domain", "add", domainConfig.name, "system", domainConfig.workspace, constitutionFile, domainConfig.inbound);
 
-    if (
-      domainConfig.agents &&
-      Array.isArray(domainConfig.agents) &&
-      domainConfig.agents.length > 0
-    ) {
-      let domainBlockChain = pskdb.createDBHandler(domainConfig.conf);
-      console.info('[TIR] domain ' + domainConfig.name + ' starting agents...');
+    if (domainConfig.agents && Array.isArray(domainConfig.agents) && domainConfig.agents.length > 0){
+
+      let worldStateCache = blockchain.createWorldStateCache("fs", domainConfig.conf);
+      let historyStorage = blockchain.createHistoryStorage("fs", domainConfig.conf);
+      let consensusAlgorithm = blockchain.createConsensusAlgorithm("direct");
+      let signatureProvider  =  blockchain.createSignatureProvider("permissive");
+      blockchain.createBlockchain(worldStateCache, historyStorage, consensusAlgorithm, signatureProvider, true, true);
+
+      console.info('[TIR] domain ' + domainConfig.name + ' starting defining agents...');
 
       domainConfig.agents.forEach(agentName => {
         console.info('[TIR] domain ' + domainConfig.name + ' agent', agentName);
-        let trans = domainBlockChain.beginTransaction({});
-        let agent = trans.lookup('Agent', agentName);
-        trans.add(agent);
-        domainBlockChain.commit(trans);
+        $$.blockchain.startTransactionAs("secretAgent", "Agents", "add", agentName, "public_key");
       });
     }
   };

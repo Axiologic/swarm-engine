@@ -29,7 +29,7 @@
  *
  * c. VersionRequirement - Class that provides an easy way to specify versions in the dependencies object.
  *    It captures this version as the target version and returns a function that can check if the given version
- *    matches this target version based on different strageties. For example:
+ *    matches this target version based on different strategies. For example:
  *    - from(version) - it accepts any newer version
  *    - upToNextMajor(version) - it accepts versions that are newer but with the same major version
  *      (to maintain compatibility in cases where a new major version could break that,
@@ -70,24 +70,24 @@ process.nextTick(() => {
         linux: {
             compiler: {
                 oneOf: {
-                    'g++': VersionRequirement.from('6.0.0'),
+                    'g++': VersionRequirement.from('5.3.1'),
                     clang: VersionRequirement.from('5.0.0')
-                }
+                }.onFailure('For more information, see: https://github.com/PrivateSky/privatesky/wiki/Setup#prerequisites')
             }
         },
         darwin: {
             compiler: {
                 oneOf: {
-                    'g++': VersionRequirement.from('6.0.0'),
+                    'g++': VersionRequirement.from('5.3.1'),
                     clang: VersionRequirement.from('5.0.0')
-                }
+                }.onFailure('For more information, see: https://github.com/PrivateSky/privatesky/wiki/Setup#prerequisites')
             }
         },
         win32: {
             VisualStudio: VersionRequirement.from('15.9') // Visual Studio 2017
         },
         lateCommon: {
-            'node-gyp': VersionRequirement.from('5.0.0')
+            npm: VersionRequirement.from('6.11.0')
         }
     };
 });
@@ -97,6 +97,15 @@ process.nextTick(() => {
 checkDependencies();
 
 /********************** UTILITY FUNCTIONS **********************/
+
+const failureMessage = Symbol('failureMessage');
+
+Object.prototype.onFailure = function (message) {
+    Object.defineProperty(this, failureMessage, {
+        value: message
+    });
+    return this;
+};
 
 function dependencyCheckFailed(reason) {
     console.error(reason);
@@ -170,7 +179,7 @@ function nodeJsVersionParser(version) {
  * @return {Version}
  */
 function pythonVersionParser(version) {
-    return basicVersionParser(version.split(' ')[1]);
+    return basicVersionParser(version.match(/(\d+.\d+.\d+)/)[0]);
 }
 
 /**
@@ -345,7 +354,7 @@ function getDependencyRunnerFor(dependencyName, helperLink) {
         if (!isValidVersion(currentVersion)) {
             let helperLinkMessage = '';
             if (helperLink) {
-                helperLinkMessage = `For more instructions on how to resolve this, see: ${helperLink}`;
+                helperLinkMessage = `To resolve this, you might try: ${helperLink}`;
             }
 
             return {
@@ -406,6 +415,7 @@ const dependenciesRunners = {
 
         return {valid: true};
     },
+    npm: getDependencyRunnerFor('npm', 'npm install -g npm'),
     'node-gyp': getDependencyRunnerFor('node-gyp'),
     'linux-g++': getDependencyRunnerFor('g++'),
     'linux-clang': getDependencyRunnerFor('clang'),
@@ -551,7 +561,8 @@ function checkDependencies() {
 
                 if (!dependencyFound) {
                     const reason = util.inspect(dependencyWithStrategy, {compact: false});
-                    dependencyCheckFailed(`Could not resolve any dependency for ${dependencyName}, expected ${reason}`);
+                    const helper = dependencyWithStrategy[strategyType][failureMessage] || '';
+                    dependencyCheckFailed(`Could not resolve any dependency for ${dependencyName}, expected ${reason} \n${helper}`);
                 }
             }
         });

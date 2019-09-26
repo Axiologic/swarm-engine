@@ -40,9 +40,19 @@ if(typeof domain.workspace !== "undefined" && domain.workspace !== "undefined") 
 
 //enabling blockchain from confDir
 //validate path exists
-console.log("Using workspace", path.resolve(process.env.DOMAIN_WORKSPACE));
-require('pskdb').startDB(path.resolve(process.env.DOMAIN_WORKSPACE));
+const confDir = path.resolve(process.env.DOMAIN_WORKSPACE);
+console.log("Using workspace", confDir);
+let blockchain = require("blockchain");
 
+let worldStateCache = blockchain.createWorldStateCache("fs", confDir);
+let historyStorage = blockchain.createHistoryStorage("fs", confDir);
+let consensusAlgorithm = blockchain.createConsensusAlgorithm("direct");
+let signatureProvider  =  blockchain.createSignatureProvider("permissive");
+
+blockchain.createBlockchain(worldStateCache, historyStorage, consensusAlgorithm, signatureProvider, true, false);
+$$.blockchain.start(()=>{
+   console.log("blockchain loaded!");
+});
 //loading swarm definitions
 console.log("Loading constitution file", process.env.PRIVATESKY_DOMAIN_BUILD);
 require(process.env.PRIVATESKY_DOMAIN_BUILD);

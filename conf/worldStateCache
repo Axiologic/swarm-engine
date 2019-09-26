@@ -1,0 +1,16 @@
+{
+ "pskdb": {
+  "cset": {
+   "global.DomainReference/JAA8KYgzHrXYdd3gcNcFd6wh7kjGcUCjmpyauPIY": "{\"meta\":{\"SecurityParadigm\":{\"mainParadigm\":\"Restricted\",\"data\":{}},\"swarmTypeName\":\"global.DomainReference\",\"swarmId\":\"JAA8KYgzHrXYdd3gcNcFd6wh7kjGcUCjmpyauPIY\",\"homeSecurityContext\":\"system\",\"command\":\"stored\"},\"publicVars\":{\"role\":\"system\",\"alias\":\"local\",\"addresses\":{},\"constitution\":\"../bundles/domain.js\",\"workspace\":\"../../conf\",\"remoteInterfaces\":{\"system\":\"http://127.0.0.1:8080\"},\"localInterfaces\":{}},\"privateVars\":{}}"
+  },
+  "versions": {
+   "global.DomainReference/JAA8KYgzHrXYdd3gcNcFd6wh7kjGcUCjmpyauPIY": 1
+  },
+  "currentPulse": 1,
+  "latestBlockHash": "f58470fe70a9238983fdb120fd30efb9a4c07a38f0d515a733e24f963fb974de"
+ },
+ "keys": {
+  "global.DomainReference/aliases": "{\"local\":\"JAA8KYgzHrXYdd3gcNcFd6wh7kjGcUCjmpyauPIY\"}"
+ },
+ "pulse": 0
+}

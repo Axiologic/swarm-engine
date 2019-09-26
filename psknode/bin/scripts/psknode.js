@@ -5,6 +5,7 @@
  */
 
 const {spawnSync, fork, spawn} = require('child_process');
+const path = require('path');
 const max_timeout = 10*60*1000; // 10 minutes
 const restartDelays = {};
 
@@ -50,7 +51,7 @@ function startProcess(filePath) {
     forkedProcesses[filePath].on('exit', exitHandler(filePath));
 }
 
-startProcess('./psknode/bin/scripts/virtualMq.js');
-startProcess('./psknode/core/launcher.js');
+startProcess(path.join(__dirname, 'virtualMq.js'));
+startProcess(path.join(__dirname, '../../core/launcher.js'));
 
 require('./../../core/utils/exitHandler.js')(forkedProcesses);
