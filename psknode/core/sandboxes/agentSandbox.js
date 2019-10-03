@@ -61,6 +61,8 @@ require(path.join(process.cwd(), "bundles", "sandboxBase.js"));
 
 require('launcher');
 
+$$.event('status.agents.boot', {name: spaceName});
+
 if(runInVM){
 
 	const IsolatedVM = require('../../../modules/pskisolates');

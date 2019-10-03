@@ -70,6 +70,7 @@ setTimeout(()=>{
     }
 }, 100);
 
+$$.event('status.domains.boot', {name: process.env.PRIVATESKY_DOMAIN_NAME});
 
 var localReplyHandlerSet = false;
 function connectLocally(alias, path2folder){
