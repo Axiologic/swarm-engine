@@ -28,8 +28,8 @@ if(cluster.isMaster) {
     console.log('PubSubProxy started');
     
     cluster.fork();
-    fork('./startNodeResourceMonitor');
-    fork('./localLogsCollector');
+    fork(path.join(__dirname, './startNodeResourceMonitor'));
+    fork(path.join(__dirname, './localLogsCollector'));
 
 } else {
     const NODE_NAME = process.env.NODE_NAME || 'anon';
