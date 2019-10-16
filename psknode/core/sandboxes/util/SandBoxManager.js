@@ -88,6 +88,11 @@ var bootSandBox = $$.flow.describe("PrivateSky.swarm.engine.bootInLauncher", {
             console.log("Error executing sandbox!:", err);
             this.callback(err, null);
         }
+    },
+    progress: function(err) {
+        if(err) {
+            console.error(err);
+        }
     }
 
 });
