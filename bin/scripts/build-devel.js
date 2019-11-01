@@ -117,6 +117,10 @@ const baseDeps = [
     {
         "name": "psk-security-context",
         "src": "https://github.com/PrivateSky/psk-security-context.git"
+    },
+    {
+        "name": "adler32",
+        "src": "https://github.com/PrivateSky/adler.git"
     }
 ];
 
