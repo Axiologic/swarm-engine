@@ -27,6 +27,10 @@ const baseDeps = [
         "src": "https://github.com/PrivateSky/callflow.git"
     },
     {
+        "name": "choreo",
+        "src": "https://github.com/PrivateSky/choreo.git"
+    },
+    {
         "name": "browser-server",
         "src": "https://github.com/PrivateSky/browser-server"
     },
