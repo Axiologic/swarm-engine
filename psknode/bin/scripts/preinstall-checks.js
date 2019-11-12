@@ -233,6 +233,7 @@ const VersionRequirement = {
         };
         compare[inspect] = compare.toString;
         compare.targetVersion = version;
+        compare.targetVersionObj = targetVersion;
 
         return compare
     },
@@ -269,6 +270,7 @@ const VersionRequirement = {
         };
         compare[inspect] = compare.toString;
         compare.targetVersion = version;
+        compare.targetVersionObj = targetVersion;
 
         return compare;
     },
@@ -306,6 +308,7 @@ const VersionRequirement = {
         };
         compare[inspect] = compare.toString;
         compare.targetVersion = version;
+        compare.targetVersionObj = targetVersion;
 
         return compare;
     }
@@ -395,15 +398,27 @@ const dependenciesRunners = {
     },
     /** @param {function(Version):boolean} isValidVersion */
     python: function (isValidVersion) {
-        const pythonCallOutput = childProcess.spawnSync('python', ['--version']);
-        if (pythonCallOutput.stderr === null) {
+        let pythonCallOutput = null;
+
+        const majorVersionToCheck = isValidVersion.targetVersionObj.major;
+
+        if(majorVersionToCheck === 2) {
+            const output = childProcess.spawnSync('python2', ['--version']);
+            pythonCallOutput = output.stderr;
+        } else if (majorVersionToCheck === 3) {
+            const output = childProcess.spawnSync('python3', ['--version']);
+            pythonCallOutput = output.stdout;
+        }
+
+        if (pythonCallOutput === null) {
             return {
                 valid: false,
                 reason: `Could not find any version of python installed in the system, expected minimum version ${isValidVersion.targetVersion}`
             }
+
         }
 
-        const pythonVersion = pythonCallOutput.stderr.toString(); // python outputs version on stderr
+        const pythonVersion = pythonCallOutput.toString(); // python outputs version on stderr
         const currentVersion = pythonVersionParser(pythonVersion);
 
         if (!isValidVersion(currentVersion)) {
