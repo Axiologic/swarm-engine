@@ -117,6 +117,14 @@ const baseDeps = [
     {
         "name": "zmq_adapter",
         "src": "https://github.com/PrivateSky/zmq_adapter.git"
+    },
+    {
+        "name": "psk-security-context",
+        "src": "https://github.com/PrivateSky/psk-security-context.git"
+    },
+    {
+        "name": "adler32",
+        "src": "https://github.com/PrivateSky/adler.git"
     }
 ];
 

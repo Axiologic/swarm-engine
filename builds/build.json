@@ -1,10 +1,10 @@
 {
   "webshims": {"deps": "psk-browser-utils, assert,crypto,zlib, util, path,os, events,stream, browserfs-dist, pskwebfs:fs, buffer, timers", "bare": false, "bundleExternal": true},
   "pskclient": {"deps":"interact, psk-http-client, swarmutils, @msgpack/msgpack", "bare": false, "bundleExternal": true},
-  "pskruntime": "callflow, launcher, pskcrypto, dicontainer, swarmutils, soundpubsub, pskbuffer, foldermq, domainBase, utils, @msgpack/msgpack, psklogger, zmq_adapter",
+  "pskruntime": "callflow, launcher, pskcrypto, dicontainer, swarmutils, soundpubsub, pskbuffer, foldermq, domainBase, utils, @msgpack/msgpack, psklogger, zmq_adapter, psk-security-context",
   "virtualMQ": "virtualmq, foldermq, yazl, yauzl, buffer-crc32, node-fd-slicer, edfs, psk-http-client, zmq_adapter",
   "consoleTools":"yazl, yauzl, psk-http-client, pskwallet,  interact, foldermq,  buffer-crc32, node-fd-slicer, csb-wizard",
-  "psknode": "yazl, yauzl, pskwallet, foldermq,  buffer-crc32, node-fd-slicer, interact, psk-http-client, edfs, bar, csb, edfs-brick-storage, domainBase, blockchain",
+  "psknode": "yazl, yauzl, pskwallet, foldermq,  buffer-crc32, node-fd-slicer, interact, psk-http-client, edfs, adler32, bar, csb, edfs-brick-storage, domainBase, blockchain",
   "reactClient":{"deps":"interact, soundpubsub,swarmutils, pskbuffer", "bare":false, "bundleExternal": true},
   "httpinteract":"interact, psk-http-client, swarmutils, foldermq",
   "domain": {"deps":"basicTestSwarms","autoLoad": true},
