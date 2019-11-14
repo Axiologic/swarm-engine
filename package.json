@@ -38,7 +38,8 @@
     "@msgpack/msgpack": "^1.8.0",
     "browserify": "^16.5.0",
     "chokidar": "^3.0.2",
-    "source-map-support": "^0.5.13"
+    "source-map-support": "^0.5.13",
+    "zeromq": "^4.6.0"
   },
   "scripts": {
     "preinstall": "node bin/scripts/preinstall-checks.js",

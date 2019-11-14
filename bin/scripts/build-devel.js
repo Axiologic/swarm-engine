@@ -6,7 +6,7 @@ const path = require("path");
 const deployer = require(path.resolve(path.join(__dirname, "./../../deployer/Deployer.js")));
 
 const baseDeps = [
-    { //TOBE: deleted
+    {//TOBE: deleted
         "name": "yazl",
         "src": "https://github.com/PrivateSky/yazl.git"
     },
@@ -25,6 +25,10 @@ const baseDeps = [
     {
         "name": "callflow",
         "src": "https://github.com/PrivateSky/callflow.git"
+    },
+    {
+        "name": "choreo",
+        "src": "https://github.com/PrivateSky/choreo.git"
     },
     {
         "name": "browser-server",
@@ -109,6 +113,18 @@ const baseDeps = [
     {
         "name": "pskbuffer",
         "src": "https://github.com/PrivateSky/pskbuffer.git"
+    },
+    {
+        "name": "zmq_adapter",
+        "src": "https://github.com/PrivateSky/zmq_adapter.git"
+    },
+    {
+        "name": "psk-security-context",
+        "src": "https://github.com/PrivateSky/psk-security-context.git"
+    },
+    {
+        "name": "adler32",
+        "src": "https://github.com/PrivateSky/adler.git"
     }
 ];
 

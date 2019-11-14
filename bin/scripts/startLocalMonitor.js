@@ -1,12 +1,13 @@
 const config = {
-    addressForPublishers: 'tcp://127.0.0.1:7000',
-    addressForSubscribers: 'tcp://127.0.0.1:7001',
-    addressForCollector: 'tcp://127.0.0.1:5558'
+    addressForPublishers: process.env.PSK_PUBLISH_LOGS_ADDR || 'tcp://127.0.0.1:7000',
+    addressForSubscribers: process.env.PSK_SUBSCRIBE_FOR_LOGS_ADDR || 'tcp://127.0.0.1:7001',
+    addressToCollector: process.env.PSK_COLLECTOR_ADDR || 'tcp://127.0.0.1:5558'
 };
 
 const path = require("path");
 const PSKLogger = require(path.join(__dirname, '../../modules/psklogger'));
 const cluster = require('cluster');
+const {fork} = require('child_process');
 
 /**
  * This script starts two processes.
@@ -27,18 +28,20 @@ if(cluster.isMaster) {
     console.log('PubSubProxy started');
     
     cluster.fork();
+    fork(path.join(__dirname, './startNodeResourceMonitor'));
+    fork(path.join(__dirname, './localLogsCollector'));
 
 } else {
     const NODE_NAME = process.env.NODE_NAME || 'anon';
 
     const zmq = require('zeromq');
     const sender = zmq.socket('push');
-    sender.connect(config.addressForCollector);
+    sender.connect(config.addressToCollector);
 
     const MessageSubscriber = PSKLogger.MessageSubscriberModule.MessageSubscriber;
 
     new MessageSubscriber(config.addressForSubscribers, ['logs', ''], (topic, message) => {
-        sender.send(JSON.stringify({nodeName: NODE_NAME, topic: topic.toString(), message: JSON.parse(message.toString())}));
+        sender.send(JSON.stringify({nodeName: NODE_NAME, topic: topic.toString(), envelopedMessage: JSON.parse(message.toString())}));
     });
 
     console.log('LocalMonitor started');
