@@ -14,9 +14,13 @@ const baseDeps = [
         "name": "yauzl",
         "src": "https://github.com/PrivateSky/yauzl.git"
     },
-    {
+    {//TOBE: deleted
         "name": "foldermq",
         "src": "https://github.com/PrivateSky/foldermq.git"
+    },
+    {
+        "name": "swarm-engine",
+        "src": "https://github.com/PrivateSky/swarm-engine.git"
     },
     {
         "name": "soundpubsub",
