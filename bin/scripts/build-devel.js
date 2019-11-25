@@ -129,6 +129,10 @@ const baseDeps = [
     {
         "name": "adler32",
         "src": "https://github.com/PrivateSky/adler.git"
+    },
+    {
+        "name": "syndicate",
+        "src": "https://github.com/PrivateSky/syndicate.git"
     }
 ];
 
