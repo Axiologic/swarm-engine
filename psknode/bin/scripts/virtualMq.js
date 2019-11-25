@@ -1,6 +1,8 @@
 const path = require("path");
 const argumentsParser = require(path.join(__dirname, './argumentsParserUtil'));
 
+require("../../core/utils/pingpongFork").enableLifeLine();
+
 const config = {
     port: 8080,
     folder: path.join(__dirname, '../../../tmp'),

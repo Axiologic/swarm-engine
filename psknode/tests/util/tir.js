@@ -177,7 +177,7 @@ const Tir = function() {
     }
 
     $$.blockchain.startTransactionAs("secretAgent", "Domain", "add", domainConfig.name, "system", domainConfig.workspace, constitutionFile, domainConfig.inbound);
-
+    $$.blockchain.startTransactionAs("secretAgent", "Domain", "setMaximumNumberOfWorkers", domainConfig.name, 1);
     if (domainConfig.agents && Array.isArray(domainConfig.agents) && domainConfig.agents.length > 0){
 
       let worldStateCache = blockchain.createWorldStateCache("fs", domainConfig.conf);

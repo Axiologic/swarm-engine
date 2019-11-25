@@ -4,10 +4,11 @@
   Start a Launcher
  */
 
-const {spawnSync, fork, spawn} = require('child_process');
 const path = require('path');
 const max_timeout = 10*60*1000; // 10 minutes
 const restartDelays = {};
+
+const pingFork = require("../../core/utils/pingpongFork").fork;
 
 let shouldRestart = true;
 const forkedProcesses = {};
@@ -15,7 +16,7 @@ const forkedProcesses = {};
 
 function startProcess(filePath) {
     console.log("Booting", filePath);
-    forkedProcesses[filePath] = spawn('node', [filePath], {detached: process.platform === "win32" ? false : true, setsid: true, stdio: 'inherit'});
+    forkedProcesses[filePath] = pingFork(filePath);
 
     console.log('SPAWNED ', forkedProcesses[filePath].pid);
 
@@ -51,7 +52,6 @@ function startProcess(filePath) {
     forkedProcesses[filePath].on('exit', exitHandler(filePath));
 }
 
+startProcess(path.join(__dirname, 'startZeromqProxy.js'));
 startProcess(path.join(__dirname, 'virtualMq.js'));
 startProcess(path.join(__dirname, '../../core/launcher.js'));
-
-require('./../../core/utils/exitHandler.js')(forkedProcesses);
