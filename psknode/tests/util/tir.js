@@ -9,6 +9,7 @@ const __dName = __dirname;
 require(path.resolve(path.join(__dName, "../../bundles/pskruntime.js")));
 require(path.resolve(path.join(__dName, "../../bundles/psknode.js")));
 require(path.resolve(path.join(__dName, "../../bundles/consoleTools.js")));
+require(path.resolve(path.join(__dName, "../../bundles/testsRuntime.js")));
 
 const os = require('os');
 const fs = require('fs');
@@ -239,7 +240,11 @@ const Tir = function() {
     console.info('[TIR] Tearing down...');
     if (testerNode) {
       console.info('[TIR] Killing node', testerNode.pid);
-      process.kill(testerNode.pid);
+      try {
+        process.kill(testerNode.pid);
+      } catch (e) {
+        console.info('[TIR] Node already killed', testerNode.pid);
+      }
       testerNode = null;
     }
     setTimeout(() => {

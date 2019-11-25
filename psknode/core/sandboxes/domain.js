@@ -27,10 +27,6 @@ const OwM = swarmUtils.OwM;
 const {ManagerForAgents} = require('./ManagerForAgents');
 const {PoolConfig, WorkerStrategies, getDefaultBootScriptPath} = require('../../../modules/syndicate');
 
-process.on("uncaughtException", (...args) => {
-    console.log('uncaught exception in domain.js', ...args);
-    process.exit(1);
-});
 
 $$.PSK_PubSub = require("soundpubsub").soundPubSub;
 
