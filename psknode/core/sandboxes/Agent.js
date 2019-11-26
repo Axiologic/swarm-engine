@@ -1,10 +1,9 @@
-const AgentStrategies = require('./util/AgentStrategies');
-const Syndicate = require('../../../modules/syndicate');
 const fs = require('fs');
+const Syndicate = require('../../../modules/syndicate');
 
 /**
  *
- * @param {AgentConfig&AgentConfigStorage} config
+ * @param {PoolConfig&PoolConfigStorage} config
  * @returns {AbstractPool}
  */
 function getAgent(config) {
@@ -14,11 +13,6 @@ function getAgent(config) {
 
     return Syndicate.createWorkerPool(config);
 }
-
-function doesStrategyExists(strategy) {
-    return strategy === AgentStrategies.THREADS || strategy === AgentStrategies.ISOLATES;
-}
-
 
 
 module.exports = {getAgent};
