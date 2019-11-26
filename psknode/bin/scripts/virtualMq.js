@@ -16,7 +16,7 @@ require(path.join(__dirname, '../../bundles/virtualMQ.js'));
 require(path.join(__dirname, '../../bundles/psknode'));
 require(path.join(__dirname, '../../bundles/consoleTools'));
 
-const VirtualMQ = require('virtualmq').VirtualMQ;
+const VirtualMQ = require('virtualmq');
 const fs = require('fs');
 
 function startServer(config) {
@@ -40,7 +40,7 @@ function startServer(config) {
         sslConfig: sslConfig
     };
 
-    const virtualMq = new VirtualMQ(virtualMqConfig);
+    const virtualMq = VirtualMQ.createVirtualMQ(virtualMqConfig);
 }
 
 startServer(config);
