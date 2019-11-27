@@ -1,4 +1,3 @@
-const AgentConfig = require('./util/AgentConfig');
 const {PoolConfig} = require('../../../modules/syndicate');
 const SwarmPacker = require("swarmutils").SwarmPacker;
 const {getAgent} = require('./Agent');
@@ -58,4 +57,4 @@ function ManagerForAgents(config) {
 
 }
 
-module.exports = {ManagerForAgents, AgentConfig};
+module.exports = {ManagerForAgents};
