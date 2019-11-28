@@ -34,13 +34,14 @@ function startServer(config) {
         }
     }
 
-    const virtualMqConfig = {
-        listeningPort: Number.parseInt(config.port),
-        rootFolder: path.resolve(config.folder),
-        sslConfig: sslConfig
-    };
+    const listeningPort = Number.parseInt(config.port);
+    const rootFolder = path.resolve(config.folder);
 
-    const virtualMq = VirtualMQ.createVirtualMQ(virtualMqConfig);
+    const virtualMq = VirtualMQ.createVirtualMQ(listeningPort, rootFolder, sslConfig, (err) => {
+        if(err) {
+            console.error(err);
+        }
+    });
 }
 
 startServer(config);
