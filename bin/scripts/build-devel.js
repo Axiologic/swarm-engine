@@ -82,14 +82,14 @@ const baseDeps = [
         "name": "csb-wizard",
         "src": "https://github.com/PrivateSky/csb-wizard.git"
     },
+	{
+		"name": "pskbuffer",
+		"src": "https://github.com/PrivateSky/pskbuffer.git"
+	},
     {
-        "name": "pskbuffer",
-        "src": "https://github.com/PrivateSky/pskbuffer.git"
-    },
-    {
-        "name": "edfs",
-        "src": "https://github.com/PrivateSky/edfs.git"
-    },
+		"name": "edfs",
+		"src": "https://github.com/PrivateSky/edfs.git"
+	},
     {
         "name": "blockchain",
         "src": "https://github.com/PrivateSky/blockchain.git"
@@ -137,6 +137,10 @@ const baseDeps = [
     {
         "name": "bar-fs-adapter",
         "src": "https://github.com/PrivateSky/bar-fs-adapter.git"
+    },
+    {
+        "name": "overwrite-require",
+        "src": "https://github.com/PrivateSky/overwrite-require.git"
     }
 ];
 
@@ -244,8 +248,7 @@ argv.shift();
 
 deployer.setTag("[Builder]");
 
-function runDeployer(config, callback = () => {
-}) {
+function runDeployer(config, callback = () => {}) {
     deployer.run(config, function (error, result) {
         if (error) {
             console.log("[Builder - Error]", error);
@@ -262,7 +265,7 @@ const configs = {};
 
 configs['--pskwallet'] = pskWalletConfig;
 configs['--virtualmq'] = virtualMQConfig;
-configs['--all'] = config;
+configs['--all']       = config;
 
 
 function handleArguments(index = 0) {
@@ -272,11 +275,11 @@ function handleArguments(index = 0) {
 
     const configForArgument = configs[argv[index]];
 
-    if (configForArgument) {
+    if(configForArgument) {
         console.log("Running build for argument", argv[index]);
         runDeployer(configForArgument, () => handleArguments(index + 1));
     } else {
-        throw new Error("Wrong argument found: " + argv[index]);
+        throw new Error("Wrong argument found: "+argv[index]);
         handleArguments(index + 1);
     }
 }
