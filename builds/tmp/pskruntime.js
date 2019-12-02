@@ -1,5 +1,5 @@
-require("../../modules/callflow/standardGlobalSymbols");
 require("../../modules/overwrite-require");
+require("../../modules/callflow/standardGlobalSymbols");
 
 require("./pskruntime_intermediar");
 

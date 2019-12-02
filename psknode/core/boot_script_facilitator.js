@@ -1,15 +1,22 @@
 //To be used in case of loading boot scripts from specific modules
 
-if( process.argv.length<5 ){
+const envArgs = process.env.args ?  JSON.parse(process.env.args) : [];
+
+if(envArgs.length === 0 && process.argv.length<5 ){
+    console.log(process.argv);
     console.log("\n\nUsage: node boot_script_facilitator.js <bundleName> [<bundleName2> <bundleName3> ...] <moduleName> <functionName>\n");
     throw new Error("Misuse of script.");
 }
 
-//duplicate of process.argv
-const args = Array.from(process.argv);
+let args = envArgs;
 
-//removing first 2 args
-args.splice(0,2);
+if(envArgs.length === 0){
+    //duplicate of process.argv
+    args = Array.from(process.argv);
+
+    //removing first 2 args
+    args.splice(0,2);
+}
 
 //reading name of the function to call
 const functionToCall = args.pop();

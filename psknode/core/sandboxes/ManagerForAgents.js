@@ -1,4 +1,4 @@
-const {PoolConfig} = require('../../../modules/syndicate');
+const {PoolConfig} = require('syndicate');
 const SwarmPacker = require("swarmutils").SwarmPacker;
 const {getAgent} = require('./Agent');
 
