@@ -231,10 +231,15 @@ function doBrowserify(targetName, src, dest, opt, externalModules, exportsModule
             }
         });
 
-        browserifyPackage.bundle().pipe(writable).on("finish", function (err, res) {
-            //console.log(mapForExpose);
-            callback(null, mapForExpose);
-        });
+        browserifyPackage.bundle()
+            .on("error", (error)=>{
+                throw new Error(`${error.message} while processing target '${targetName}'`);
+            })
+            .pipe(writable)
+            .on("finish", function (err, res) {
+                //console.log(mapForExpose);
+                callback(null, mapForExpose);
+            });
     }
 
     function doWork(err, mapForExpose) {
