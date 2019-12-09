@@ -49,7 +49,7 @@
     "clear-stash": "node deployer/gitClearStash.js .",
     "release": "node ./bin/scripts/pskbuild.js ./builds/build.json && node bin/scripts/build-release.js",
     "build": "node ./bin/scripts/pskbuild.js --projectMap=./builds/build.json",
-    "watch": "node ./bin/scripts/watcher.js --watch ./ --run ./bin/scripts/psknode.js --ignore=\"/engine/pskbuildtemp/,/builds/devel/,/tests/,/bin/\"",
+    "watch": "node ./bin/scripts/watcher.js --watch ./ --run \"./bin/scripts/pskbuild.js\" --args=\"--projectMap=./builds/build.json\" --ignore=\"/psknode/bundles/,/builds,/tests/,/bin/\"",
     "start": "npm run build && node ./bin/scripts/psknode.js",
     "git-status": "node deployer/gitStatusCheck.js .",
     "run-tests": "npm run build && cd tests && node ../bin/scripts/testrunner.js",
