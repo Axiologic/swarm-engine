@@ -10,5 +10,6 @@
   "domain": {"deps":"basicTestSwarms","autoLoad": true},
   "sandboxBase": {"deps": "callflow, choreo, swarm-engine, psklogger, swarmutils, soundpubsub, pskbuffer, agentBase, assert, buffer, events, path, querystring, stream, string_decoder, timers, url, util, inherits, zlib, ieee754, base64-js, process/browser.js", "insertGlobals":true, "bare": false, "bundleExternal": false},
   "edfsBar": "bar, psk-http-client, edfs-brick-storage, bar-fs-adapter",
-  "testsRuntime": "double-check"
+  "testsRuntime": "double-check",
+  "bindableModel": "overwrite-require, swarmutils, soundpubsub, psk-bindable-model"
 }

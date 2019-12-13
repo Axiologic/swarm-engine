@@ -141,7 +141,12 @@ const baseDeps = [
     {
         "name": "overwrite-require",
         "src": "https://github.com/PrivateSky/overwrite-require.git"
+    },
+    {
+        "name": "psk-bindable-model",
+        "src": "https://github.com/PrivateSky/psk-bindable-model.git"
     }
+
 ];
 
 
