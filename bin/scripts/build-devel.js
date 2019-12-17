@@ -87,9 +87,9 @@ const baseDeps = [
 		"src": "https://github.com/PrivateSky/pskbuffer.git"
 	},
     {
-		"name": "edfs",
-		"src": "https://github.com/PrivateSky/edfs.git"
-	},
+        "name": "edfs-middleware",
+        "src": "https://github.com/PrivateSky/edfs-middleware.git"
+    },
     {
         "name": "blockchain",
         "src": "https://github.com/PrivateSky/blockchain.git"
@@ -103,8 +103,8 @@ const baseDeps = [
         "src": "https://github.com/PrivateSky/edfs-brick-storage.git"
     },
     {
-        "name": "csb",
-        "src": "https://github.com/PrivateSky/csb.git"
+        "name": "edfs",
+        "src": "https://github.com/PrivateSky/edfs.git"
     },
     {
         "name": "psklogger",
