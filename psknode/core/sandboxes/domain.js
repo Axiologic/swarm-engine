@@ -22,7 +22,6 @@ const fs = require('fs');
 const http = require('http');
 const swarmUtils = require("swarmutils");
 const SwarmPacker = swarmUtils.SwarmPacker;
-const VirtualMQ = require('virtualmq');
 const OwM = swarmUtils.OwM;
 const {ManagerForAgents} = require('./ManagerForAgents');
 const {PoolConfig, WorkerStrategies, getDefaultBootScriptPath} = require('syndicate');
@@ -31,6 +30,8 @@ const {PoolConfig, WorkerStrategies, getDefaultBootScriptPath} = require('syndic
 $$.PSK_PubSub = require("soundpubsub").soundPubSub;
 
 $$.log(`Booting domain ... ${process.env.PRIVATESKY_DOMAIN_NAME}`);
+const se = pskruntimeRequire("swarm-engine");
+se.initialise(process.env.PRIVATESKY_DOMAIN_NAME);
 
 const domainConfig = JSON.parse(process.env.config);
 
@@ -62,135 +63,19 @@ $$.blockchain.start(() => {
 
 $$.log("Agents will be using constitution file", process.env.PRIVATESKY_DOMAIN_CONSTITUTION);
 
-const agentConfig = PoolConfig.createByOverwritingDefaults({
-    maximumNumberOfWorkers: domainConfig.maximumNumberOfWorkers,
-    workerStrategy: domainConfig.workerStrategy,
-    bootScriptPath: './boot_script_facilitator.js',
-    workerOptions: {
-        cwd: process.env.DOMAIN_WORKSPACE,
-        env: {
-            args: JSON.stringify([
-                path.resolve(`${__dirname}/../../bundles/pskruntime.js`),
-                "syndicate",
-                "loadThreadBootScript"
-            ])
-        },
-        workerData: {
-            constitutions: [
-                path.resolve(process.env.PRIVATESKY_DOMAIN_CONSTITUTION)
-            ]
-        }
-    }
-});
-
-new ManagerForAgents(agentConfig);
-
 process.nextTick(() => { // to give time to initialize all top level variables
     for (const alias in domainConfig.communicationInterfaces) {
         if (domainConfig.communicationInterfaces.hasOwnProperty(alias)) {
             let remoteUrls = domainConfig.communicationInterfaces[alias];
-            connectToRemote(alias, remoteUrls.virtualMQ, remoteUrls.zeroMQ);
+            let powerCordToDomain = new se.SmartRemoteChannelPowerCord([remoteUrls.virtualMQ+"/"], process.env.PRIVATESKY_DOMAIN_NAME, remoteUrls.zeroMQ);
+            $$.swarmEngine.plug("*", powerCordToDomain);
         }
     }
 
-    setTimeout(() => {
-        for (let alias in domainConfig.localInterfaces) {
-            if (domainConfig.localInterfaces.hasOwnProperty(alias)) {
+    //const agentPC = new se.OuterIsolatePowerCord(["../bundles/pskruntime.js", "../bundles/sandboxBase.js", "../bundles/domain.js"]);
+    const agentPC = new se.OuterThreadPowerCord(["../bundles/pskruntime.js", "../bundles/sandboxBase.js", "../bundles/domain.js"]);
+    $$.swarmEngine.plug(`${process.env.PRIVATESKY_DOMAIN_NAME}/agent/system`, agentPC);
 
-                let path = domainConfig.localInterfaces[alias];
-                connectLocally(alias, path);
-            }
-        }
-    }, 100);
 });
 
-
 $$.event('status.domains.boot', {name: process.env.PRIVATESKY_DOMAIN_NAME});
-
-let virtualReplyHandlerSet = false;
-
-function connectToRemote(alias, virtualMQAddress, zeroMQAddress) {
-    $$.remote.createRequestManager(1000);
-    const listeningChannel = $$.remote.base64Encode(process.env.PRIVATESKY_DOMAIN_NAME);
-
-    $$.log(`\n[***]Alias "${alias}" listening on virtualMQ: ${virtualMQAddress} channel ${listeningChannel} and zeroMQ: ${zeroMQAddress}\n`);
-
-    const request = VirtualMQ.getVMQRequestFactory(virtualMQAddress, zeroMQAddress);
-
-    request.createForwardChannel(listeningChannel, 'demo-public-key', (res) => {
-        if (res.statusCode >= 400) {
-            console.error('error creating channel', res.statusCode);
-            // throw err;
-            return;
-        }
-
-        request.receiveMessageFromZMQ(listeningChannel, 'someSignature', () => {
-        }, (channel, message) => {
-            $$.PSK_PubSub.publish($$.CONSTANTS.SWARM_FOR_EXECUTION, message);
-        })
-    });
-
-    //we need only one subscriber to send all answers back to the network...
-    if (!virtualReplyHandlerSet) {
-
-        //subscribe on PubSub to catch all returning swarms and push them to network accordingly
-        $$.PSK_PubSub.subscribe($$.CONSTANTS.SWARM_RETURN, (packedSwarm) => {
-            const swarmHeader = SwarmPacker.getHeader(packedSwarm);
-
-            const urlRegex = new RegExp(/^(www|http:|https:)+[^\s]+[\w]/);
-            if (urlRegex.test(swarmHeader.swarmTarget)) {
-                $$.remote.doHttpPost(swarmHeader.swarmTarget, packedSwarm, function (err, res) {
-                    if (err) {
-                        $$.error(err);
-                    }
-                });
-            }
-        }, () => true);
-
-        virtualReplyHandlerSet = true;
-    }
-
-}
-
-let localReplyHandlerSet = false;
-const queues = {};
-
-function connectLocally(alias, path2folder) {
-    if (!queues[alias]) {
-        path2folder = path.resolve(path2folder);
-        fs.mkdir(path2folder, {recursive: true}, (err, res) => {
-            const queue = folderMQ.createQue(path2folder, (err, res) => {
-                if (!err) {
-                    console.log(`\n[***]Alias <${alias}> listening local on ${path2folder}\n`);
-                }
-            });
-            queue.registerConsumer((err, swarm) => {
-                if (!err) {
-                    $$.PSK_PubSub.publish($$.CONSTANTS.SWARM_FOR_EXECUTION, SwarmPacker.pack(OwM.prototype.convert(swarm)));
-                }
-            });
-            queues[alias] = queue;
-        });
-    } else {
-        console.log(`Alias ${alias} has already a local queue attached.`);
-    }
-
-    if (!localReplyHandlerSet) {
-        $$.PSK_PubSub.subscribe($$.CONSTANTS.SWARM_RETURN, (packedSwarm) => {
-            const swarmHeader = SwarmPacker.getHeader(packedSwarm);
-
-            const urlRegex = new RegExp(/^(www|http:|https:)+[^\s]+[\w]/);
-            if (!urlRegex.test(swarmHeader.swarmTarget)) {
-                const q = folderMQ.createQue(swarmHeader.swarmTarget, (err, res) => {
-                    if (!err) {
-                        const swarm = SwarmPacker.unpack(packedSwarm);
-                        q.getHandler().sendSwarmForExecution(swarm)
-                    } else {
-                        console.log(`Unable to send to folder ${swarmHeader.swarmTarget} swarm with id $swarm.meta.id`);
-                    }
-                });
-            }
-        }, () => true);
-        localReplyHandlerSet = true;
-    }
-}
