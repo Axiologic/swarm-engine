@@ -10,6 +10,7 @@ require(path.resolve(path.join(__dName, "../../bundles/pskruntime.js")));
 require(path.resolve(path.join(__dName, "../../bundles/psknode.js")));
 require(path.resolve(path.join(__dName, "../../bundles/consoleTools.js")));
 require(path.resolve(path.join(__dName, "../../bundles/testsRuntime.js")));
+const pskbuildPath = path.resolve(path.join(__dirname, '../../bin/scripts/pskbuild.js'));
 
 const os = require('os');
 const fs = require('fs');
@@ -45,7 +46,7 @@ const rmDeep = folder => {
     }
 };
 
-const createConstitution = (prefix, describer, options) => {
+function buildConstitutionFromDescription(describer, options) {
     let opts = Object.assign(
         {
             nl: '\n',
@@ -55,7 +56,6 @@ const createConstitution = (prefix, describer, options) => {
         options
     );
 
-    const file = path.join(prefix, 'constitution.js');
     const contents = Object.keys(describer)
         .reduce((c, name) => {
             let line = "$$.swarms.describe('" + name + "', {";
@@ -74,8 +74,46 @@ const createConstitution = (prefix, describer, options) => {
             return c;
         }, [])
         .join(opts.nl);
-    fs.writeFileSync(file, contents);
-    return file;
+
+    return contents;
+}
+
+const createConstitution = (prefix, describer, options, constitutionSourceFolder) => {
+    const contents = buildConstitutionFromDescription(describer, options);
+
+    const tempConstitutionFolder = path.join(prefix, 'tmpConstitution');
+    const file = path.join(tempConstitutionFolder, 'index.js');
+
+    let sources = '';
+    let sourcesPaths = '';
+
+    if(contents !== '') {
+        sources += 'tmpConstitution';
+        sourcesPaths += prefix;
+
+        fs.mkdirSync(tempConstitutionFolder);
+        fs.writeFileSync(file, contents);
+    }
+
+    if (constitutionSourceFolder) {
+        const sourceConstitutionFolderName = path.basename(constitutionSourceFolder);
+        if(sources !== '') { sources += ','}
+        if(sourcesPaths !== '') { sourcesPaths += ','}
+
+        sources += sourceConstitutionFolderName;
+        sourcesPaths += path.dirname(constitutionSourceFolder);
+    }
+
+    const projectMap = {
+        'constitution': {"deps": sources, "autoLoad": true},
+    };
+
+    const projectMapPath = path.join(prefix, 'projectMap.json');
+    fs.writeFileSync(projectMapPath, JSON.stringify(projectMap), 'utf8');
+
+    child_process.execSync(`node ${pskbuildPath} --projectMap=${projectMapPath} --source=${sourcesPaths} --output=${prefix}`);
+
+    return path.join(prefix, 'constitution.js');
 };
 
 const Tir = function () {
@@ -96,15 +134,17 @@ const Tir = function () {
      *
      * @param {string} domainName The name of the domain
      * @param {array} agents The agents to be inserted
+     * @param {string} constitutionSourceFolder
      * @returns SwarmDescriber
      */
-    this.addDomain = function (domainName, agents) {
+    this.addDomain = function (domainName, agents, constitutionSourceFolder) {
         let workspace = path.join(rootFolder, 'nodes', createKey(domainName));
         console.log('WRITING TO', workspace);
         domainConfigs[domainName] = {
             name: domainName,
             agents,
             constitution: {},
+            constitutionSourceFolder,
             workspace: workspace,
             blockchain: path.join(workspace, 'blockchain')
         };
@@ -235,7 +275,7 @@ const Tir = function () {
 
         let constitutionFile = domainConfig.constitution;
         if (typeof domainConfig.constitution !== 'string') {
-            constitutionFile = createConstitution(domainConfig.workspace, domainConfig.constitution);
+            constitutionFile = createConstitution(domainConfig.workspace, domainConfig.constitution, undefined, domainConfig.constitutionSourceFolder);
         }
 
         const zeroMQPort = getRandomPort();
