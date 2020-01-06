@@ -12,7 +12,8 @@ const config = {
     quick: false,
     projectMap: undefined,
     input: path.join(process.cwd(), "builds", "tmp"),
-    output: path.join(process.cwd(), "psknode", "bundles")
+    output: path.join(process.cwd(), "psknode", "bundles"),
+    source: [path.resolve(process.cwd(), "modules"), path.resolve(process.cwd(), "libraries")]
 };
 
 try {
@@ -25,6 +26,10 @@ try {
     }
 
     throw e;
+}
+
+if (typeof config.source === 'string') {
+    config.source = config.source.split(',');
 }
 
 // translating arguments in properties with more suitable names
@@ -50,7 +55,7 @@ if(config.externalTarget) {
 /** Preparing needed global variables **/
 
 const skipList = config.skipShims ? ["webshims", "reactClient", "httpinteract", "pskclient"] : [];
-const modulesPath = [path.resolve(process.cwd(), "modules"), path.resolve(process.cwd(), "libraries")];
+const modulesPath = config.source;
 const externals = {
     pskruntime: "webshims"
 };
