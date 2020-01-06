@@ -106,7 +106,7 @@ const Tir = function () {
             agents,
             constitution: {},
             workspace: workspace,
-            conf: path.join(workspace, 'conf')
+            blockchain: path.join(workspace, 'blockchain')
         };
 
         return new SwarmDescriber(domainName);
@@ -247,11 +247,11 @@ const Tir = function () {
         };
 
         $$.blockchain.startTransactionAs("secretAgent", "Domain", "add", domainConfig.name, "system", domainConfig.workspace, constitutionFile, communicationInterfaces);
-        $$.blockchain.startTransactionAs("secretAgent", "Domain", "setMaximumNumberOfWorkers", domainConfig.name, 1);
+
         if (domainConfig.agents && Array.isArray(domainConfig.agents) && domainConfig.agents.length > 0) {
 
-            let worldStateCache = blockchain.createWorldStateCache("fs", domainConfig.conf);
-            let historyStorage = blockchain.createHistoryStorage("fs", domainConfig.conf);
+            let worldStateCache = blockchain.createWorldStateCache("fs", domainConfig.blockchain);
+            let historyStorage = blockchain.createHistoryStorage("fs", domainConfig.blockchain);
             let consensusAlgorithm = blockchain.createConsensusAlgorithm("direct");
             let signatureProvider = blockchain.createSignatureProvider("permissive");
             blockchain.createBlockchain(worldStateCache, historyStorage, consensusAlgorithm, signatureProvider, true, true);
@@ -270,8 +270,8 @@ const Tir = function () {
     /**
      * Interacts with an agent of a domain.
      *
-     * @param string domain The name of the domain
-     * @param string agent The name of the agent
+     * @param {string} domain The name of the domain
+     * @param {string} agent The name of the agent
      * @returns swarm
      */
     this.interact = (domain, agent) => {
