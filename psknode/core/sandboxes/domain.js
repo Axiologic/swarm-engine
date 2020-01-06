@@ -73,7 +73,7 @@ process.nextTick(() => { // to give time to initialize all top level variables
     }
 
     //const agentPC = new se.OuterIsolatePowerCord(["../bundles/pskruntime.js", "../bundles/sandboxBase.js", "../bundles/domain.js"]);
-    const agentPC = new se.OuterThreadPowerCord(["../bundles/pskruntime.js", "../bundles/sandboxBase.js", "../bundles/domain.js"]);
+    const agentPC = new se.OuterThreadPowerCord(["../bundles/pskruntime.js", "../bundles/sandboxBase.js", process.env.PRIVATESKY_DOMAIN_CONSTITUTION]);
     $$.swarmEngine.plug(`${process.env.PRIVATESKY_DOMAIN_NAME}/agent/system`, agentPC);
 
 });
