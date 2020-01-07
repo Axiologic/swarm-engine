@@ -145,6 +145,10 @@ const baseDeps = [
     {
         "name": "psk-bindable-model",
         "src": "https://github.com/PrivateSky/psk-bindable-model.git"
+    },
+    {
+        "name": "pskisolates",
+        "src": "https://github.com/PrivateSky/pskisolates.git"
     }
 
 ];
