@@ -78,34 +78,43 @@ function buildConstitutionFromDescription(describer, options) {
     return contents;
 }
 
-const createConstitution = (prefix, describer, options, constitutionSourceFolder) => {
+function createConstitutionFromSources(sources, outputPath) {
+    createConstitution(outputPath, {}, undefined, sources);
+    fs.unlinkSync(path.join(outputPath, 'projectMap.json'));
+}
+
+
+function createConstitution (prefix, describer, options, constitutionSourcesFolder) {
+    if (typeof constitutionSourcesFolder === 'string') {
+        constitutionSourcesFolder = [constitutionSourcesFolder];
+    }
+
     const contents = buildConstitutionFromDescription(describer, options);
 
     const tempConstitutionFolder = path.join(prefix, 'tmpConstitution');
     const file = path.join(tempConstitutionFolder, 'index.js');
 
-    let sources = '';
-    let sourcesPaths = '';
+    let sourcesNames = [];
+    let sourcesPaths = [];
 
     if(contents !== '') {
-        sources += 'tmpConstitution';
-        sourcesPaths += prefix;
+        sourcesNames.push('tmpConstitution');
+        sourcesPaths.push(prefix);
 
         fs.mkdirSync(tempConstitutionFolder);
         fs.writeFileSync(file, contents);
     }
 
-    if (constitutionSourceFolder) {
-        const sourceConstitutionFolderName = path.basename(constitutionSourceFolder);
-        if(sources !== '') { sources += ','}
-        if(sourcesPaths !== '') { sourcesPaths += ','}
-
-        sources += sourceConstitutionFolderName;
-        sourcesPaths += path.dirname(constitutionSourceFolder);
+    if (constitutionSourcesFolder && constitutionSourcesFolder.length && constitutionSourcesFolder.length > 0) {
+        sourcesNames = sourcesNames.concat(constitutionSourcesFolder.map(folder => path.basename(folder)));
+        sourcesPaths = sourcesPaths.concat(constitutionSourcesFolder.map(folder => path.dirname(folder)));
     }
 
+    sourcesNames = sourcesNames.join(',');
+    sourcesPaths = sourcesPaths.join(',');
+
     const projectMap = {
-        'constitution': {"deps": sources, "autoLoad": true},
+        'constitution': {"deps": sourcesNames, "autoLoad": true},
     };
 
     const projectMapPath = path.join(prefix, 'projectMap.json');
@@ -114,7 +123,7 @@ const createConstitution = (prefix, describer, options, constitutionSourceFolder
     child_process.execSync(`node ${pskbuildPath} --projectMap=${projectMapPath} --source=${sourcesPaths} --output=${prefix}`);
 
     return path.join(prefix, 'constitution.js');
-};
+}
 
 const Tir = function () {
     const virtualMQ = require('virtualmq');
@@ -139,7 +148,6 @@ const Tir = function () {
      */
     this.addDomain = function (domainName, agents, constitutionSourceFolder) {
         let workspace = path.join(rootFolder, 'nodes', createKey(domainName));
-        console.log('WRITING TO', workspace);
         domainConfigs[domainName] = {
             name: domainName,
             agents,
@@ -381,6 +389,8 @@ const Tir = function () {
             }
         }, 100);
     };
+
+    this.createConstitutionFromSources = createConstitutionFromSources;
 };
 
 module.exports = new Tir();
