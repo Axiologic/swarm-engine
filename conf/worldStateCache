@@ -1,16 +1,16 @@
 {
  "pskdb": {
   "cset": {
-   "global.DomainReference/P2P4t8cXyjBtXf4JzT8vXsWHu1LvHnJMwwmAuKuVW8": "{\"meta\":{\"swarmTypeName\":\"global.DomainReference\",\"swarmId\":\"P2P4t8cXyjBtXf4JzT8vXsWHu1LvHnJMwwmAuKuVW8\",\"homeSecurityContext\":\"system\",\"command\":\"stored\"},\"publicVars\":{\"role\":\"system\",\"alias\":\"local\",\"addresses\":{},\"constitution\":\"../bundles/domain.js\",\"workspace\":\"../../conf\",\"remoteInterfaces\":{\"system\":\"http://127.0.0.1:8080\"},\"localInterfaces\":{},\"communicationInterfaces\":{\"system\":{\"virtualMQ\":\"http://127.0.0.1:8080\",\"zeroMQ\":\"tcp://127.0.0.1:5000\"}},\"maximumNumberOfWorkers\":10,\"workerStrategy\":\"threads\"},\"privateVars\":{}}"
+   "global.DomainReference/gAuOKTtEwHYXq0os9F0mtyikvlu23DVU7YhQppAjk": "{\"meta\":{\"swarmTypeName\":\"global.DomainReference\",\"swarmId\":\"gAuOKTtEwHYXq0os9F0mtyikvlu23DVU7YhQppAjk\",\"homeSecurityContext\":null,\"command\":\"stored\"},\"publicVars\":{\"role\":\"system\",\"alias\":\"local\",\"constitution\":\"../bundles/domain.js\",\"workspace\":\"../../\",\"blockChainStorageFolderName\":\"conf\",\"addresses\":{},\"communicationInterfaces\":{\"system\":{\"virtualMQ\":\"http://127.0.0.1:8080\",\"zeroMQ\":\"tcp://127.0.0.1:5000\"}},\"workerStrategy\":\"threads\"},\"privateVars\":{}}"
   },
   "versions": {
-   "global.DomainReference/P2P4t8cXyjBtXf4JzT8vXsWHu1LvHnJMwwmAuKuVW8": 0
+   "global.DomainReference/gAuOKTtEwHYXq0os9F0mtyikvlu23DVU7YhQppAjk": 0
   },
   "currentPulse": 0,
-  "latestBlockHash": "290943b436fde1a80a221985171174731037d7d646822bc9f911b71f18e59dc8"
+  "latestBlockHash": "6d85b514dcc5e73147006d6da1d6b3f9a53eeb9ccb1981acabc0b1028893b09d"
  },
  "keys": {
-  "global.DomainReference/aliases": "{\"local\":\"P2P4t8cXyjBtXf4JzT8vXsWHu1LvHnJMwwmAuKuVW8\"}"
+  "global.DomainReference/aliases": "{\"local\":\"gAuOKTtEwHYXq0os9F0mtyikvlu23DVU7YhQppAjk\"}"
  },
  "pulse": 0
 }

@@ -45,25 +45,26 @@ if (typeof domainConfig.workspace !== "undefined" && domainConfig.workspace !== 
 
 //enabling blockchain from confDir
 //validate path exists
-const confDir = path.resolve(process.env.DOMAIN_WORKSPACE);
+const blockchainFolderStorageName = 'blockchain';
 
-$$.log("Using workspace", confDir);
+const workspace = path.resolve(process.env.DOMAIN_WORKSPACE);
+const blockchainDir = path.join(workspace, process.env.DOMAIN_BLOCKCHAIN_STORAGE_FOLDER || blockchainFolderStorageName);
+
+console.log("Using workspace", workspace);
 let blockchain = require("blockchain");
 
-let worldStateCache = blockchain.createWorldStateCache("fs", confDir);
-let historyStorage = blockchain.createHistoryStorage("fs", confDir);
+let worldStateCache = blockchain.createWorldStateCache("fs", blockchainDir);
+let historyStorage = blockchain.createHistoryStorage("fs", blockchainDir);
 let consensusAlgorithm = blockchain.createConsensusAlgorithm("direct");
 let signatureProvider = blockchain.createSignatureProvider("permissive");
 
 blockchain.createBlockchain(worldStateCache, historyStorage, consensusAlgorithm, signatureProvider, true, false);
+
+console.log("Agents will be using constitution file", process.env.PRIVATESKY_DOMAIN_CONSTITUTION);
+
 $$.blockchain.start(() => {
-    $$.log("blockchain loaded!");
-});
+    console.log('Blockchain loaded');
 
-
-$$.log("Agents will be using constitution file", process.env.PRIVATESKY_DOMAIN_CONSTITUTION);
-
-process.nextTick(() => { // to give time to initialize all top level variables
     for (const alias in domainConfig.communicationInterfaces) {
         if (domainConfig.communicationInterfaces.hasOwnProperty(alias)) {
             let remoteUrls = domainConfig.communicationInterfaces[alias];
@@ -73,8 +74,17 @@ process.nextTick(() => { // to give time to initialize all top level variables
     }
 
     //const agentPC = new se.OuterIsolatePowerCord(["../bundles/pskruntime.js", "../bundles/sandboxBase.js", "../bundles/domain.js"]);
-    const agentPC = new se.OuterThreadPowerCord(["../bundles/pskruntime.js", "../bundles/sandboxBase.js", "../bundles/domain.js"]);
-    $$.swarmEngine.plug(`${process.env.PRIVATESKY_DOMAIN_NAME}/agent/system`, agentPC);
+
+    const agents = $$.blockchain.loadAssets('Agent');
+
+    if(agents.length === 0) {
+        agents.push({alias: 'system'});
+    }
+
+    agents.forEach(agent => {
+        const agentPC = new se.OuterThreadPowerCord(["../bundles/pskruntime.js", "../bundles/sandboxBase.js", process.env.PRIVATESKY_DOMAIN_CONSTITUTION]);
+        $$.swarmEngine.plug(`${process.env.PRIVATESKY_DOMAIN_NAME}/agent/${agent.alias}`, agentPC);
+    });
 
 });
 

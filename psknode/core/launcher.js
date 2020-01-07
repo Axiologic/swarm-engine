@@ -70,6 +70,7 @@ function launchDomain(name, configuration) {
         child_env.config = JSON.stringify(env.config);
         child_env.PRIVATESKY_TMP = process.env.PRIVATESKY_TMP;
         child_env.PRIVATESKY_ROOT_FOLDER = process.env.PRIVATESKY_ROOT_FOLDER;
+        child_env.DOMAIN_BLOCKCHAIN_STORAGE_FOLDER = env.config.blockChainStorageFolderName;
 
         Object.keys(process.env).forEach(envVar => {
             if (envVar && envVar.startsWith && envVar.startsWith('PSK')) {
