@@ -59,18 +59,14 @@ const domains = {};
 function launchDomain(name, configuration) {
     if (!domains.hasOwnProperty(name)) {
         const env = {config: JSON.parse(JSON.stringify(beesHealer.asJSON(configuration).publicVars))};
-
-        if (Object.keys(env.config.communicationInterfaces).length === 0 && Object.keys(env.config.localInterfaces).length === 0) {
-            console.log(`Skipping starting domain ${name} due to missing both remoteInterfaces and localInterfaces`);
-            return;
-        }
-
         const child_env = JSON.parse(JSON.stringify(process.env));
 
-        child_env.config = JSON.stringify(env.config);
         child_env.PRIVATESKY_TMP = process.env.PRIVATESKY_TMP;
         child_env.PRIVATESKY_ROOT_FOLDER = process.env.PRIVATESKY_ROOT_FOLDER;
-        child_env.DOMAIN_BLOCKCHAIN_STORAGE_FOLDER = env.config.blockChainStorageFolderName;
+        child_env.config = JSON.stringify({
+            constitution: env.config.constitution,
+            workspace: env.config.workspace
+        });
 
         Object.keys(process.env).forEach(envVar => {
             if (envVar && envVar.startsWith && envVar.startsWith('PSK')) {

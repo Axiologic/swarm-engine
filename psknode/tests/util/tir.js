@@ -154,7 +154,7 @@ const Tir = function () {
             constitution: {},
             constitutionSourceFolder,
             workspace: workspace,
-            blockchain: path.join(workspace, 'blockchain')
+            blockchain: path.join(workspace, 'conf')
         };
 
         return new SwarmDescriber(domainName);
@@ -294,7 +294,8 @@ const Tir = function () {
             }
         };
 
-        $$.blockchain.startTransactionAs("secretAgent", "Domain", "add", domainConfig.name, "system", domainConfig.workspace, constitutionFile, communicationInterfaces);
+        $$.blockchain.startTransactionAs("secretAgent", "Domain", "add", domainConfig.name, "system", domainConfig.workspace, constitutionFile);
+
 
         if (domainConfig.agents && Array.isArray(domainConfig.agents) && domainConfig.agents.length > 0) {
 
@@ -310,6 +311,8 @@ const Tir = function () {
                 console.info('[TIR] domain ' + domainConfig.name + ' agent', agentName);
                 $$.blockchain.startTransactionAs("secretAgent", "Agents", "add", agentName, "public_key");
             });
+
+            $$.blockchain.startTransactionAs('secretAgent', 'DomainConfigTransaction', 'add', domainConfig.name, communicationInterfaces);
         }
     };
     this.getDomainConfig = domainName => {
