@@ -33,6 +33,12 @@ module.exports.fork = function pingPongFork(modulePath, args, options){
 };
 
 module.exports.enableLifeLine = function(timeout){
+
+    if(typeof process.send === "undefined"){
+        console.log("\"process.send\" not found. LifeLine mechanism disabled!");
+        return;
+    }
+
     let lastConfirmationTime;
     const interval = timeout || 2000;
 
