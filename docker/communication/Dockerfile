@@ -13,7 +13,7 @@ RUN cd $TARGET_FOLDER_NAME && \
 RUN cd $TARGET_FOLDER_NAME && \
     npm run build
 
-RUN chmod 711 psk-release/psknode/bin/virtualMq.sh
+RUN chmod 711 $TARGET_FOLDER_NAME/psknode/bin/virtualMq.sh
 RUN cd $TARGET_FOLDER_NAME && echo 'node ./psknode/bin/scripts/startZeromqProxy.js & ./psknode/bin/virtualMq.sh --port=8080 --folder="../tmp"' >> startup-script.sh
 RUN cd $TARGET_FOLDER_NAME && cat startup-script.sh
 
