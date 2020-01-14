@@ -16,7 +16,7 @@ RUN cd $TARGET_FOLDER_NAME && \
 RUN cd $TARGET_FOLDER_NAME && \
     rm -rf conf && \
     cd bin/scripts && \
-    sed -i 's/127.0.0.1/127.0.0.1/g' generateConfig.js && \
+    sed -i 's/127.0.0.1/psk_communication_node/g' generateConfig.js && \
     node generateConfig.js
 
 RUN cd $TARGET_FOLDER_NAME && echo 'node ./psknode/core/launcher.js' >> startup-script.sh

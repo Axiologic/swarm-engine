@@ -1,3 +1,3 @@
 #!/bin/bash
 
-docker build -t privatesky/psk_node .
+docker build -t privatesky/psk_node . --no-cache

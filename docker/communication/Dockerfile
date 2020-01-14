@@ -14,7 +14,8 @@ RUN cd $TARGET_FOLDER_NAME && \
     npm run build
 
 RUN chmod 711 $TARGET_FOLDER_NAME/psknode/bin/virtualMq.sh
-RUN cd $TARGET_FOLDER_NAME && echo 'node ./psknode/bin/scripts/startZeromqProxy.js & ./psknode/bin/virtualMq.sh --port=8080 --folder="../tmp"' >> startup-script.sh
+RUN cd $TARGET_FOLDER_NAME && \
+    echo 'node ./psknode/bin/scripts/basicStart.js ./psknode/bin/scripts/startZeromqProxy.js & node ./psknode/bin/scripts/basicStart.js ./psknode/bin/scripts/virtualMq.js --port=8080 --folder="../tmp"' >> startup-script.sh
 RUN cd $TARGET_FOLDER_NAME && cat startup-script.sh
 
 EXPOSE 8080/tcp 5000/tcp 5001/tcp
