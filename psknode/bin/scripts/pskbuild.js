@@ -54,7 +54,7 @@ if(config.externalTarget) {
 
 /** Preparing needed global variables **/
 
-const skipList = config.skipShims ? ["webshims", "reactClient", "httpinteract", "pskclient"] : [];
+const skipList = config.skipShims ? ["webshims", "reactClient", "httpinteract", "pskclient", "swBrowserified"] : [];
 const modulesPath = config.source;
 const externals = {
     pskruntime: "webshims"
