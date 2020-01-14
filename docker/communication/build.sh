@@ -1,3 +1,3 @@
 #!/bin/bash
 
-docker build -t privatesky/comm_node .
+docker build -t privatesky/comm_node . --no-cache
