@@ -77,7 +77,7 @@ function buildConstitutionFromDescription(describer, options) {
     return contents;
 }
 
-function createConstitution (prefix, describer, options, constitutionSourcesFolder, callback) {
+function createConstitution(prefix, describer, options, constitutionSourcesFolder, callback) {
     const pskadmin = require('pskadmin');
 
     constitutionSourcesFolder = constitutionSourcesFolder || [];
@@ -88,7 +88,7 @@ function createConstitution (prefix, describer, options, constitutionSourcesFold
 
     const contents = buildConstitutionFromDescription(describer, options);
 
-    if(contents && contents !== '') {
+    if (contents && contents !== '') {
         const tempConstitutionFolder = path.join(prefix, 'tmpConstitution');
         const file = path.join(tempConstitutionFolder, 'index.js');
 
@@ -191,7 +191,7 @@ const Tir = function () {
             console.info('[TIR] start building nodes...');
 
             whenAllFinished(Object.values(domainConfigs), this.buildDomainConfiguration, (err) => {
-                if(err) {
+                if (err) {
                     throw err;
                 }
 
@@ -260,7 +260,7 @@ const Tir = function () {
         fs.mkdirSync(domainConfig.workspace, {recursive: true});
 
         getConstitutionFile((err, constitutionFile) => {
-            if(err) {
+            if (err) {
                 return callback(err);
             }
 
@@ -274,35 +274,30 @@ const Tir = function () {
 
             $$.blockchain.startTransactionAs("secretAgent", "Domain", "add", domainConfig.name, "system", domainConfig.workspace, constitutionFile);
 
-            setTimeout(() => {
-                if (domainConfig.agents && Array.isArray(domainConfig.agents) && domainConfig.agents.length > 0) {
+            if (domainConfig.agents && Array.isArray(domainConfig.agents) && domainConfig.agents.length > 0) {
 
-                    let worldStateCache = blockchain.createWorldStateCache("fs", domainConfig.blockchain);
-                    let historyStorage = blockchain.createHistoryStorage("fs", domainConfig.blockchain);
-                    let consensusAlgorithm = blockchain.createConsensusAlgorithm("direct");
-                    let signatureProvider = blockchain.createSignatureProvider("permissive");
-                    let localBlockChain = blockchain.createABlockchain(worldStateCache, historyStorage, consensusAlgorithm, signatureProvider, true, true);
+                let worldStateCache = blockchain.createWorldStateCache("fs", domainConfig.blockchain);
+                let historyStorage = blockchain.createHistoryStorage("fs", domainConfig.blockchain);
+                let consensusAlgorithm = blockchain.createConsensusAlgorithm("direct");
+                let signatureProvider = blockchain.createSignatureProvider("permissive");
+                let localBlockChain = blockchain.createABlockchain(worldStateCache, historyStorage, consensusAlgorithm, signatureProvider, true, true);
 
-                    console.info('[TIR] domain ' + domainConfig.name + ' starting defining agents...');
+                console.info('[TIR] domain ' + domainConfig.name + ' starting defining agents...');
 
-                    domainConfig.agents.forEach(agentName => {
-                        console.info('[TIR] domain ' + domainConfig.name + ' agent', agentName);
-                        localBlockChain.startTransactionAs("secretAgent", "Agents", "add", agentName, "public_key");
-                    });
+                domainConfig.agents.forEach(agentName => {
+                    console.info('[TIR] domain ' + domainConfig.name + ' agent', agentName);
+                    localBlockChain.startTransactionAs("secretAgent", "Agents", "add", agentName, "public_key");
+                });
 
-                    localBlockChain.startTransactionAs('secretAgent', 'DomainConfigTransaction', 'add', domainConfig.name, communicationInterfaces);
-                }
+                localBlockChain.startTransactionAs('secretAgent', 'DomainConfigTransaction', 'add', domainConfig.name, communicationInterfaces);
+            }
 
-                setTimeout(() => {
-                    callback();
-                }, 2000);
-
-            }, 1000);
+            callback();
 
         });
 
         function getConstitutionFile(callback) {
-            if(typeof domainConfig.constitution === 'string') {
+            if (typeof domainConfig.constitution === 'string') {
                 callback(undefined, domainConfig.constitution);
             } else {
                 createConstitution(domainConfig.workspace, domainConfig.constitution, undefined, domainConfig.constitutionSourceFolder, callback);
@@ -394,18 +389,18 @@ const Tir = function () {
 function whenAllFinished(array, handler, callback) {
     let tasksLeft = array.length;
 
-    for(const task of array) {
+    for (const task of array) {
         handler(task, (err) => {
-           tasksLeft--;
+            tasksLeft--;
 
-           if(err) {
-               tasksLeft = -1;
-               return callback(err);
-           }
+            if (err) {
+                tasksLeft = -1;
+                return callback(err);
+            }
 
-           if(tasksLeft === 0) {
-               callback(undefined);
-           }
+            if (tasksLeft === 0) {
+                callback(undefined);
+            }
         });
     }
 
