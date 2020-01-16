@@ -1,16 +1,19 @@
 {
  "pskdb": {
   "cset": {
-   "global.DomainReference/gAuOKTtEwHYXq0os9F0mtyikvlu23DVU7YhQppAjk": "{\"meta\":{\"swarmTypeName\":\"global.DomainReference\",\"swarmId\":\"gAuOKTtEwHYXq0os9F0mtyikvlu23DVU7YhQppAjk\",\"homeSecurityContext\":null,\"command\":\"stored\"},\"publicVars\":{\"role\":\"system\",\"alias\":\"local\",\"constitution\":\"../bundles/domain.js\",\"workspace\":\"../../\",\"blockChainStorageFolderName\":\"conf\",\"addresses\":{},\"communicationInterfaces\":{\"system\":{\"virtualMQ\":\"http://127.0.0.1:8080\",\"zeroMQ\":\"tcp://127.0.0.1:5000\"}},\"workerStrategy\":\"threads\"},\"privateVars\":{}}"
+   "global.DomainReference/F7IrY332HJtlXnleqeTFyI7EDWv5xNWUOLuu2bRTxQ": "{\"meta\":{\"swarmTypeName\":\"global.DomainReference\",\"swarmId\":\"F7IrY332HJtlXnleqeTFyI7EDWv5xNWUOLuu2bRTxQ\",\"homeSecurityContext\":null,\"command\":\"stored\"},\"publicVars\":{\"role\":\"system\",\"alias\":\"local\",\"constitution\":\"../bundles/domain.js\",\"workspace\":\"../../\"},\"privateVars\":{}}",
+   "global.DomainConfig/F6ubYwlnHAokXqxhX1ioOtHaWLu2MzMlJok0HYyn7zc": "{\"meta\":{\"swarmTypeName\":\"global.DomainConfig\",\"swarmId\":\"F6ubYwlnHAokXqxhX1ioOtHaWLu2MzMlJok0HYyn7zc\",\"homeSecurityContext\":null,\"command\":\"stored\"},\"publicVars\":{\"alias\":\"local\",\"blockChainStorageFolderName\":\"conf\",\"addresses\":{},\"communicationInterfaces\":{\"system\":{\"virtualMQ\":\"http://127.0.0.1:8080\",\"zeroMQ\":\"tcp://127.0.0.1:5000\"}},\"workerStrategy\":\"threads\"},\"privateVars\":{}}"
   },
   "versions": {
-   "global.DomainReference/gAuOKTtEwHYXq0os9F0mtyikvlu23DVU7YhQppAjk": 0
+   "global.DomainReference/F7IrY332HJtlXnleqeTFyI7EDWv5xNWUOLuu2bRTxQ": 0,
+   "global.DomainConfig/F6ubYwlnHAokXqxhX1ioOtHaWLu2MzMlJok0HYyn7zc": 0
   },
-  "currentPulse": 0,
-  "latestBlockHash": "6d85b514dcc5e73147006d6da1d6b3f9a53eeb9ccb1981acabc0b1028893b09d"
+  "currentPulse": 1,
+  "latestBlockHash": "202f378cba58ddcbf0e4e671796ed08a913b421128230b16598ac8e431e6d333"
  },
  "keys": {
-  "global.DomainReference/aliases": "{\"local\":\"gAuOKTtEwHYXq0os9F0mtyikvlu23DVU7YhQppAjk\"}"
+  "global.DomainReference/aliases": "{\"local\":\"F7IrY332HJtlXnleqeTFyI7EDWv5xNWUOLuu2bRTxQ\"}",
+  "global.DomainConfig/aliases": "{\"local\":\"F6ubYwlnHAokXqxhX1ioOtHaWLu2MzMlJok0HYyn7zc\"}"
  },
  "pulse": 0
 }

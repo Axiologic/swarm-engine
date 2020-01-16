@@ -1,15 +1,16 @@
 {
  "blockset": {
-  "f9aa73a9463793edc5147658577acb1745369ad46ab77b8bc3b9c84ad2cc1b93": {
+  "8e722d7c2ff638b9abdadebef252b1545d1ba2df2980e9b197638cb0fd018367": {
    "swarmType": "global.DomainReference",
    "input": {},
    "output": {
-    "global.DomainReference/gAuOKTtEwHYXq0os9F0mtyikvlu23DVU7YhQppAjk": "{\"meta\":{\"swarmTypeName\":\"global.DomainReference\",\"swarmId\":\"gAuOKTtEwHYXq0os9F0mtyikvlu23DVU7YhQppAjk\",\"homeSecurityContext\":null,\"command\":\"stored\"},\"publicVars\":{\"role\":\"system\",\"alias\":\"local\",\"constitution\":\"../bundles/domain.js\",\"workspace\":\"../../\",\"blockChainStorageFolderName\":\"conf\",\"addresses\":{},\"communicationInterfaces\":{\"system\":{\"virtualMQ\":\"http://127.0.0.1:8080\",\"zeroMQ\":\"tcp://127.0.0.1:5000\"}},\"workerStrategy\":\"threads\"},\"privateVars\":{}}"
+    "global.DomainReference/F7IrY332HJtlXnleqeTFyI7EDWv5xNWUOLuu2bRTxQ": "{\"meta\":{\"swarmTypeName\":\"global.DomainReference\",\"swarmId\":\"F7IrY332HJtlXnleqeTFyI7EDWv5xNWUOLuu2bRTxQ\",\"homeSecurityContext\":null,\"command\":\"stored\"},\"publicVars\":{\"role\":\"system\",\"alias\":\"local\",\"constitution\":\"../bundles/domain.js\",\"workspace\":\"../../\"},\"privateVars\":{}}",
+    "global.DomainConfig/F6ubYwlnHAokXqxhX1ioOtHaWLu2MzMlJok0HYyn7zc": "{\"meta\":{\"swarmTypeName\":\"global.DomainConfig\",\"swarmId\":\"F6ubYwlnHAokXqxhX1ioOtHaWLu2MzMlJok0HYyn7zc\",\"homeSecurityContext\":null,\"command\":\"stored\"},\"publicVars\":{\"alias\":\"local\",\"blockChainStorageFolderName\":\"conf\",\"addresses\":{},\"communicationInterfaces\":{\"system\":{\"virtualMQ\":\"http://127.0.0.1:8080\",\"zeroMQ\":\"tcp://127.0.0.1:5000\"}},\"workerStrategy\":\"threads\"},\"privateVars\":{}}"
    },
-   "second": 18056,
-   "nanosecod": 200992891,
+   "second": 22389,
+   "nanosecod": 286261682,
    "transactionPulse": 0,
-   "digest": "f9aa73a9463793edc5147658577acb1745369ad46ab77b8bc3b9c84ad2cc1b93",
+   "digest": "8e722d7c2ff638b9abdadebef252b1545d1ba2df2980e9b197638cb0fd018367",
    "signatures": [
     "Signature from agent undefined should be here!"
    ]
@@ -17,5 +18,5 @@
  },
  "pulse": 0,
  "previous": "Genesis Block",
- "hash": "6d85b514dcc5e73147006d6da1d6b3f9a53eeb9ccb1981acabc0b1028893b09d"
+ "hash": "202f378cba58ddcbf0e4e671796ed08a913b421128230b16598ac8e431e6d333"
 }

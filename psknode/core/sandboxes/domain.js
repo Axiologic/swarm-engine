@@ -33,19 +33,19 @@ $$.log(`Booting domain ... ${process.env.PRIVATESKY_DOMAIN_NAME}`);
 const se = pskruntimeRequire("swarm-engine");
 se.initialise(process.env.PRIVATESKY_DOMAIN_NAME);
 
-const domainConfig = JSON.parse(process.env.config);
+const config = JSON.parse(process.env.config);
 
-if (typeof domainConfig.constitution !== "undefined" && domainConfig.constitution !== "undefined") {
-    process.env.PRIVATESKY_DOMAIN_CONSTITUTION = domainConfig.constitution;
+if (typeof config.constitution !== "undefined" && config.constitution !== "undefined") {
+    process.env.PRIVATESKY_DOMAIN_CONSTITUTION = config.constitution;
 }
 
-if (typeof domainConfig.workspace !== "undefined" && domainConfig.workspace !== "undefined") {
-    process.env.DOMAIN_WORKSPACE = domainConfig.workspace;
+if (typeof config.workspace !== "undefined" && config.workspace !== "undefined") {
+    process.env.DOMAIN_WORKSPACE = config.workspace;
 }
 
 //enabling blockchain from confDir
 //validate path exists
-const blockchainFolderStorageName = 'blockchain';
+const blockchainFolderStorageName = 'conf';
 
 const workspace = path.resolve(process.env.DOMAIN_WORKSPACE);
 const blockchainDir = path.join(workspace, process.env.DOMAIN_BLOCKCHAIN_STORAGE_FOLDER || blockchainFolderStorageName);
@@ -64,6 +64,12 @@ console.log("Agents will be using constitution file", process.env.PRIVATESKY_DOM
 
 $$.blockchain.start(() => {
     console.log('Blockchain loaded');
+
+    const domainConfig = $$.blockchain.lookup('DomainConfig', process.env.PRIVATESKY_DOMAIN_NAME);
+
+    if(!domainConfig) {
+        throw new Error('Could not find any domain config for domain ' + process.env.PRIVATESKY_DOMAIN_NAME);
+    }
 
     for (const alias in domainConfig.communicationInterfaces) {
         if (domainConfig.communicationInterfaces.hasOwnProperty(alias)) {

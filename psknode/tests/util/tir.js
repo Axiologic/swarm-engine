@@ -10,7 +10,6 @@ require(path.resolve(path.join(__dName, "../../bundles/pskruntime.js")));
 require(path.resolve(path.join(__dName, "../../bundles/psknode.js")));
 require(path.resolve(path.join(__dName, "../../bundles/consoleTools.js")));
 require(path.resolve(path.join(__dName, "../../bundles/testsRuntime.js")));
-const pskbuildPath = path.resolve(path.join(__dirname, '../../bin/scripts/pskbuild.js'));
 
 const os = require('os');
 const fs = require('fs');
@@ -78,51 +77,28 @@ function buildConstitutionFromDescription(describer, options) {
     return contents;
 }
 
-function createConstitutionFromSources(sources, outputPath) {
-    createConstitution(outputPath, {}, undefined, sources);
-    fs.unlinkSync(path.join(outputPath, 'projectMap.json'));
-}
+function createConstitution(prefix, describer, options, constitutionSourcesFolder, callback) {
+    const pskadmin = require('../../../modules/pskadmin');
 
+    constitutionSourcesFolder = constitutionSourcesFolder || [];
 
-function createConstitution (prefix, describer, options, constitutionSourcesFolder) {
     if (typeof constitutionSourcesFolder === 'string') {
         constitutionSourcesFolder = [constitutionSourcesFolder];
     }
 
     const contents = buildConstitutionFromDescription(describer, options);
 
-    const tempConstitutionFolder = path.join(prefix, 'tmpConstitution');
-    const file = path.join(tempConstitutionFolder, 'index.js');
+    if (contents && contents !== '') {
+        const tempConstitutionFolder = path.join(prefix, 'tmpConstitution');
+        const file = path.join(tempConstitutionFolder, 'index.js');
 
-    let sourcesNames = [];
-    let sourcesPaths = [];
-
-    if(contents !== '') {
-        sourcesNames.push('tmpConstitution');
-        sourcesPaths.push(prefix);
-
-        fs.mkdirSync(tempConstitutionFolder);
+        fs.mkdirSync(tempConstitutionFolder, {recursive: true});
         fs.writeFileSync(file, contents);
+        constitutionSourcesFolder.push(tempConstitutionFolder);
     }
 
-    if (constitutionSourcesFolder && constitutionSourcesFolder.length && constitutionSourcesFolder.length > 0) {
-        sourcesNames = sourcesNames.concat(constitutionSourcesFolder.map(folder => path.basename(folder)));
-        sourcesPaths = sourcesPaths.concat(constitutionSourcesFolder.map(folder => path.dirname(folder)));
-    }
-
-    sourcesNames = sourcesNames.join(',');
-    sourcesPaths = sourcesPaths.join(',');
-
-    const projectMap = {
-        'constitution': {"deps": sourcesNames, "autoLoad": true},
-    };
-
-    const projectMapPath = path.join(prefix, 'projectMap.json');
-    fs.writeFileSync(projectMapPath, JSON.stringify(projectMap), 'utf8');
-
-    child_process.execSync(`node ${pskbuildPath} --projectMap=${projectMapPath} --source=${sourcesPaths} --output=${prefix}`);
-
-    return path.join(prefix, 'constitution.js');
+    console.log('[TIR] Will construct constitution from', constitutionSourcesFolder);
+    pskadmin.createConstitutionFromSources(constitutionSourcesFolder, prefix, callback);
 }
 
 const Tir = function () {
@@ -154,7 +130,7 @@ const Tir = function () {
             constitution: {},
             constitutionSourceFolder,
             workspace: workspace,
-            blockchain: path.join(workspace, 'blockchain')
+            blockchain: path.join(workspace, 'conf')
         };
 
         return new SwarmDescriber(domainName);
@@ -213,27 +189,28 @@ const Tir = function () {
             fs.mkdirSync(path.join(rootFolder, 'nodes'));
 
             console.info('[TIR] start building nodes...');
-            Object.keys(domainConfigs).forEach(name => {
-                const domainConfig = domainConfigs[name];
-                this.buildDomainConfiguration(domainConfig);
+
+            whenAllFinished(Object.values(domainConfigs), this.buildDomainConfiguration, (err) => {
+                if (err) {
+                    throw err;
+                }
+
+                testerNode = pingPongFork.fork(
+                    path.resolve(path.join(__dName, "../../core/launcher.js")),
+                    [confFolder, rootFolder],
+                    {stdio: 'inherit'}
+                );
+
+                initializeSwarmEngine(virtualMQPort);
+
+                setTimeout(() => {
+                    if (tearDownAfter !== null) {
+                        setTimeout(() => this.tearDown(1), tearDownAfter);
+                    }
+                    callable(undefined, vmqPort);
+                }, 1000);
             });
 
-            testerNode = pingPongFork.fork(
-                path.resolve(path.join(__dName, "../../core/launcher.js")),
-                [confFolder, rootFolder],
-                {stdio: 'inherit'}
-            );
-
-            initializeSwarmEngine(virtualMQPort);
-
-            console.log('swarm engine e gata');
-
-            setTimeout(() => {
-                if (tearDownAfter !== null) {
-                    setTimeout(() => this.tearDown(1), tearDownAfter);
-                }
-                callable();
-            }, 1000);
         });
 
     };
@@ -274,44 +251,60 @@ const Tir = function () {
      * Builds the config for a node.
      *
      * @param {object} domainConfig The domain configuration stored by addDomain
+     * @param callback
      */
-    this.buildDomainConfiguration = domainConfig => {
+    this.buildDomainConfiguration = (domainConfig, callback) => {
         console.info('[TIR] domain ' + domainConfig.name + ' in workspace', domainConfig.workspace);
         console.info('[TIR] domain ' + domainConfig.name + ' inbound', domainConfig.inbound);
 
-        fs.mkdirSync(domainConfig.workspace);
+        fs.mkdirSync(domainConfig.workspace, {recursive: true});
 
-        let constitutionFile = domainConfig.constitution;
-        if (typeof domainConfig.constitution !== 'string') {
-            constitutionFile = createConstitution(domainConfig.workspace, domainConfig.constitution, undefined, domainConfig.constitutionSourceFolder);
-        }
-
-        const zeroMQPort = getRandomPort();
-        const communicationInterfaces = {
-            system: {
-                virtualMQ: `http://127.0.0.1:${virtualMQPort}`,
-                // zeroMQ: `tcp://127.0.0.1:${zeroMQPort}`
+        getConstitutionFile((err, constitutionFile) => {
+            if (err) {
+                return callback(err);
             }
-        };
 
-        $$.blockchain.startTransactionAs("secretAgent", "Domain", "add", domainConfig.name, "system", domainConfig.workspace, constitutionFile, communicationInterfaces);
+            const zeroMQPort = getRandomPort();
+            const communicationInterfaces = {
+                system: {
+                    virtualMQ: `http://127.0.0.1:${virtualMQPort}`,
+                    // zeroMQ: `tcp://127.0.0.1:${zeroMQPort}`
+                }
+            };
 
-        if (domainConfig.agents && Array.isArray(domainConfig.agents) && domainConfig.agents.length > 0) {
+            $$.blockchain.startTransactionAs("secretAgent", "Domain", "add", domainConfig.name, "system", domainConfig.workspace, constitutionFile);
 
-            let worldStateCache = blockchain.createWorldStateCache("fs", domainConfig.blockchain);
-            let historyStorage = blockchain.createHistoryStorage("fs", domainConfig.blockchain);
-            let consensusAlgorithm = blockchain.createConsensusAlgorithm("direct");
-            let signatureProvider = blockchain.createSignatureProvider("permissive");
-            blockchain.createBlockchain(worldStateCache, historyStorage, consensusAlgorithm, signatureProvider, true, true);
+            if (domainConfig.agents && Array.isArray(domainConfig.agents) && domainConfig.agents.length > 0) {
 
-            console.info('[TIR] domain ' + domainConfig.name + ' starting defining agents...');
+                let worldStateCache = blockchain.createWorldStateCache("fs", domainConfig.blockchain);
+                let historyStorage = blockchain.createHistoryStorage("fs", domainConfig.blockchain);
+                let consensusAlgorithm = blockchain.createConsensusAlgorithm("direct");
+                let signatureProvider = blockchain.createSignatureProvider("permissive");
+                let localBlockChain = blockchain.createABlockchain(worldStateCache, historyStorage, consensusAlgorithm, signatureProvider, true, true);
 
-            domainConfig.agents.forEach(agentName => {
-                console.info('[TIR] domain ' + domainConfig.name + ' agent', agentName);
-                $$.blockchain.startTransactionAs("secretAgent", "Agents", "add", agentName, "public_key");
-            });
+                console.info('[TIR] domain ' + domainConfig.name + ' starting defining agents...');
+
+                domainConfig.agents.forEach(agentName => {
+                    console.info('[TIR] domain ' + domainConfig.name + ' agent', agentName);
+                    localBlockChain.startTransactionAs("secretAgent", "Agents", "add", agentName, "public_key");
+                });
+
+                localBlockChain.startTransactionAs('secretAgent', 'DomainConfigTransaction', 'add', domainConfig.name, communicationInterfaces);
+            }
+
+            callback();
+
+        });
+
+        function getConstitutionFile(callback) {
+            if (typeof domainConfig.constitution === 'string') {
+                callback(undefined, domainConfig.constitution);
+            } else {
+                createConstitution(domainConfig.workspace, domainConfig.constitution, undefined, domainConfig.constitutionSourceFolder, callback);
+            }
         }
     };
+
     this.getDomainConfig = domainName => {
         return domainConfigs[domainName];
     };
@@ -390,7 +383,27 @@ const Tir = function () {
         }, 100);
     };
 
-    this.createConstitutionFromSources = createConstitutionFromSources;
 };
+
+
+function whenAllFinished(array, handler, callback) {
+    let tasksLeft = array.length;
+
+    for (const task of array) {
+        handler(task, (err) => {
+            tasksLeft--;
+
+            if (err) {
+                tasksLeft = -1;
+                return callback(err);
+            }
+
+            if (tasksLeft === 0) {
+                callback(undefined);
+            }
+        });
+    }
+
+}
 
 module.exports = new Tir();
