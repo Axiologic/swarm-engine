@@ -8,4 +8,4 @@ docker run --detach \
     --publish 8080:8080 \
     --name $name \
     --restart always \
-    privatesky/comm_node
+    privatesky/virtualmq

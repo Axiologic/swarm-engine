@@ -1,0 +1,21 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: psk
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: psk
+  template:
+    metadata:
+      labels:
+        app: psk
+    spec:
+      containers:
+        - name: vmq
+          image: privatesky/virtualmq:latest
+          ports:
+            - containerPort: 8080
+        - name: node
+          image: privatesky/psk_node:latest

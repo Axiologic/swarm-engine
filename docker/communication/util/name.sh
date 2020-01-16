@@ -1,1 +1,1 @@
-echo "psk_communication_node"
+echo "virtualmq"
