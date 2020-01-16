@@ -12,5 +12,6 @@
   "edfsBar": "bar, psk-http-client, edfs, edfs-middleware, edfs-brick-storage, bar-fs-adapter, adler32",
   "testsRuntime": "double-check, pskadmin",
   "bindableModel": "overwrite-require, @msgpack/msgpack, swarmutils, soundpubsub, psk-bindable-model",
-  "swBrowserified": {"deps":"browser-server, swarmutils, callflow", "autoLoad": true, "bundleExternal":  true, "bare":  false}
+  "swBrowserified": {"deps":"browser-server, swarmutils, callflow, swarm-engine", "autoLoad": true, "bundleExternal":  true, "bare":  false},
+  "browserServer": {"deps":"browser-server", "bundleExternal":  true}
 }

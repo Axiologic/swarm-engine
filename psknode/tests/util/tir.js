@@ -78,7 +78,7 @@ function buildConstitutionFromDescription(describer, options) {
 }
 
 function createConstitution(prefix, describer, options, constitutionSourcesFolder, callback) {
-    const pskadmin = require('pskadmin');
+    const pskadmin = require('../../../modules/pskadmin');
 
     constitutionSourcesFolder = constitutionSourcesFolder || [];
 
@@ -207,7 +207,7 @@ const Tir = function () {
                     if (tearDownAfter !== null) {
                         setTimeout(() => this.tearDown(1), tearDownAfter);
                     }
-                    callable();
+                    callable(undefined, vmqPort);
                 }, 1000);
             });
 
