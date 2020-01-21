@@ -1,7 +1,9 @@
 const config = {
     addressForPublishers: process.env.PSK_PUBLISH_LOGS_ADDR || 'tcp://127.0.0.1:7000',
     addressForSubscribers: process.env.PSK_SUBSCRIBE_FOR_LOGS_ADDR || 'tcp://127.0.0.1:7001',
-    addressToCollector: process.env.PSK_COLLECTOR_ADDR || 'tcp://127.0.0.1:5558'
+    addressToCollector: process.env.PSK_COLLECTOR_ADDR || 'tcp://127.0.0.1:5558',
+    startResourceMonitor: process.env.START_RESOURCE_MONITOR || true,
+    keepLocalCopyForLogs: process.env.KEEP_LOCAL_COPY_FOR_LOGS || true
 };
 
 const path = require("path");
@@ -28,8 +30,13 @@ if(cluster.isMaster) {
     console.log('PubSubProxy started');
     
     cluster.fork();
-    fork(path.join(__dirname, './startNodeResourceMonitor'));
-    fork(path.join(__dirname, './localLogsCollector'));
+    if(config.startResourceMonitor) {
+        fork(path.join(__dirname, './startNodeResourceMonitor'));
+    }
+
+    if(config.keepLocalCopyForLogs) {
+        fork(path.join(__dirname, './localLogsCollector'));
+    }
 
 } else {
     const NODE_NAME = process.env.NODE_NAME || 'anon';
