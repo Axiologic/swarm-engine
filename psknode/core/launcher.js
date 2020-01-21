@@ -61,8 +61,8 @@ function loadConfigThenLaunch(confDir) {
 }
 
 function loadConfigCSB(seed) {
-    const pskadmin = require('pskadmin');
-    pskadmin.loadCSB(seed, (err, csb) => {
+    const pskdomain = require('pskdomain');
+    pskdomain.loadCSB(seed, (err, csb) => {
         if (err) {
             throw err;
         }

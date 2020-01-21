@@ -75,9 +75,9 @@ function loadCSBFromFile(blockchainFolder) {
 }
 
 function loadCSBWithSeed(seed) {
-    const pskadmin = require('pskadmin');
+    const pskdomain = require('pskdomain');
 
-    pskadmin.loadCSB(seed, (err, blockchain) => {
+    pskdomain.loadCSB(seed, (err, blockchain) => {
         if (err) {
             throw err;
         }

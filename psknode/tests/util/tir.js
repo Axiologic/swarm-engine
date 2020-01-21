@@ -83,7 +83,7 @@ function buildConstitutionFromDescription(describer, options) {
 }
 
 function createConstitution(prefix, describer, options, constitutionSourcesFolder, callback) {
-    const pskadmin = require('../../../modules/pskadmin');
+    const pskdomain = require('../../../modules/pskdomain');
 
     constitutionSourcesFolder = constitutionSourcesFolder || [];
 
@@ -103,13 +103,13 @@ function createConstitution(prefix, describer, options, constitutionSourcesFolde
     }
 
     console.log('[TIR] Will construct constitution from', constitutionSourcesFolder);
-    pskadmin.createConstitutionFromSources(constitutionSourcesFolder, prefix, callback);
+    pskdomain.createConstitutionFromSources(constitutionSourcesFolder, prefix, callback);
 }
 
 const Tir = function () {
     const virtualMQ = require('virtualmq');
     const pingPongFork = require('../../core/utils/pingpongFork');
-    const pskadmin = require('../../../modules/pskadmin');
+    const pskdomain = require('../../../modules/pskdomain');
 
     const domainConfigs = {};
     const rootFolder = fs.mkdtempSync(path.join(os.tmpdir(), 'psk_'));
@@ -190,7 +190,7 @@ const Tir = function () {
 
             console.info('[TIR] pskdb on', confFolder);
 
-            pskadmin.createCSB((err, launcherCSB) => {
+            pskdomain.createCSB((err, launcherCSB) => {
                 if (err) {
                     return callback(err);
                 }
@@ -264,7 +264,7 @@ const Tir = function () {
                 return
             }
 
-            pskadmin.ensureEnvironmentIsReady(`http://localhost:${virtualMQPort}`);
+            pskdomain.ensureEnvironmentIsReady(`http://localhost:${virtualMQPort}`);
 
             $$.securityContext.generateIdentity((err, agentId) => {
                 if (err) {
@@ -363,7 +363,7 @@ const Tir = function () {
 
                     if (domainConfig.agents && Array.isArray(domainConfig.agents) && domainConfig.agents.length > 0) {
 
-                        pskadmin.loadCSB(constitutionSeed, (err, csb) => {
+                        pskdomain.loadCSB(constitutionSeed, (err, csb) => {
                             if (err) {
                                 return callback(err);
                             }
@@ -405,7 +405,7 @@ const Tir = function () {
                     return callback(err);
                 }
 
-                pskadmin.deployConstitutionCSB(pathToConstitution, (err, seedBuffer) => {
+                pskdomain.deployConstitutionCSB(pathToConstitution, (err, seedBuffer) => {
                     if (err) {
                         return callback(err);
                     }
