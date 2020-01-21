@@ -7,6 +7,8 @@ require("./utils/pingpongFork").enableLifeLine(1000);
 
 require(path.join(__dirname, '../bundles/pskruntime.js'));
 require(path.join(__dirname, '../bundles/psknode.js'));
+require(path.join(__dirname, "../bundles/edfsBar.js"));
+
 
 const fs = require('fs');
 const beesHealer = require('swarmutils').beesHealer;
@@ -30,8 +32,7 @@ if (!process.env.PRIVATESKY_TMP) {
 }
 
 const basePath = tmpDir;
-fs.mkdir(basePath, {recursive:true}, function () {
-});
+fs.mkdirSync(basePath, {recursive: true});
 
 const codeFolder = path.normalize(__dirname + "/../");
 
@@ -45,58 +46,49 @@ if (!fs.existsSync(confDir)) {
     console.log(`\n[::] Could not find conf <${confDir}> directory!\n`);
 }
 
-//enabling blockchain from confDir
-const blockchain = require('blockchain');
-let worldStateCache = blockchain.createWorldStateCache("fs", confDir);
-let historyStorage = blockchain.createHistoryStorage("fs", confDir);
-let consensusAlgorithm = blockchain.createConsensusAlgorithm("direct");
-let signatureProvider = blockchain.createSignatureProvider("permissive");
+loadConfigThenLaunch(confDir);
 
-blockchain.createBlockchain(worldStateCache, historyStorage, consensusAlgorithm, signatureProvider, true, false);
+/************************ HELPER METHODS ************************/
 
-const domains = {};
-
-function launchDomain(name, configuration) {
-    if (!domains.hasOwnProperty(name)) {
-        const env = {config: JSON.parse(JSON.stringify(beesHealer.asJSON(configuration).publicVars))};
-        const child_env = JSON.parse(JSON.stringify(process.env));
-
-        child_env.PRIVATESKY_TMP = process.env.PRIVATESKY_TMP;
-        child_env.PRIVATESKY_ROOT_FOLDER = process.env.PRIVATESKY_ROOT_FOLDER;
-        child_env.config = JSON.stringify({
-            constitution: env.config.constitution,
-            workspace: env.config.workspace
-        });
-
-        Object.keys(process.env).forEach(envVar => {
-            if (envVar && envVar.startsWith && envVar.startsWith('PSK')) {
-                child_env[envVar] = process.env[envVar];
-            }
-        });
-
-        const child = require("./utils/pingpongFork").fork(path.join(__dirname, 'sandboxes/domain.js'), [name], {
-            cwd: __dirname,
-            env: child_env
-        });
-
-        child.on('exit', (code, signal) => {
-            setTimeout(() => {
-                console.log(`DomainSandbox [${name}] got an error code ${code}. Restarting...`);
-                delete domains[name];
-                $$.event('status.domains.restart', {name: name});
-                launchDomain(name, configuration);
-            }, 100);
-        });
-
-        domains[name] = child;
+function loadConfigThenLaunch(confDir) {
+    const seedLocation = path.join(confDir, 'confSeed');
+    if (fs.existsSync(seedLocation)) {
+        const seed = fs.readFileSync(seedLocation, 'utf8');
+        loadConfigCSB(seed)
     } else {
-        console.log('Trying to start a sandbox for a domain that already has a sandbox');
+        loadBlockChainFromConfigFolder(confDir)
     }
 }
 
+function loadConfigCSB(seed) {
+    const pskadmin = require('pskadmin');
+    pskadmin.loadCSB(seed, (err, csb) => {
+        if (err) {
+            throw err;
+        }
 
-$$.blockchain.start(() => {
-    let domainReferences = $$.blockchain.loadAssets("DomainReference");
+        launch(csb);
+    });
+}
+
+function loadBlockChainFromConfigFolder(configFolder) {
+    const Blockchain = require('blockchain');
+    let worldStateCache = Blockchain.createWorldStateCache("fs", configFolder);
+    let historyStorage = Blockchain.createHistoryStorage("fs", configFolder);
+    let consensusAlgorithm = Blockchain.createConsensusAlgorithm("direct");
+    let signatureProvider = Blockchain.createSignatureProvider("permissive");
+
+    const blockchain = Blockchain.createABlockchain(worldStateCache, historyStorage, consensusAlgorithm, signatureProvider, true, false);
+
+    blockchain.start(() => {
+        launch(blockchain);
+    });
+}
+
+function launch(blockchain) {
+    const domains = {};
+
+    let domainReferences = blockchain.loadAssets("DomainReference");
     domainReferences.forEach(domainReference => {
         launchDomain(domainReference.alias, domainReference);
     });
@@ -105,4 +97,42 @@ $$.blockchain.start(() => {
     if (domains.length === 0) {
         console.log(`\n[::] No domains were deployed.\n`);
     }
-});
+
+    function launchDomain(name, configuration) {
+        if (!domains.hasOwnProperty(name)) {
+            const env = {config: JSON.parse(JSON.stringify(beesHealer.asJSON(configuration).publicVars))};
+            const child_env = JSON.parse(JSON.stringify(process.env));
+
+            child_env.PRIVATESKY_TMP = process.env.PRIVATESKY_TMP;
+            child_env.PRIVATESKY_ROOT_FOLDER = process.env.PRIVATESKY_ROOT_FOLDER;
+            child_env.config = JSON.stringify({
+                constitution: env.config.constitution,
+                workspace: env.config.workspace
+            });
+
+            Object.keys(process.env).forEach(envVar => {
+                if (envVar && envVar.startsWith && envVar.startsWith('PSK')) {
+                    child_env[envVar] = process.env[envVar];
+                }
+            });
+
+            const child = require("./utils/pingpongFork").fork(path.join(__dirname, 'sandboxes/domain.js'), [name], {
+                cwd: __dirname,
+                env: child_env
+            });
+
+            child.on('exit', (code, signal) => {
+                setTimeout(() => {
+                    console.log(`DomainSandbox [${name}] got an error code ${code}. Restarting...`);
+                    delete domains[name];
+                    $$.event('status.domains.restart', {name: name});
+                    launchDomain(name, configuration);
+                }, 100);
+            });
+
+            domains[name] = child;
+        } else {
+            console.log('Trying to start a sandbox for a domain that already has a sandbox');
+        }
+    }
+}

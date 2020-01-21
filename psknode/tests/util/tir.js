@@ -3,6 +3,10 @@
  *
  */
 
+const config = {
+    addressForSubscribers: process.env.PSK_SUBSCRIBE_FOR_LOGS_ADDR || 'tcp://127.0.0.1:7001'
+};
+
 const path = require('path');
 
 const __dName = __dirname;
@@ -10,6 +14,7 @@ require(path.resolve(path.join(__dName, "../../bundles/pskruntime.js")));
 require(path.resolve(path.join(__dName, "../../bundles/psknode.js")));
 require(path.resolve(path.join(__dName, "../../bundles/consoleTools.js")));
 require(path.resolve(path.join(__dName, "../../bundles/testsRuntime.js")));
+require(path.resolve(path.join(__dName, "../../bundles/edfsBar.js")));
 
 const os = require('os');
 const fs = require('fs');
@@ -104,6 +109,7 @@ function createConstitution(prefix, describer, options, constitutionSourcesFolde
 const Tir = function () {
     const virtualMQ = require('virtualmq');
     const pingPongFork = require('../../core/utils/pingpongFork');
+    const pskadmin = require('../../../modules/pskadmin');
 
     const domainConfigs = {};
     const rootFolder = fs.mkdtempSync(path.join(os.tmpdir(), 'psk_'));
@@ -168,6 +174,9 @@ const Tir = function () {
         }
 
         console.info('[TIR] setting working folder root', rootFolder);
+
+        launchLocalMonitor(callCallbackWhenAllDomainsStarted);
+
         launchVirtualMQNode(100, rootFolder, (err, vmqPort) => {
             if (err) {
                 throw err;
@@ -176,42 +185,69 @@ const Tir = function () {
             virtualMQPort = vmqPort;
 
             const confFolder = path.join(rootFolder, 'conf');
+            fs.mkdirSync(confFolder);
+            fs.mkdirSync(path.join(rootFolder, 'nodes'));
 
             console.info('[TIR] pskdb on', confFolder);
 
-            let worldStateCache = blockchain.createWorldStateCache("fs", confFolder);
-            let historyStorage = blockchain.createHistoryStorage("fs", confFolder);
-            let consensusAlgorithm = blockchain.createConsensusAlgorithm("direct");
-            let signatureProvider = blockchain.createSignatureProvider("permissive");
-
-            blockchain.createBlockchain(worldStateCache, historyStorage, consensusAlgorithm, signatureProvider, true, false);
-
-            fs.mkdirSync(path.join(rootFolder, 'nodes'));
-
-            console.info('[TIR] start building nodes...');
-
-            whenAllFinished(Object.values(domainConfigs), this.buildDomainConfiguration, (err) => {
+            pskadmin.createCSB((err, launcherCSB) => {
                 if (err) {
-                    throw err;
+                    return callback(err);
                 }
 
-                testerNode = pingPongFork.fork(
-                    path.resolve(path.join(__dName, "../../core/launcher.js")),
-                    [confFolder, rootFolder],
-                    {stdio: 'inherit'}
-                );
+                $$.blockchain = launcherCSB;
 
-                initializeSwarmEngine(virtualMQPort);
+                console.info('[TIR] start building nodes...');
 
-                setTimeout(() => {
-                    if (tearDownAfter !== null) {
-                        setTimeout(() => this.tearDown(1), tearDownAfter);
+                whenAllFinished(Object.values(domainConfigs), this.buildDomainConfiguration, (err) => {
+                    if (err) {
+                        throw err;
                     }
-                    callable(undefined, vmqPort);
-                }, 1000);
+
+                    const seed = launcherCSB.getSeed();
+                    fs.writeFileSync(path.join(confFolder, 'confSeed'), seed.toString(), 'utf8');
+
+                    testerNode = pingPongFork.fork(
+                        path.resolve(path.join(__dName, "../../core/launcher.js")),
+                        [confFolder, rootFolder],
+                        {
+                            stdio: 'inherit',
+                            env: {
+                                PSK_PUBLISH_LOGS_ADDR: `tcp://127.0.0.1:${zeroMQPort}`
+                            }
+                        }
+                    );
+
+                    initializeSwarmEngine(virtualMQPort);
+
+                    setTimeout(() => {
+                        if (tearDownAfter !== null) {
+                            setTimeout(() => this.tearDown(1), tearDownAfter);
+                        }
+                    }, 1000);
+                });
+
             });
 
+            // let worldStateCache = blockchain.createWorldStateCache("fs", confFolder);
+            // let historyStorage = blockchain.createHistoryStorage("fs", confFolder);
+            // let consensusAlgorithm = blockchain.createConsensusAlgorithm("direct");
+            // let signatureProvider = blockchain.createSignatureProvider("permissive");
+            //
+            // blockchain.createBlockchain(worldStateCache, historyStorage, consensusAlgorithm, signatureProvider, true, false);
+
+
         });
+
+        let domainsLeftToStart = Object.keys(domainConfigs).length;
+
+        function callCallbackWhenAllDomainsStarted() {
+            domainsLeftToStart -= 1;
+
+            if (domainsLeftToStart === 0) {
+                callable(undefined, virtualMQPort);
+            }
+        }
 
     };
 
@@ -228,8 +264,55 @@ const Tir = function () {
                 return
             }
 
-            callback(undefined, virtualMQPort);
+            pskadmin.ensureEnvironmentIsReady(`http://localhost:${virtualMQPort}`);
+
+            $$.securityContext.generateIdentity((err, agentId) => {
+                if (err) {
+                    return callback(err);
+                }
+
+                callback(undefined, virtualMQPort);
+            });
+
         });
+    }
+
+    function launchLocalMonitor(maxTries, onBootMessage) {
+        if (typeof maxTries === 'function') {
+            onBootMessage = maxTries;
+            maxTries = 100;
+        }
+
+        if (typeof maxTries !== 'number' || maxTries < 0) {
+            maxTries = 100;
+        }
+
+        const zeromqName = 'zeromq';
+        const zmq = require(zeromqName);
+        const zmqReceiver = zmq.createSocket('sub');
+
+        zmqReceiver.subscribe('events.status.domains.boot');
+        zmqReceiver.on('message', onBootMessage);
+
+        let portFound = false;
+
+        while (!portFound && maxTries > 0) {
+            zeroMQPort = getRandomPort();
+            maxTries -= 1;
+            try {
+                zmqReceiver.bindSync(`tcp://127.0.0.1:${zeroMQPort}`);
+                portFound = true;
+            } catch (e) {
+                console.log(e);
+            } // port not found yet
+        }
+
+        if (!portFound) {
+            throw new Error('Could not find a free port for zeromq');
+        }
+
+        console.log('[TIR] zeroMQ bound to address', `tcp://127.0.0.1:${zeroMQPort}`);
+
     }
 
     function initializeSwarmEngine(port) {
@@ -259,7 +342,7 @@ const Tir = function () {
 
         fs.mkdirSync(domainConfig.workspace, {recursive: true});
 
-        getConstitutionFile((err, constitutionFile) => {
+        getConstitutionSeed((err, constitutionSeed) => {
             if (err) {
                 return callback(err);
             }
@@ -272,29 +355,65 @@ const Tir = function () {
                 }
             };
 
-            $$.blockchain.startTransactionAs("secretAgent", "Domain", "add", domainConfig.name, "system", domainConfig.workspace, constitutionFile);
+            $$.blockchain.startTransactionAs("secretAgent", "Domain", "add", domainConfig.name, "system", domainConfig.workspace, constitutionSeed)
+                .onCommit((err) => {
+                    if (err) {
+                        return callback(err);
+                    }
 
-            if (domainConfig.agents && Array.isArray(domainConfig.agents) && domainConfig.agents.length > 0) {
+                    if (domainConfig.agents && Array.isArray(domainConfig.agents) && domainConfig.agents.length > 0) {
 
-                let worldStateCache = blockchain.createWorldStateCache("fs", domainConfig.blockchain);
-                let historyStorage = blockchain.createHistoryStorage("fs", domainConfig.blockchain);
-                let consensusAlgorithm = blockchain.createConsensusAlgorithm("direct");
-                let signatureProvider = blockchain.createSignatureProvider("permissive");
-                let localBlockChain = blockchain.createABlockchain(worldStateCache, historyStorage, consensusAlgorithm, signatureProvider, true, true);
+                        pskadmin.loadCSB(constitutionSeed, (err, csb) => {
+                            if (err) {
+                                return callback(err);
+                            }
+                            let transactionsLeft = domainConfig.agents.length + 1;
 
-                console.info('[TIR] domain ' + domainConfig.name + ' starting defining agents...');
+                            console.info('[TIR] domain ' + domainConfig.name + ' starting defining agents...');
 
-                domainConfig.agents.forEach(agentName => {
-                    console.info('[TIR] domain ' + domainConfig.name + ' agent', agentName);
-                    localBlockChain.startTransactionAs("secretAgent", "Agents", "add", agentName, "public_key");
-                });
+                            domainConfig.agents.forEach(agentName => {
+                                console.info('[TIR] domain ' + domainConfig.name + ' agent', agentName);
+                                csb.startTransactionAs("secretAgent", "Agents", "add", agentName, "public_key")
+                                    .onCommit(maybeCallCallback);
+                            });
 
-                localBlockChain.startTransactionAs('secretAgent', 'DomainConfigTransaction', 'add', domainConfig.name, communicationInterfaces);
-            }
+                            csb.startTransactionAs('secretAgent', 'DomainConfigTransaction', 'add', domainConfig.name, communicationInterfaces)
+                                .onCommit(maybeCallCallback);
 
-            callback();
+                            function maybeCallCallback(err) {
+                                if (err) {
+                                    transactionsLeft = -1;
+                                    return callback(err);
+                                }
 
+                                transactionsLeft -= 1;
+
+                                if (transactionsLeft === 0) {
+                                    callback();
+                                }
+                            }
+                        });
+                    } else {
+                        callback();
+                    }
+                })
         });
+
+        function getConstitutionSeed(callback) {
+            getConstitutionFile((err, pathToConstitution) => {
+                if (err) {
+                    return callback(err);
+                }
+
+                pskadmin.deployConstitutionCSB(pathToConstitution, (err, seedBuffer) => {
+                    if (err) {
+                        return callback(err);
+                    }
+
+                    callback(undefined, seedBuffer.toString());
+                });
+            })
+        }
 
         function getConstitutionFile(callback) {
             if (typeof domainConfig.constitution === 'string') {
@@ -307,39 +426,6 @@ const Tir = function () {
 
     this.getDomainConfig = domainName => {
         return domainConfigs[domainName];
-    };
-    /**
-     * Interacts with an agent of a domain.
-     *
-     * @param {string} domain The name of the domain
-     * @param {string} agent The name of the agent
-     * @returns swarm
-     */
-    this.interact = (domain, agent) => {
-        const domainConfig = domainConfigs[domain];
-        if (domainConfig === undefined) {
-            throw new Error(
-                'Could not find domain ' + domain + ' in ' + Object.keys(domainConfigs).join(', ')
-            );
-        } else {
-            var returnChannel = path.join(
-                domainConfig.outbound,
-                Math.random()
-                    .toString(36)
-                    .substr(2, 9)
-            );
-            try {
-                fs.mkdirSync(domainConfig.outbound);
-            } catch (err) {
-                //dir allready exists
-            }
-            console.info(
-                '[TIR] Interacting with ' + domainConfig.name + '/' + agent + ' on',
-                returnChannel
-            );
-
-            return interact.createNodeInteractionSpace(agent, domainConfig.inbound, returnChannel);
-        }
     };
 
     /**

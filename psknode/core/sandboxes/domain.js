@@ -14,18 +14,11 @@ process.env.vmq_zeromq_sub_address = process.env.vmq_zeromq_sub_address || 'tcp:
 require('../../bundles/pskruntime');
 require('../../bundles/psknode');
 require('../../bundles/virtualMQ');
+require('../../bundles/edfsBar');
 
 require('psk-http-client');
-const folderMQ = require("foldermq");
+
 const fs = require('fs');
-
-const http = require('http');
-const swarmUtils = require("swarmutils");
-const SwarmPacker = swarmUtils.SwarmPacker;
-const OwM = swarmUtils.OwM;
-const {ManagerForAgents} = require('./ManagerForAgents');
-const {PoolConfig, WorkerStrategies, getDefaultBootScriptPath} = require('syndicate');
-
 
 $$.PSK_PubSub = require("soundpubsub").soundPubSub;
 
@@ -51,47 +44,85 @@ const workspace = path.resolve(process.env.DOMAIN_WORKSPACE);
 const blockchainDir = path.join(workspace, process.env.DOMAIN_BLOCKCHAIN_STORAGE_FOLDER || blockchainFolderStorageName);
 
 console.log("Using workspace", workspace);
-let blockchain = require("blockchain");
-
-let worldStateCache = blockchain.createWorldStateCache("fs", blockchainDir);
-let historyStorage = blockchain.createHistoryStorage("fs", blockchainDir);
-let consensusAlgorithm = blockchain.createConsensusAlgorithm("direct");
-let signatureProvider = blockchain.createSignatureProvider("permissive");
-
-blockchain.createBlockchain(worldStateCache, historyStorage, consensusAlgorithm, signatureProvider, true, false);
 
 console.log("Agents will be using constitution file", process.env.PRIVATESKY_DOMAIN_CONSTITUTION);
 
-$$.blockchain.start(() => {
+loadCSBAndLaunch();
+
+function loadCSBAndLaunch() {
+    fs.access(blockchainDir, (err) => {
+        if (err) {
+            loadCSBWithSeed(process.env.PRIVATESKY_DOMAIN_CONSTITUTION);
+        } else {
+            loadCSBFromFile(blockchainDir);
+        }
+    });
+}
+
+function loadCSBFromFile(blockchainFolder) {
+    let Blockchain = require("blockchain");
+
+    let worldStateCache = Blockchain.createWorldStateCache("fs", blockchainFolder);
+    let historyStorage = Blockchain.createHistoryStorage("fs", blockchainFolder);
+    let consensusAlgorithm = Blockchain.createConsensusAlgorithm("direct");
+    let signatureProvider = Blockchain.createSignatureProvider("permissive");
+
+    const blockchain = Blockchain.createABlockchain(worldStateCache, historyStorage, consensusAlgorithm, signatureProvider, true, false);
+
+    blockchain.start(() => {
+        launch(blockchain);
+    });
+}
+
+function loadCSBWithSeed(seed) {
+    const pskadmin = require('pskadmin');
+
+    pskadmin.loadCSB(seed, (err, blockchain) => {
+        if (err) {
+            throw err;
+        }
+
+        launch(blockchain);
+    });
+}
+
+function launch(blockchain) {
+
     console.log('Blockchain loaded');
 
-    const domainConfig = $$.blockchain.lookup('DomainConfig', process.env.PRIVATESKY_DOMAIN_NAME);
+    const domainConfig = blockchain.lookup('DomainConfig', process.env.PRIVATESKY_DOMAIN_NAME);
 
-    if(!domainConfig) {
+    if (!domainConfig) {
         throw new Error('Could not find any domain config for domain ' + process.env.PRIVATESKY_DOMAIN_NAME);
     }
 
     for (const alias in domainConfig.communicationInterfaces) {
         if (domainConfig.communicationInterfaces.hasOwnProperty(alias)) {
             let remoteUrls = domainConfig.communicationInterfaces[alias];
-            let powerCordToDomain = new se.SmartRemoteChannelPowerCord([remoteUrls.virtualMQ+"/"], process.env.PRIVATESKY_DOMAIN_NAME, remoteUrls.zeroMQ);
+            let powerCordToDomain = new se.SmartRemoteChannelPowerCord([remoteUrls.virtualMQ + "/"], process.env.PRIVATESKY_DOMAIN_NAME, remoteUrls.zeroMQ);
             $$.swarmEngine.plug("*", powerCordToDomain);
         }
     }
 
     //const agentPC = new se.OuterIsolatePowerCord(["../bundles/pskruntime.js", "../bundles/sandboxBase.js", "../bundles/domain.js"]);
 
-    const agents = $$.blockchain.loadAssets('Agent');
+    const agents = blockchain.loadAssets('Agent');
 
-    if(agents.length === 0) {
+    if (agents.length === 0) {
         agents.push({alias: 'system'});
     }
 
     agents.forEach(agent => {
-        const agentPC = new se.OuterThreadPowerCord(["../bundles/pskruntime.js", "../bundles/sandboxBase.js", process.env.PRIVATESKY_DOMAIN_CONSTITUTION]);
+        // console.log('PLUGGING', `${process.env.PRIVATESKY_DOMAIN_NAME}/agent/${agent.alias}`);
+        // const agentPC = new se.OuterThreadPowerCord(["../bundles/pskruntime.js", "../bundles/sandboxBase.js", "../bundles/edfsBar.js", process.env.PRIVATESKY_DOMAIN_CONSTITUTION]);
+        const agentPC = new se.OuterThreadPowerCord(["../bundles/pskruntime.js",
+            "../bundles/psknode.js",
+            "../bundles/edfsBar.js",
+            process.env.PRIVATESKY_DOMAIN_CONSTITUTION
+        ]);
         $$.swarmEngine.plug(`${process.env.PRIVATESKY_DOMAIN_NAME}/agent/${agent.alias}`, agentPC);
     });
 
-});
-
-$$.event('status.domains.boot', {name: process.env.PRIVATESKY_DOMAIN_NAME});
+    $$.event('status.domains.boot', {name: process.env.PRIVATESKY_DOMAIN_NAME});
+ 
+}
