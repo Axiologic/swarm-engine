@@ -60,7 +60,8 @@
     "browser-tests": "karma start karma.config.js",
     "bash": "bash --init-file bin/bashEnv.sh",
     "link": "node ./psknode/bin/scripts/link.js",
-    "unlink": "node ./psknode/bin/scripts/link.js --unlink"
+    "unlink": "node ./psknode/bin/scripts/link.js --unlink",
+    "browser-boot-scripts": "npm run build -- --quick && node ./bin/scripts/copyBrowserBootScripts.js"
   },
   "bin": {
     "selectRemote": "./psknode/bin/cmds/usePSKCommand.js",
