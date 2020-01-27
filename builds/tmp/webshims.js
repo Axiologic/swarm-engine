@@ -13,7 +13,9 @@ if (typeof(global.$$) == "undefined") {
     };
 }
 
-$$.browserRuntime = true;
+const or = require('overwrite-require');
+or.enableForEnvironment(or.constants.BROWSER_ENVIRONMENT_TYPE);
+
 
 if (typeof($$.__runtimeModules) == "undefined") {
     $$.__runtimeModules = {};
