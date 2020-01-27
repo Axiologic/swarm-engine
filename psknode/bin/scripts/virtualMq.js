@@ -1,15 +1,17 @@
 const path = require("path");
 const argumentsParser = require(path.join(__dirname, './argumentsParserUtil'));
-
+const PORT = process.env.vmq_port || 8080;
 require("../../core/utils/pingpongFork").enableLifeLine();
 
 const config = {
-    port: 8080,
+    port: PORT,
     folder: path.join(__dirname, '../../../tmp'),
     sslFolder: path.resolve(__dirname, '../../conf/ssl')
 };
 
 argumentsParser.populateConfig(config);
+//just in case somebody really need it to change the port from command line arg
+process.env.vmq_port = config.port;
 
 require(path.join(__dirname, '../../bundles/pskruntime.js'));
 require(path.join(__dirname, '../../bundles/virtualMQ.js'));
