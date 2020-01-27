@@ -61,7 +61,7 @@
     "bash": "bash --init-file bin/bashEnv.sh",
     "link": "node ./psknode/bin/scripts/link.js",
     "unlink": "node ./psknode/bin/scripts/link.js --unlink",
-    "browser-boot-scripts": "npm run build -- --quick && node ./bin/scripts/copyBrowserBootScripts.js"
+    "browser-boot-scripts": "npm run build -- --prod && node ./bin/scripts/copyBrowserBootScripts.js"
   },
   "bin": {
     "selectRemote": "./psknode/bin/cmds/usePSKCommand.js",

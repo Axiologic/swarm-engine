@@ -1,5 +1,5 @@
 {
-  "webshims": {"deps": "psk-browser-utils, assert,crypto,zlib, util, path,os, events,stream, browserfs-dist, pskwebfs:fs, buffer, timers", "bare": false, "bundleExternal": true},
+  "webshims": {"deps": "assert,crypto,zlib, util, path,os, events,stream, browserfs-dist, pskwebfs:fs, buffer, timers", "bare": false, "bundleExternal": true},
   "pskclient": {"deps":"psk-http-client, swarmutils, @msgpack/msgpack", "bare": false, "bundleExternal": true},
   "pskruntime": "callflow, launcher, pskcrypto, dicontainer, swarmutils, soundpubsub, pskbuffer, foldermq, utils, @msgpack/msgpack, psklogger, zmq_adapter, psk-security-context, syndicate, swarm-engine",
   "virtualMQ": "virtualmq, foldermq, yazl, yauzl, buffer-crc32, node-fd-slicer, edfs-middleware, psk-http-client, zmq_adapter",
@@ -11,8 +11,8 @@
   "edfsBar": "bar, psk-http-client, edfs, edfs-middleware, edfs-brick-storage, bar-fs-adapter, adler32",
   "testsRuntime": "overwrite-require, edfs, double-check, pskdomain",
   "bindableModel": "overwrite-require, @msgpack/msgpack, swarmutils, soundpubsub, psk-bindable-model",
-  "swBoot": {"deps":"browser-server, edfs, buffer, fs, path", "autoLoad": true, "bundleExternal":  true, "bare":  false},
-  "ssappHostBoot": {"deps":"swarm-engine/bootScripts/browser/host:boot-host","autoLoad": true, "bundleExternal": false},
-  "ssappBoot": {"deps":"swarm-engine/bootScripts/browser/ssapp:boot-ssapp","autoLoad": true, "bundleExternal": false},
+  "swBoot": {"deps":"browser-server, edfs, buffer", "autoLoad": true, "bundleExternal":  true, "bare":  false},
+  "ssappHostBoot": {"deps":"overwrite-require, edfs, swarm-engine/bootScripts/browser/host:boot-host","autoLoad": true, "bundleExternal":true},
+  "ssappBoot": {"deps":"swarm-engine/bootScripts/browser/ssapp:boot-ssapp","autoLoad": true, "bundleExternal": true},
   "threadBoot": {"deps": "overwrite-require, edfs, pskcrypto, swarm-engine/bootScripts/ThreadWorkerBootScript:boot-script", "autoLoad": true, "bundleExternal": false}
 }
