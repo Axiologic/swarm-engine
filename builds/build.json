@@ -11,7 +11,7 @@
   "edfsBar": "bar, psk-http-client, edfs, edfs-middleware, edfs-brick-storage, bar-fs-adapter, adler32",
   "testsRuntime": "overwrite-require, edfs, double-check, pskdomain",
   "bindableModel": "overwrite-require, @msgpack/msgpack, swarmutils, soundpubsub, psk-bindable-model",
-  "swBrowserified": {"deps":"browser-server, edfs", "autoLoad": true, "bundleExternal":  true, "bare":  false},
+  "swBoot": {"deps":"browser-server, edfs, buffer, fs, path", "autoLoad": true, "bundleExternal":  true, "bare":  false},
   "ssappHostBoot": {"deps":"swarm-engine/bootScripts/browser/host:boot-host","autoLoad": true, "bundleExternal": false},
   "ssappBoot": {"deps":"swarm-engine/bootScripts/browser/ssapp:boot-ssapp","autoLoad": true, "bundleExternal": false},
   "threadBoot": {"deps": "overwrite-require, edfs, pskcrypto, swarm-engine/bootScripts/ThreadWorkerBootScript:boot-script", "autoLoad": true, "bundleExternal": false}
