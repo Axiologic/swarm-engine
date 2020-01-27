@@ -184,6 +184,18 @@ const Tir = function () {
 
             virtualMQPort = vmqPort;
 
+            if(Object.keys(domainConfigs).length === 0) {
+                setTimeout(() => {
+                    if (tearDownAfter !== null) {
+                        setTimeout(() => this.tearDown(1), tearDownAfter);
+                    }
+                }, 1000);
+
+                callable(undefined, virtualMQPort);
+
+                return;
+            }
+
             const confFolder = path.join(rootFolder, 'conf');
             fs.mkdirSync(confFolder);
             fs.mkdirSync(path.join(rootFolder, 'nodes'));
@@ -474,6 +486,10 @@ const Tir = function () {
 
 function whenAllFinished(array, handler, callback) {
     let tasksLeft = array.length;
+
+    if(tasksLeft === 0) {
+        callback();
+    }
 
     for (const task of array) {
         handler(task, (err) => {
