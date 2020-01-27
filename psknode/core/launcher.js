@@ -13,6 +13,7 @@ require(path.join(__dirname, "../bundles/edfsBar.js"));
 const fs = require('fs');
 const beesHealer = require('swarmutils').beesHealer;
 
+
 require('launcher');
 require("callflow");
 
@@ -46,18 +47,21 @@ if (!fs.existsSync(confDir)) {
     console.log(`\n[::] Could not find conf <${confDir}> directory!\n`);
 }
 
-loadConfigThenLaunch(confDir);
+process.env.PSK_CONF_FOLDER = confDir;
+if(!process.env.PSK_CONF_FOLDER.endsWith('/')) { process.env.PSK_CONF_FOLDER += '/'; }
+const ConfigBox = require('./ConfigBox');
+loadConfigThenLaunch();
 
 /************************ HELPER METHODS ************************/
 
-function loadConfigThenLaunch(confDir) {
-    const seedLocation = path.join(confDir, 'confSeed');
-    if (fs.existsSync(seedLocation)) {
-        const seed = fs.readFileSync(seedLocation, 'utf8');
-        loadConfigCSB(seed)
-    } else {
-        loadBlockChainFromConfigFolder(confDir)
-    }
+function loadConfigThenLaunch() {
+    ConfigBox.getSeed((err, seed) => {
+       if(err) {
+           throw err;
+       }
+
+        loadConfigCSB(seed);
+    });
 }
 
 function loadConfigCSB(seed) {
