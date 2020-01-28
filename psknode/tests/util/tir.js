@@ -175,8 +175,6 @@ const Tir = function () {
 
         console.info('[TIR] setting working folder root', rootFolder);
 
-        launchLocalMonitor(callCallbackWhenAllDomainsStarted);
-
         launchVirtualMQNode(100, rootFolder, (err, vmqPort) => {
             if (err) {
                 throw err;
@@ -184,17 +182,14 @@ const Tir = function () {
 
             virtualMQPort = vmqPort;
 
-            if(Object.keys(domainConfigs).length === 0) {
-                setTimeout(() => {
-                    if (tearDownAfter !== null) {
-                        setTimeout(() => this.tearDown(1), tearDownAfter);
-                    }
-                }, 1000);
-
+            if(Object.keys(domainConfigs).length === 0) { // no domain added
+                prepareTeardownTimeout();
                 callable(undefined, virtualMQPort);
 
                 return;
             }
+
+            launchLocalMonitor(callCallbackWhenAllDomainsStarted);
 
             const confFolder = path.join(rootFolder, 'conf');
             fs.mkdirSync(confFolder);
@@ -204,7 +199,7 @@ const Tir = function () {
 
             pskdomain.createCSB((err, launcherCSB) => {
                 if (err) {
-                    return callback(err);
+                    return callable(err);
                 }
 
                 $$.blockchain = launcherCSB;
@@ -231,24 +226,10 @@ const Tir = function () {
                     );
 
                     initializeSwarmEngine(virtualMQPort);
-
-                    setTimeout(() => {
-                        if (tearDownAfter !== null) {
-                            setTimeout(() => this.tearDown(1), tearDownAfter);
-                        }
-                    }, 1000);
+                    prepareTeardownTimeout();
                 });
 
             });
-
-            // let worldStateCache = blockchain.createWorldStateCache("fs", confFolder);
-            // let historyStorage = blockchain.createHistoryStorage("fs", confFolder);
-            // let consensusAlgorithm = blockchain.createConsensusAlgorithm("direct");
-            // let signatureProvider = blockchain.createSignatureProvider("permissive");
-            //
-            // blockchain.createBlockchain(worldStateCache, historyStorage, consensusAlgorithm, signatureProvider, true, false);
-
-
         });
 
         let domainsLeftToStart = Object.keys(domainConfigs).length;
@@ -259,6 +240,14 @@ const Tir = function () {
             if (domainsLeftToStart === 0) {
                 callable(undefined, virtualMQPort);
             }
+        }
+
+        function prepareTeardownTimeout() {
+            setTimeout(() => {
+                if (tearDownAfter !== null) {
+                    setTimeout(() => this.tearDown(1), tearDownAfter);
+                }
+            }, 1000);
         }
 
     };
