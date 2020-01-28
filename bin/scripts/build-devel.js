@@ -63,8 +63,8 @@ const baseDeps = [
         "src": "https://github.com/PrivateSky/psk-http-client.git"
     },
     {
-        "name": "psk-browser-utils",
-        "src": "https://github.com/PrivateSky/psk-browser-utils.git"
+        "name": "ssapp-middleware",
+        "src": "https://github.com/PrivateSky/ssapp-middleware.git"
     },
     {
         "name": "buffer-crc32",
