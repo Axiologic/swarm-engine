@@ -11,12 +11,4 @@ process.env.PRIVATESKY_TMP = path.resolve(process.env.PRIVATESKY_TMP || "../tmp"
 process.env.DOMAIN_WORKSPACE = path.resolve(process.env.PRIVATESKY_TMP, "domainsWorkspace", process.env.PRIVATESKY_DOMAIN_NAME);
 process.env.vmq_zeromq_sub_address = process.env.vmq_zeromq_sub_address || 'tcp://127.0.0.1:5000';
 
-require('../../bundles/pskruntime');
-require('../../bundles/psknode');
-require('../../bundles/virtualMQ');
-require('../../bundles/edfsBar');
-
-require('psk-http-client');
-
-const SwarmEngine = require('swarm-engine');
-SwarmEngine.BootScripts.executeDomainBootScript();
+require('../../bundles/domainBoot');

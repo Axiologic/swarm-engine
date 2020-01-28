@@ -7,8 +7,7 @@ const vmqPort = process.env.vmq_port || 8080;
 const vmqAddress = `http://127.0.0.1:${vmqPort}`;
 
 
-
-const constitutionFilePath = path.resolve(path.join(__dirname, '../bundles/domain.js'));
+const constitutionFolder = path.resolve(path.join(__dirname, '../bundles/'));
 const seedFileLocation = `${confFolder}${seedFileName}`;
 
 
@@ -24,7 +23,6 @@ if (typeof process.env.vmq_zeromq_pub_address === "undefined") {
 
 function getSeed(callback) {
     const existsConfSeedFile = fs.existsSync(seedFileLocation);
-    console.log('path??', seedFileLocation, existsConfSeedFile);
     if (existsConfSeedFile) {
         const seed = fs.readFileSync(seedFileLocation, 'utf8');
         callback(undefined, seed);
@@ -42,7 +40,7 @@ function createCSB(callback) {
     $$.securityContext.generateIdentity((err) => {
         if(err) throw err;
 
-        pskdomain.deployConstitutionCSB(constitutionFilePath, (err, csbSeedBuffer) => {
+        pskdomain.deployConstitutionFolderCSB(constitutionFolder, (err, csbSeedBuffer) => {
             if(err) {
                 throw err;
             }
@@ -53,33 +51,44 @@ function createCSB(callback) {
                     throw err;
                 }
 
-                launcherCSB.startTransactionAs("secretAgent", "Domain", "add", 'local', "system", '../../', constitutionCSBSeed)
-                    .onCommit((err) => {
-                        if (err) {
-                            throw err;
-                        }
+                pskdomain.loadCSB(constitutionCSBSeed, (err, domainCSB) => {
+                    if(err) {
+                        throw err;
+                    }
 
-                        const communicationInterfaces = {
-                            system: {
-                                virtualMQ: vmqAddress,
-                                zeroMQ: process.env.vmq_zeromq_sub_address
+                    launcherCSB.startTransactionAs("secretAgent", "Domain", "add", 'local', "system", '../../', constitutionCSBSeed)
+                        .onCommit((err) => {
+                            if (err) {
+                                throw err;
                             }
-                        };
 
-                        launcherCSB.startTransactionAs('secretAgent', 'DomainConfigTransaction', 'add', 'local', communicationInterfaces)
-                            .onCommit((err) => {
-                                if (err) {
-                                    throw err;
+                            const communicationInterfaces = {
+                                system: {
+                                    virtualMQ: vmqAddress,
+                                    zeroMQ: process.env.vmq_zeromq_sub_address
                                 }
+                            };
 
-                                const seed = launcherCSB.getSeed();
+                            domainCSB.startTransactionAs('secretAgent', 'DomainConfigTransaction', 'add', 'local', communicationInterfaces)
+                                .onCommit((err) => {
+                                    if (err) {
+                                        throw err;
+                                    }
 
-                                fs.writeFileSync(seedFileLocation, seed, 'utf8');
 
-                                callback(undefined, seed);
-                            });
-                    });
+                                    launcherCSB.readFile('/worldStateCache',(err, fileContent) => {
+                                        if(err) throw err;
+                                        console.log('FILES IN CONFIGBOX', fileContent.toString());
+                                        const seed = launcherCSB.getSeed();
 
+                                        fs.writeFileSync(seedFileLocation, seed, 'utf8');
+
+                                        callback(undefined, seed);
+                                    })
+
+                                });
+                        });
+                })
             });
         });
     });

@@ -5,8 +5,8 @@ const path = require('path');
 
 require("./utils/pingpongFork").enableLifeLine(1000);
 
+require(path.join(__dirname, '../bundles/launcherBoot.js'));
 require(path.join(__dirname, '../bundles/pskruntime.js'));
-require(path.join(__dirname, '../bundles/psknode.js'));
 require(path.join(__dirname, "../bundles/edfsBar.js"));
 
 
@@ -72,20 +72,6 @@ function loadConfigCSB(seed) {
         }
 
         launch(csb);
-    });
-}
-
-function loadBlockChainFromConfigFolder(configFolder) {
-    const Blockchain = require('blockchain');
-    let worldStateCache = Blockchain.createWorldStateCache("fs", configFolder);
-    let historyStorage = Blockchain.createHistoryStorage("fs", configFolder);
-    let consensusAlgorithm = Blockchain.createConsensusAlgorithm("direct");
-    let signatureProvider = Blockchain.createSignatureProvider("permissive");
-
-    const blockchain = Blockchain.createABlockchain(worldStateCache, historyStorage, consensusAlgorithm, signatureProvider, true, false);
-
-    blockchain.start(() => {
-        launch(blockchain);
     });
 }
 
