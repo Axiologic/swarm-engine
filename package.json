@@ -62,7 +62,7 @@
     "link": "node ./psknode/bin/scripts/link.js",
     "unlink": "node ./psknode/bin/scripts/link.js --unlink",
     "browser-boot-scripts": "npm run build -- --prod && node ./bin/scripts/copyBrowserBootScripts.js",
-    "start-vmq":"node ./psknode/bin/scripts/basicStart.js ./psknode/bin/scripts/startZeromqProxy.js & node ./psknode/bin/scripts/basicStart.js ./psknode/bin/scripts/virtualMq.js --port=8080 --folder=\"../tmp\"'"
+    "start-vmq":"node ./psknode/bin/scripts/basicStart.js ./psknode/bin/scripts/startZeromqProxy.js & node ./psknode/bin/scripts/basicStart.js ./psknode/bin/scripts/virtualMq.js --port=8080 --folder=\"../tmp\""
   },
   "bin": {
     "selectRemote": "./psknode/bin/cmds/usePSKCommand.js",
