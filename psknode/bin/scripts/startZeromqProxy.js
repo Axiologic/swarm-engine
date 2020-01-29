@@ -1,5 +1,4 @@
-require('../../bundles/pskruntime');
-require('../../bundles/psknode');
+require('../../bundles/virtualMQ');
 
 const integration = require('zmq_adapter');
 const enableSignatureCheck = process.env.enable_signature_check || true;

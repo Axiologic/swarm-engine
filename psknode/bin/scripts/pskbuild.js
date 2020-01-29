@@ -370,8 +370,7 @@ function buildDependencyMap(targetName, configProperty, output) {
     let result = `global.${targetName}LoadModules = function(){ \n`;
     splitStrToArray(cfg).map(function (item) {
         const ia = detectAlias(item);
-        const line = `\t$$.__runtimeModules["${ia.alias}"] = require("${ia.module}");\n`;
-
+        const line = `\n\tif(typeof $$.__runtimeModules["${ia.alias}"] === "undefined"){\n\t\t$$.__runtimeModules["${ia.alias}"] = require("${ia.module}");\n\t}\n`;
         result += line;
     });
     result += `}\nif (${autoLoad}) {\n\t${targetName}LoadModules();\n}; \nglobal.` + `${targetName}Require = require;\n` +

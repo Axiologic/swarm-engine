@@ -13,9 +13,8 @@ argumentsParser.populateConfig(config);
 //just in case somebody really need it to change the port from command line arg
 process.env.vmq_port = config.port;
 
-require(path.join(__dirname, '../../bundles/pskruntime.js'));
 require(path.join(__dirname, '../../bundles/virtualMQ.js'));
-require(path.join(__dirname, '../../bundles/psknode'));
+require(path.join(__dirname, '../../bundles/pskruntime.js'));
 require(path.join(__dirname, '../../bundles/consoleTools'));
 
 const VirtualMQ = require('virtualmq');
