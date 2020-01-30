@@ -21,4 +21,3 @@ if (typeof($$.__runtimeModules) == "undefined") {
     $$.__runtimeModules = {};
 }
 require("./webshims_intermediar");
-$$.__runtimeModules["fs"] = require("pskwebfs");
