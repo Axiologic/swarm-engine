@@ -1,2 +1,2 @@
 
-node "%~dp0/../modules/pskwallet/pskwallet.js" %*
+node "%~dp0/../bundles/walletBoot.js" %*
