@@ -39,14 +39,6 @@ const baseDeps = [
         "src": "https://github.com/PrivateSky/browser-server"
     },
     {
-        "name": "browserfs-dist",
-        "src": "https://github.com/PrivateSky/browserfs-dist"
-    },
-    {
-        "name": "pskwebfs",
-        "src": "https://github.com/PrivateSky/pskwebfs.git"
-    },
-    {
         "name": "pskcrypto",
         "src": "https://github.com/PrivateSky/pskcrypto.git"
     },
