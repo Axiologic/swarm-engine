@@ -32,7 +32,6 @@ function getSeed(callback) {
 
 }
 
-
 function createCSB(callback) {
     const pskdomain = require('pskdomain');
 
@@ -40,12 +39,13 @@ function createCSB(callback) {
     $$.securityContext.generateIdentity((err) => {
         if(err) throw err;
 
-        pskdomain.deployConstitutionFolderCSB(constitutionFolder, (err, csbSeedBuffer) => {
+        pskdomain.deployConstitutionFolderCSB(constitutionFolder, "localDomain", (err, csbSeedBuffer) => {
             if(err) {
                 throw err;
             }
 
             const constitutionCSBSeed = csbSeedBuffer.toString();
+            console.log("DomainSeed", constitutionCSBSeed);
             pskdomain.createCSB((err, launcherCSB) => {
                 if (err) {
                     throw err;

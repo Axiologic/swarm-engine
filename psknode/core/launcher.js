@@ -6,15 +6,12 @@ const path = require('path');
 require("./utils/pingpongFork").enableLifeLine(1000);
 
 require(path.join(__dirname, '../bundles/launcherBoot.js'));
-require(path.join(__dirname, '../bundles/pskruntime.js'));
 require(path.join(__dirname, "../bundles/edfsBar.js"));
 
 
 const fs = require('fs');
 const beesHealer = require('swarmutils').beesHealer;
 
-
-require('launcher');
 require("callflow");
 
 let tmpDir = path.join(__dirname, "../../tmp");
@@ -95,6 +92,7 @@ function launch(blockchain) {
 
             child_env.PRIVATESKY_TMP = process.env.PRIVATESKY_TMP;
             child_env.PRIVATESKY_ROOT_FOLDER = process.env.PRIVATESKY_ROOT_FOLDER;
+            child_env.PSK_DOMAIN_SEED = env.config.constitution;
             child_env.config = JSON.stringify({
                 constitution: env.config.constitution,
                 workspace: env.config.workspace
@@ -106,7 +104,7 @@ function launch(blockchain) {
                 }
             });
 
-            const child = require("./utils/pingpongFork").fork(path.join(__dirname, 'sandboxes/domain.js'), [name], {
+            const child = require("./utils/pingpongFork").fork(path.join(__dirname, '../bundles/domainBoot.js'), [name], {
                 cwd: __dirname,
                 env: child_env
             });

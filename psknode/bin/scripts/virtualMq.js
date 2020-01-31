@@ -14,9 +14,9 @@ argumentsParser.populateConfig(config);
 process.env.vmq_port = config.port;
 
 require(path.join(__dirname, '../../bundles/virtualMQ.js'));
-require(path.join(__dirname, '../../bundles/pskruntime.js'));
 require(path.join(__dirname, '../../bundles/consoleTools'));
 
+require("callflow");
 const VirtualMQ = require('virtualmq');
 const fs = require('fs');
 
