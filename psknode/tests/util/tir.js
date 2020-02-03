@@ -9,19 +9,11 @@ const config = {
 
 const path = require('path');
 
-const __dName = __dirname;
-require(path.resolve(path.join(__dName, "../../bundles/pskruntime.js")));
-require(path.resolve(path.join(__dName, "../../bundles/psknode.js")));
-require(path.resolve(path.join(__dName, "../../bundles/consoleTools.js")));
-require(path.resolve(path.join(__dName, "../../bundles/testsRuntime.js")));
-require(path.resolve(path.join(__dName, "../../bundles/edfsBar.js")));
+require(path.resolve(path.join(__dirname, "../../bundles/edfsBar.js")));
+require(path.resolve(path.join(__dirname, "../../bundles/virtualMQ.js")));
 
 const os = require('os');
 const fs = require('fs');
-const interact = require('interact');
-
-const child_process = require('child_process');
-const blockchain = require('blockchain');
 
 const createKey = function (name) {
     let parsed = '' + name;
@@ -126,15 +118,17 @@ const Tir = function () {
      * @param {string} domainName The name of the domain
      * @param {array} agents The agents to be inserted
      * @param {string} constitutionSourceFolder
+     * @param bundlesSourceFolder
      * @returns SwarmDescriber
      */
-    this.addDomain = function (domainName, agents, constitutionSourceFolder) {
+    this.addDomain = function (domainName, agents, constitutionSourceFolder, bundlesSourceFolder) {
         let workspace = path.join(rootFolder, 'nodes', createKey(domainName));
         domainConfigs[domainName] = {
             name: domainName,
             agents,
             constitution: {},
             constitutionSourceFolder,
+            bundlesSourceFolder: bundlesSourceFolder || path.resolve(path.join(__dirname, '../../bundles')),
             workspace: workspace,
             blockchain: path.join(workspace, 'conf')
         };
@@ -215,7 +209,7 @@ const Tir = function () {
                     fs.writeFileSync(path.join(confFolder, 'confSeed'), seed.toString(), 'utf8');
 
                     testerNode = pingPongFork.fork(
-                        path.resolve(path.join(__dName, "../../core/launcher.js")),
+                        path.resolve(path.join(__dirname, "../../core/launcher.js")),
                         [confFolder, rootFolder],
                         {
                             stdio: 'inherit',
@@ -368,6 +362,7 @@ const Tir = function () {
                             if (err) {
                                 return callback(err);
                             }
+
                             let transactionsLeft = domainConfig.agents.length + 1;
 
                             console.info('[TIR] domain ' + domainConfig.name + ' starting defining agents...');
@@ -406,7 +401,9 @@ const Tir = function () {
                     return callback(err);
                 }
 
-                pskdomain.deployConstitutionCSB(pathToConstitution, (err, seedBuffer) => {
+
+                const constitutionBundles = [pathToConstitution, domainConfig.bundlesSourceFolder];
+                pskdomain.deployConstitutionCSB(constitutionBundles, domainConfig.name, (err, seedBuffer) => {
                     if (err) {
                         return callback(err);
                     }
