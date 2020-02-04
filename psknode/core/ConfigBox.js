@@ -1,11 +1,14 @@
 const fs = require('fs');
 const path = require('path');
 
-const confFolder = process.env.PSK_CONF_FOLDER || path.resolve(path.join(__dirname, '../../conf/'));
+let confFolder = process.env.PSK_CONF_FOLDER || path.resolve(path.join(__dirname, '../../conf/'));
 const seedFileName = 'confSeed';
 const vmqPort = process.env.vmq_port || 8080;
 const vmqAddress = `http://127.0.0.1:${vmqPort}`;
 
+if(!confFolder.endsWith('/')) {
+    confFolder += '/';
+}
 
 const constitutionFolder = path.resolve(path.join(__dirname, '../bundles/'));
 const seedFileLocation = `${confFolder}${seedFileName}`;
@@ -45,50 +48,54 @@ function createCSB(callback) {
             }
 
             const constitutionCSBSeed = csbSeedBuffer.toString();
-            console.log("DomainSeed", constitutionCSBSeed);
-            pskdomain.createCSB((err, launcherCSB) => {
+            pskdomain.deployConstitutionFolderCSB(constitutionFolder, '', (err, launcherCSBSeed) => {
                 if (err) {
                     throw err;
                 }
 
-                pskdomain.loadCSB(constitutionCSBSeed, (err, domainCSB) => {
-                    if(err) {
-                        throw err;
-                    }
+                pskdomain.loadCSB(launcherCSBSeed, (err, launcherCSB) => {
+                   if(err) {
+                       throw err;
+                   }
 
-                    launcherCSB.startTransactionAs("secretAgent", "Domain", "add", 'local', "system", '../../', constitutionCSBSeed)
-                        .onCommit((err) => {
-                            if (err) {
-                                throw err;
-                            }
+                    pskdomain.loadCSB(constitutionCSBSeed, (err, domainCSB) => {
+                        if(err) {
+                            throw err;
+                        }
 
-                            const communicationInterfaces = {
-                                system: {
-                                    virtualMQ: vmqAddress,
-                                    zeroMQ: process.env.vmq_zeromq_sub_address
+                        launcherCSB.startTransactionAs("secretAgent", "Domain", "add", 'local', "system", '../../', constitutionCSBSeed)
+                            .onCommit((err) => {
+                                if (err) {
+                                    throw err;
                                 }
-                            };
 
-                            domainCSB.startTransactionAs('secretAgent', 'DomainConfigTransaction', 'add', 'local', communicationInterfaces)
-                                .onCommit((err) => {
-                                    if (err) {
-                                        throw err;
+                                const communicationInterfaces = {
+                                    system: {
+                                        virtualMQ: vmqAddress,
+                                        zeroMQ: process.env.vmq_zeromq_sub_address
                                     }
+                                };
 
+                                domainCSB.startTransactionAs('secretAgent', 'DomainConfigTransaction', 'add', 'local', communicationInterfaces)
+                                    .onCommit((err) => {
+                                        if (err) {
+                                            throw err;
+                                        }
 
-                                    launcherCSB.readFile('/worldStateCache',(err, fileContent) => {
-                                        if(err) throw err;
-                                        console.log('FILES IN CONFIGBOX', fileContent.toString());
-                                        const seed = launcherCSB.getSeed();
+                                        launcherCSB.listFiles('',(err, fileContent) => {
+                                            if(err) throw err;
+                                            const seed = launcherCSB.getSeed();
 
-                                        fs.writeFileSync(seedFileLocation, seed, 'utf8');
+                                            fs.writeFileSync(seedFileLocation, seed, 'utf8');
 
-                                        callback(undefined, seed);
-                                    })
+                                            callback(undefined, seed);
+                                        })
 
-                                });
-                        });
-                })
+                                    });
+                            });
+                    })
+                });
+
             });
         });
     });

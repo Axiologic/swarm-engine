@@ -5,6 +5,7 @@
  */
 
 const path = require('path');
+const ConfigBox = require('../../core/ConfigBox');
 const max_timeout = 10*60*1000; // 10 minutes
 const restartDelays = {};
 
@@ -14,9 +15,9 @@ let shouldRestart = true;
 const forkedProcesses = {};
 
 
-function startProcess(filePath) {
+function startProcess(filePath,  args, options) {
     console.log("Booting", filePath);
-    forkedProcesses[filePath] = pingFork(filePath);
+    forkedProcesses[filePath] = pingFork(filePath, args, options);
 
     console.log('SPAWNED ', forkedProcesses[filePath].pid);
 
@@ -54,4 +55,17 @@ function startProcess(filePath) {
 
 startProcess(path.join(__dirname, 'startZeromqProxy.js'));
 startProcess(path.join(__dirname, 'virtualMq.js'));
-startProcess(path.join(__dirname, '../../core/launcher.js'));
+require('../../bundles/virtualMQ');
+require('../../bundles/blockchain');
+require('../../bundles/edfsBar');
+require('callflow');
+
+ConfigBox.getSeed((err, seed) => {
+    if (err) {
+        throw err;
+    }
+
+    startProcess(path.join(__dirname, '../../bundles/launcherBoot.js'), [seed.toString()]);
+    // startProcess(path.join(__dirname, '../../core/launcher.js'));
+});
+

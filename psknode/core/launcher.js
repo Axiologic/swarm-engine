@@ -12,7 +12,7 @@ require(path.join(__dirname, "../bundles/edfsBar.js"));
 const fs = require('fs');
 const beesHealer = require('swarmutils').beesHealer;
 
-require("callflow");
+// require("callflow");
 
 let tmpDir = path.join(__dirname, "../../tmp");
 let confDir = path.resolve(path.join(__dirname, "../../conf"));
@@ -94,7 +94,6 @@ function launch(blockchain) {
             child_env.PRIVATESKY_ROOT_FOLDER = process.env.PRIVATESKY_ROOT_FOLDER;
             child_env.PSK_DOMAIN_SEED = env.config.constitution;
             child_env.config = JSON.stringify({
-                constitution: env.config.constitution,
                 workspace: env.config.workspace
             });
 
