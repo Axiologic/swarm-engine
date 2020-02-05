@@ -65,7 +65,6 @@ ConfigBox.getSeed((err, seed) => {
         throw err;
     }
 
-    startProcess(path.join(__dirname, '../../bundles/launcherBoot.js'), [seed.toString()]);
-    // startProcess(path.join(__dirname, '../../core/launcher.js'));
+    startProcess(path.join(__dirname, '../../core/launcher.js'), [seed.toString()]);
 });
 
