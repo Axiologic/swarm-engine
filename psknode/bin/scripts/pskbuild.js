@@ -10,6 +10,7 @@ const config = {
     externalTarget: undefined,
     prod: false,
     quick: false,
+    only:undefined,
     projectMap: undefined,
     input: path.join(process.cwd(), "builds", "tmp"),
     output: path.join(process.cwd(), "psknode", "bundles"),
@@ -471,8 +472,22 @@ function buildTarget(targetName){
 
 console.log("Starts rebuilding");
 
-for(const target in targets){
-    if(targets.hasOwnProperty(target)) {
-        buildTarget(target);
+if (typeof config.only !== "undefined") {
+    let wantedBundles = config.only.split(",");
+    wantedBundles.forEach(bundle => {
+        if (targets.hasOwnProperty(bundle)) {
+            buildTarget(bundle);
+        } else {
+            throw new Error(`ERROR: Bundle ${bundle} provided in list [${config.only}] was not recognized! Did it exists in bundles file?`)
+        }
+    })
+
+} else {
+    for (const target in targets) {
+        if (targets.hasOwnProperty(target)) {
+            buildTarget(target);
+        }
     }
 }
+
+
