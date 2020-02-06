@@ -14,10 +14,6 @@ const baseDeps = [
         "name": "yauzl",
         "src": "https://github.com/PrivateSky/yauzl.git"
     },
-    {//TOBE: deleted
-        "name": "foldermq",
-        "src": "https://github.com/PrivateSky/foldermq.git"
-    },
     {
         "name": "swarm-engine",
         "src": "https://github.com/PrivateSky/swarm-engine.git"
@@ -41,10 +37,6 @@ const baseDeps = [
     {
         "name": "pskcrypto",
         "src": "https://github.com/PrivateSky/pskcrypto.git"
-    },
-    {
-        "name": "interact",
-        "src": "https://github.com/PrivateSky/interact.git"
     },
     {
         "name": "pskdb",
@@ -141,6 +133,10 @@ const baseDeps = [
     {
         "name": "pskisolates",
         "src": "https://github.com/PrivateSky/pskisolates.git"
+    },
+    {
+        "name": "pskwallet",
+        "src": "https://github.com/PrivateSky/pskwallet.git"
     }
 
 ];
@@ -150,20 +146,12 @@ const config = {
     "workDir": ".",
     "dependencies": [
         {
-            "name": "dicontainer",
-            "src": "https://github.com/PrivateSky/dicontainer.git"
-        },
-        {
             "name": "double-check",
             "src": "https://github.com/PrivateSky/double-check.git"
         },
         {
             "name": "whys",
             "src": "https://github.com/PrivateSky/whys.git"
-        },
-        {
-            "name": "swarmutils",
-            "src": "https://github.com/PrivateSky/swarmutils.git"
         },
         {
             "name": "psk-integration-testing",
@@ -220,28 +208,11 @@ const virtualMQConfig = {
         {
             "name": "virtualmq",
             "src": "https://github.com/PrivateSky/virtualmq.git"
-        },
-        {
-            "name": "soundpubsub",
-            "src": "https://github.com/PrivateSky/soundpubsub.git"
         }
     ]
 };
 
-const pskWalletConfig = {
-    workDir: '.',
-    dependencies: [
-        {
-            "name": "pskwallet",
-            "src": "https://github.com/PrivateSky/pskwallet.git"
-        }
-    ]
-};
-
-config.dependencies = baseDeps.concat(config.dependencies, pskWalletConfig.dependencies, virtualMQConfig.dependencies);
-
-pskWalletConfig.dependencies = baseDeps.concat(pskWalletConfig.dependencies);
-
+config.dependencies = baseDeps.concat(config.dependencies, virtualMQConfig.dependencies);
 
 const argv = process.argv;
 argv.shift();
@@ -263,8 +234,6 @@ function runDeployer(config, callback = () => {}) {
 
 const configs = {};
 
-
-configs['--pskwallet'] = pskWalletConfig;
 configs['--virtualmq'] = virtualMQConfig;
 configs['--all']       = config;
 
