@@ -191,38 +191,38 @@ const Tir = function () {
 
             console.info('[TIR] pskdb on', confFolder);
 
-            pskdomain.createCSB((err, launcherCSB) => {
-                if (err) {
-                    return callable(err);
+            const defaultConstitutionBundlesPath = path.resolve(path.join(__dirname, "../../bundles"));
+            pskdomain.deployConstitutionBar(defaultConstitutionBundlesPath, (err, launcherBarSeed)=>{
+                if(err){
+                    throw err;
                 }
-
-                $$.blockchain = launcherCSB;
-
-                console.info('[TIR] start building nodes...');
-
-                whenAllFinished(Object.values(domainConfigs), this.buildDomainConfiguration, (err) => {
-                    if (err) {
+                pskdomain.loadCSB(launcherBarSeed.toString(), (err, launcherCSB)=>{
+                    if(err){
                         throw err;
                     }
-
-                    const seed = launcherCSB.getSeed();
-                    fs.writeFileSync(path.join(confFolder, 'confSeed'), seed.toString(), 'utf8');
-
-                    testerNode = pingPongFork.fork(
-                        path.resolve(path.join(__dirname, "../../core/launcher.js")),
-                        [confFolder, rootFolder],
-                        {
-                            stdio: 'inherit',
-                            env: {
-                                PSK_PUBLISH_LOGS_ADDR: `tcp://127.0.0.1:${zeroMQPort}`
-                            }
+                    $$.blockchain = launcherCSB;
+                    whenAllFinished(Object.values(domainConfigs), this.buildDomainConfiguration, (err) => {
+                        if (err) {
+                            throw err;
                         }
-                    );
 
-                    initializeSwarmEngine(virtualMQPort);
-                    prepareTeardownTimeout();
+                        const seed = launcherCSB.getSeed().toString();
+
+                        testerNode = pingPongFork.fork(
+                            path.resolve(path.join(__dirname, "../../core/launcher.js")),
+                            [seed, rootFolder],
+                            {
+                                stdio: 'inherit',
+                                env: {
+                                    PSK_PUBLISH_LOGS_ADDR: `tcp://127.0.0.1:${zeroMQPort}`
+                                }
+                            }
+                        );
+
+                        initializeSwarmEngine(virtualMQPort);
+                        prepareTeardownTimeout();
+                    });
                 });
-
             });
         });
 
@@ -243,7 +243,6 @@ const Tir = function () {
                 }
             }, 1000);
         }
-
     };
 
     function launchVirtualMQNode(maxTries, rootFolder, callback) {
@@ -403,6 +402,7 @@ const Tir = function () {
 
 
                 const constitutionBundles = [pathToConstitution, domainConfig.bundlesSourceFolder];
+                console.log("constitutionBundles", constitutionBundles);
                 pskdomain.deployConstitutionCSB(constitutionBundles, domainConfig.name, (err, seedBuffer) => {
                     if (err) {
                         return callback(err);
