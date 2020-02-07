@@ -19,6 +19,10 @@ const baseDeps = [
         "src": "https://github.com/PrivateSky/swarm-engine.git"
     },
     {
+        "name": "swarmutils",
+        "src": "https://github.com/PrivateSky/swarmutils.git"
+    },
+    {
         "name": "soundpubsub",
         "src": "https://github.com/PrivateSky/soundpubsub.git"
     },
