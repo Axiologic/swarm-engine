@@ -440,7 +440,8 @@ const Tir = function () {
             };
 
             const __addNext = (index = 0) => {
-                if(index >= constitutionPaths.length) {
+                if (index >= constitutionPaths.length) {
+
                     if (domainName !== "") {
                         constitutionArchive.writeFile(EDFS.constants.CSB.DOMAIN_IDENTITY_FILE, domainName, lastHandler)
                     } else {
@@ -452,28 +453,12 @@ const Tir = function () {
 
                 const currentPath = constitutionPaths[index];
 
-                fs.stat(currentPath, (err, stats) => {
+                constitutionArchive.addFolder(currentPath, EDFS.constants.CSB.CONSTITUTION_FOLDER, (err) => {
                     if (err) {
                         return callback(err);
                     }
 
-                    if(stats.isDirectory()) {
-                        constitutionArchive.addFolder(currentPath, EDFS.constants.CSB.CONSTITUTION_FOLDER, (err) => {
-                            if (err) {
-                                return callback(err);
-                            }
-
-                            __addNext(index + 1);
-                        });
-                    } else {
-                        constitutionArchive.addFile(currentPath, `${EDFS.constants.CSB.CONSTITUTION_FOLDER}/` + path.basename(currentPath), (err) => {
-                            if (err) {
-                                return callback(err);
-                            }
-
-                            __addNext(index + 1);
-                        });
-                    }
+                    __addNext(index + 1);
                 });
             };
 
