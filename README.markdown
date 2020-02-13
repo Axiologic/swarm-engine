@@ -11,7 +11,7 @@ PrivateSky propose a series of major innovations compared with these mainstream 
  - PrivateSky created advanced technologies for off chain (we call them near chain) storage.
  
  Overall, PrivateSky is usable for both public and private blockchains and it is focused on providing new and powerfull tools regarding privacy and confidentiality. PrivateSky introduces a new approach on programming smart contracts based on executable choreographies.
-The concept of swarm based executable choreographies is not very mainstream and we will shortly explain bellow. This whitepaper is not indented for the technical audience that is invited to study our code and technical documentation here: http://github.com/privateSky
+The concept of swarm based executable choreographies is not very mainstream and we will shortly explain bellow. This whitepaper is not indented for the technical audience that is invited to study our code and technical documentation here: http://privatesky.xyz
 
 We have to mention that swarm based executable choreographies are a novel method we have invented to implement multi-party computation and for doing integration in complex software systems.
 
@@ -27,13 +27,12 @@ Until December 2019 we plan to release a public whitepaper about PrivateSKy!
 
 How should be used for third party applications or by external contributors:
 - clone it
-- read or wiki for documentation:  [How to Web](https://github.com/PrivateSky/privatesky/wiki/How-to-web)
-
+- read documentation:  [How to Web](https://privatesky.xyz)
 - add your list of modules and libraries in release or in other folder (build-devel.js)
 - Enjoy the combined world of microservices, adnvanced privacy tehnology and blockchain!
 
 
-Read our Wiki!
+Read our PrivateSky documentation website!
 
 
 ### Temporary precautions
@@ -41,7 +40,7 @@ Read our Wiki!
 
 For security and code quality reasons all the integration here and releases will be performed manually by a very small core of developers (mainly Sinica and Cosmin)!
 
-The stable releases will be merged periodically  [here](https://github.com/Axiologic/swarm-engine) or will be branched.
+The stable releases will be merged periodically  [here](https://github.com/Axiologic/swarm-engine), [here](https://github.com/privatesky/psk-release) or will be branched.
 [PrivateSky](https://github.com/PrivateSky/privatesky)  is unstable and is developed in master branch. Use it just as a preview for the newer releases.
 
 The documentation is not ready for public (only for partners)  but if you want access, please send an email to abss@axiologic.net
