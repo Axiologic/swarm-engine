@@ -101,8 +101,14 @@ function createConstitution(prefix, describer, options, constitutionSourcesFolde
 const Tir = function () {
     const virtualMQ = require('virtualmq');
     const pingPongFork = require('../../core/utils/pingpongFork');
-    const pskdomain = require('../../../modules/pskdomain');
+    const EDFS = require('edfs');
 
+    if (!$$.securityContext) {
+        $$.securityContext = require("psk-security-context").createSecurityContext();
+    }
+
+    const edfsTransportStrategyName = 'tirTransport';
+    const edfs = EDFS.attach(edfsTransportStrategyName);
     const domainConfigs = {};
     const rootFolder = fs.mkdtempSync(path.join(os.tmpdir(), 'psk_'));
 
@@ -192,14 +198,14 @@ const Tir = function () {
             console.info('[TIR] pskdb on', confFolder);
 
             const defaultConstitutionBundlesPath = path.resolve(path.join(__dirname, "../../bundles"));
-            pskdomain.deployConstitutionBar(defaultConstitutionBundlesPath, (err, launcherBarSeed)=>{
-                if(err){
-                    throw err;
-                }
-                pskdomain.loadCSB(launcherBarSeed.toString(), (err, launcherCSB)=>{
-                    if(err){
-                        throw err;
-                    }
+            const launcherBar = edfs.createBar();
+            launcherBar.addFolder(defaultConstitutionBundlesPath, EDFS.constants.CSB.CONSTITUTION_FOLDER, (err) => {
+                if(err) { throw err; }
+
+                const launcherBarSeed = launcherBar.getSeed();
+                edfs.loadCSB(launcherBarSeed, (err, launcherCSB) => {
+                    if(err) { throw err; }
+
                     $$.blockchain = launcherCSB;
                     whenAllFinished(Object.values(domainConfigs), this.buildDomainConfiguration, (err) => {
                         if (err) {
@@ -258,7 +264,8 @@ const Tir = function () {
                 return
             }
 
-            pskdomain.ensureEnvironmentIsReady(`http://localhost:${virtualMQPort}`);
+            const edfsURL = `http://localhost:${virtualMQPort}`;
+            $$.brickTransportStrategiesRegistry.add(edfsTransportStrategyName, new EDFS.HTTPBrickTransportStrategy(edfsURL));
 
             $$.securityContext.generateIdentity((err, agentId) => {
                 if (err) {
@@ -357,7 +364,7 @@ const Tir = function () {
 
                     if (domainConfig.agents && Array.isArray(domainConfig.agents) && domainConfig.agents.length > 0) {
 
-                        pskdomain.loadCSB(constitutionSeed, (err, csb) => {
+                        edfs.loadCSB(constitutionSeed, (err, csb) => {
                             if (err) {
                                 return callback(err);
                             }
@@ -403,7 +410,8 @@ const Tir = function () {
 
                 const constitutionBundles = [pathToConstitution, domainConfig.bundlesSourceFolder];
                 console.log("constitutionBundles", constitutionBundles);
-                pskdomain.deployConstitutionCSB(constitutionBundles, domainConfig.name, (err, seedBuffer) => {
+
+                deployConstitutionCSB(constitutionBundles, domainConfig.name, (err, seedBuffer) => {
                     if (err) {
                         return callback(err);
                     }
@@ -411,6 +419,35 @@ const Tir = function () {
                     callback(undefined, seedBuffer.toString());
                 });
             })
+        }
+
+        function deployConstitutionCSB(constitutionPaths, domainName, callback) {
+
+            if (typeof domainName === "function" && typeof callback === "undefined") {
+                callback = domainName;
+                domainName = "";
+            }
+
+            edfs.createBarWithConstitution(constitutionPaths, (err, constitutionArchive) => {
+                if (err) {
+                    return callback(err);
+                }
+
+                const lastHandler = (err) => {
+                    if (err) {
+                        return callback(err);
+                    }
+
+                    const seed = constitutionArchive.getSeed();
+                    callback(undefined, seed);
+                };
+
+                if (domainName !== "") {
+                    constitutionArchive.writeFile(EDFS.constants.CSB.DOMAIN_IDENTITY_FILE, domainName, lastHandler)
+                } else {
+                    lastHandler();
+                }
+            });
         }
 
         function getConstitutionFile(callback) {
