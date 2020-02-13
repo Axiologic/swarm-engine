@@ -428,26 +428,56 @@ const Tir = function () {
                 domainName = "";
             }
 
-            edfs.createBarWithConstitution(constitutionPaths, (err, constitutionArchive) => {
+            const constitutionArchive = edfs.createBar();
+
+            const lastHandler = (err) => {
                 if (err) {
                     return callback(err);
                 }
 
-                const lastHandler = (err) => {
+                const seed = constitutionArchive.getSeed();
+                callback(undefined, seed);
+            };
+
+            const __addNext = (index = 0) => {
+                if(index >= constitutionPaths.length) {
+                    if (domainName !== "") {
+                        constitutionArchive.writeFile(EDFS.constants.CSB.DOMAIN_IDENTITY_FILE, domainName, lastHandler)
+                    } else {
+                        lastHandler();
+                    }
+
+                    return;
+                }
+
+                const currentPath = constitutionPaths[index];
+
+                fs.stat(currentPath, (err, stats) => {
                     if (err) {
                         return callback(err);
                     }
 
-                    const seed = constitutionArchive.getSeed();
-                    callback(undefined, seed);
-                };
+                    if(stats.isDirectory()) {
+                        constitutionArchive.addFolder(currentPath, EDFS.constants.CSB.CONSTITUTION_FOLDER, (err) => {
+                            if (err) {
+                                return callback(err);
+                            }
 
-                if (domainName !== "") {
-                    constitutionArchive.writeFile(EDFS.constants.CSB.DOMAIN_IDENTITY_FILE, domainName, lastHandler)
-                } else {
-                    lastHandler();
-                }
-            });
+                            __addNext(index + 1);
+                        });
+                    } else {
+                        constitutionArchive.addFile(currentPath, `${EDFS.constants.CSB.CONSTITUTION_FOLDER}/` + path.basename(currentPath), (err) => {
+                            if (err) {
+                                return callback(err);
+                            }
+
+                            __addNext(index + 1);
+                        });
+                    }
+                });
+            };
+
+            __addNext();
         }
 
         function getConstitutionFile(callback) {
