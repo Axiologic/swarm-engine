@@ -6,3 +6,4 @@ if(typeof $$ === "undefined" || !$$.environmentType) {
 }
 
 require("./virtualMQ_intermediar");
+require('callflow').initialise();
