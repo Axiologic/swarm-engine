@@ -6,7 +6,7 @@
   "blockchain": "blockchain",
   "sandboxBase": {"deps": "callflow, swarm-engine, overwrite-require, psklogger, swarmutils, soundpubsub, pskbuffer, agentBase, assert, buffer, events, path, querystring, stream, string_decoder, timers, url, util, inherits, zlib, ieee754, base64-js, process/browser.js", "insertGlobals":true, "bare": false, "bundleExternal": false, "autoLoad": true},
   "edfsBar": "bar, psk-http-client, edfs, edfs-middleware, edfs-brick-storage, bar-fs-adapter, adler32, pskdomain",
-  "testsRuntime": "overwrite-require, pskcrypto, edfs, double-check, pskdomain, blockchain, swarmutils, soundpubsub",
+  "testsRuntime": "overwrite-require, pskcrypto, edfs, double-check, pskdomain, blockchain, swarmutils, soundpubsub, dossier",
   "csbBoot": "overwrite-require, edfs, pskdomain",
   "bindableModel": "overwrite-require, @msgpack/msgpack, swarmutils, soundpubsub, psk-bindable-model",
   "swBoot": {"deps":"edfs,  swarm-engine/bootScripts/browser/sw:boot-sw, pskcrypto", "autoLoad": true, "bundleExternal":  true, "bare":  false},

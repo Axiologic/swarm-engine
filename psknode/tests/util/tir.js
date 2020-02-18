@@ -251,16 +251,28 @@ const Tir = function () {
         }
     };
 
-    function launchVirtualMQNode(maxTries, rootFolder, callback) {
+    function launchVirtualMQNode(maxTries, storageFolder, callback) {
         if (maxTries === 0) {
             return;
         }
 
+        if(typeof storageFolder === "function"){
+            callback = storageFolder;
+            storageFolder = maxTries;
+            maxTries = 100;
+        }
+
+        if(typeof maxTries === "function"){
+            callback = maxTries;
+            storageFolder = rootFolder;
+            maxTries = 100;
+        }
+
         const virtualMQPort = getRandomPort();
-        process.env.vmq_channel_storage = rootFolder;
-        virtualMQNode = virtualMQ.createVirtualMQ(virtualMQPort, rootFolder, '', err => {
+        process.env.vmq_channel_storage = storageFolder;
+        virtualMQNode = virtualMQ.createVirtualMQ(virtualMQPort, storageFolder, '', err => {
             if (err) {
-                launchVirtualMQNode(maxTries - 1, rootFolder, callback);
+                launchVirtualMQNode(maxTries - 1, storageFolder, callback);
                 return
             }
 
@@ -277,6 +289,7 @@ const Tir = function () {
 
         });
     }
+    this.launchVirtualMQNode = launchVirtualMQNode;
 
     function launchLocalMonitor(maxTries, onBootMessage) {
         if (typeof maxTries === 'function') {
@@ -544,6 +557,15 @@ function whenAllFinished(array, handler, callback) {
         });
     }
 
+    this.buildConstitution = function(path, targetArchive, callback){
+        pskdomain.createConstitutionFromSources(path, (err, fileName)=>{
+            if(err){
+                return callback(err);
+            }
+            const edfs = require("edfs");
+            targetArchive.addFile(fileName, `${edfs.constants.CSB.CONSTITUTION_FOLDER}\domain.js`, callback);
+        });
+    }
 }
 
 module.exports = new Tir();
