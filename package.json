@@ -50,7 +50,7 @@
     "release": "node ./bin/scripts/pskbuild.js ./builds/build.json && node bin/scripts/build-release.js",
     "build": "node ./bin/scripts/pskbuild.js --projectMap=./builds/build.json",
     "watch": "node ./bin/scripts/watcher.js --watch ./ --run \"./bin/scripts/pskbuild.js\" --args=\"--projectMap=./builds/build.json\" --ignore=\"/psknode/bundles/,/builds,/tests/,/bin/\"",
-    "start": "node ./bin/scripts/psknode.js",
+    "start": "npm run build && node ./bin/scripts/psknode.js",
     "git-status": "node deployer/gitStatusCheck.js .",
     "run-tests": "npm run build && cd tests && node ../bin/scripts/testrunner.js",
     "unit-tests": "npm run build && node ./bin/scripts/testrunner.js --config='./test-suites.json'",
