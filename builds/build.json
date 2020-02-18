@@ -10,7 +10,7 @@
   "csbBoot": "overwrite-require, edfs, pskdomain",
   "bindableModel": "overwrite-require, @msgpack/msgpack, swarmutils, soundpubsub, psk-bindable-model",
   "swBoot": {"deps":"edfs,  swarm-engine/bootScripts/browser/sw:boot-sw, pskcrypto", "autoLoad": true, "bundleExternal":  true, "bare":  false},
-  "ssappHostBoot": {"deps":"overwrite-require, edfs, swarm-engine/bootScripts/browser/host:boot-host, pskcrypto","autoLoad": true, "bundleExternal":true},
+  "ssappHostBoot": {"deps":"overwrite-require, edfs, swarm-engine/bootScripts/browser/host:boot-host, pskcrypto","autoLoad": true, "bundleExternal":true, "exclude": "psklogger"},
   "ssappBoot": {"deps": "swarm-engine/bootScripts/browser/ssapp:boot-ssapp, pskcrypto","autoLoad": true, "bundleExternal": true},
   "threadBoot": {"deps": "overwrite-require, edfs, bar, bar-fs-adapter, edfs-brick-storage, swarmutils, adler32, pskcrypto, psk-http-client, swarm-engine/bootScripts/ThreadWorkerBootScript:boot-script", "autoLoad": true},
   "domainBoot": {"deps": "overwrite-require, psklogger, zmq_adapter, psk-security-context, bar, psk-http-client, edfs, edfs-middleware, edfs-brick-storage, bar-fs-adapter, adler32, pskdomain, pskcrypto, swarmutils, swarm-engine/bootScripts/domainBootScript:boot-script", "autoLoad": true, "bundleExternal": false},

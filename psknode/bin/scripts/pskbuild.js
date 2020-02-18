@@ -250,8 +250,16 @@ function doBrowserify(targetName, src, dest, opt, externalModules, exportsModule
 
     function doWork(err, mapForExpose) {
         //console.log("Processing ", src, "into", dest, "\n" /*, JSON.stringify(mapForExpose, 2)*/);
-
         const browserifyPackage = browserify(src, opt);
+        //options like exclude and ignore need to be translated to functions calls
+        // because browserify api does not accept them as options
+        // the following list can be
+        let browserifyMethods = ["ignore","exclude","external"];
+        browserifyMethods.forEach(browserifyMethod=>{
+            if(opt[browserifyMethod]){
+                browserifyPackage[browserifyMethod](opt[browserifyMethod]);
+            }
+        });
 
         if (externalModules) {
             browserifyPackage.external(externalModules);
