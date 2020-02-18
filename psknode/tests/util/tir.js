@@ -532,6 +532,17 @@ const Tir = function () {
         }, 100);
     };
 
+    this.buildConstitution = function(path, targetArchive, callback){
+        const pskdomain = require("pskdomain");
+        process.env.PSK_ROOT_INSTALATION_FOLDER = require("path").join(__dirname, "../../../");
+        pskdomain.createConstitutionFromSources(path, (err, fileName)=>{
+            if(err){
+                return callback(err);
+            }
+            const edfs = require("edfs");
+            targetArchive.addFile(fileName, `${edfs.constants.CSB.CONSTITUTION_FOLDER}\domain.js`, callback);
+        });
+    }
 };
 
 
@@ -554,16 +565,6 @@ function whenAllFinished(array, handler, callback) {
             if (tasksLeft === 0) {
                 callback(undefined);
             }
-        });
-    }
-
-    this.buildConstitution = function(path, targetArchive, callback){
-        pskdomain.createConstitutionFromSources(path, (err, fileName)=>{
-            if(err){
-                return callback(err);
-            }
-            const edfs = require("edfs");
-            targetArchive.addFile(fileName, `${edfs.constants.CSB.CONSTITUTION_FOLDER}\domain.js`, callback);
         });
     }
 }
