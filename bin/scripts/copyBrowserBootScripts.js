@@ -1,6 +1,6 @@
 let browserBootScripts = [
     {src: "swBoot.js", target: "/"},
-    {src: "ssappHostBoot.js", target: "/scripts"},
+    {src: "swHostBoot.js", target: "/"},
     {src: "ssappBoot.js", target: "/scripts"}
 ];
 
