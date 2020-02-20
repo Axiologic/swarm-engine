@@ -540,7 +540,7 @@ const Tir = function () {
                 return callback(err);
             }
             const edfs = require("edfs");
-            targetArchive.addFile(fileName, `${edfs.constants.CSB.CONSTITUTION_FOLDER}\domain.js`, callback);
+            targetArchive.addFile(fileName, `${edfs.constants.CSB.CONSTITUTION_FOLDER}/domain.js`, callback);
         });
     }
 };
