@@ -1,11 +1,11 @@
 {
-  "webshims": {"deps": "assert, crypto, zlib, util, path,os, events, stream, buffer, timers", "bare": false, "bundleExternal": true},
+  "webshims": {"deps": "assert, crypto, zlib, util, path,os, events, stream, buffer, timers", "bare": false, "bundleExternal": true, "exclude": "psklogger"},
   "pskruntime": "callflow, swarmutils, soundpubsub, pskbuffer, @msgpack/msgpack, psklogger, psk-security-context, syndicate, swarm-engine",
   "virtualMQ": "overwrite-require, pskcrypto, edfs, virtualmq, buffer-crc32, node-fd-slicer, edfs-middleware, psk-http-client, zmq_adapter, swarmutils, callflow, soundpubsub, psk-security-context",
   "consoleTools":"pskwallet, buffer-crc32, node-fd-slicer, csb-wizard",
   "blockchain": "blockchain",
   "sandboxBase": {"deps": "callflow, swarm-engine, overwrite-require, psklogger, swarmutils, soundpubsub, pskbuffer, agentBase, assert, buffer, events, path, querystring, stream, string_decoder, timers, url, util, inherits, zlib, ieee754, base64-js, process/browser.js", "insertGlobals":true, "bare": false, "bundleExternal": false, "autoLoad": true},
-  "edfsBar": "bar, psk-http-client, edfs, edfs-middleware, edfs-brick-storage, bar-fs-adapter, adler32, pskdomain",
+  "edfsBar": "bar, psk-http-client, edfs, edfs-middleware, edfs-brick-storage, bar-fs-adapter, adler32, pskdomain, overwrite-require, swarmutils, @msgpack/msgpack, pskcrypto",
   "testsRuntime": "overwrite-require, pskcrypto, edfs, double-check, pskdomain, blockchain, swarmutils, soundpubsub, dossier, swarm-engine",
   "csbBoot": "overwrite-require, edfs, pskdomain",
   "bindableModel": "overwrite-require, @msgpack/msgpack, swarmutils, soundpubsub, psk-bindable-model",
