@@ -16,5 +16,5 @@
   "domainBoot": {"deps": "overwrite-require, psklogger, zmq_adapter, psk-security-context, bar, psk-http-client, edfs, edfs-middleware, edfs-brick-storage, bar-fs-adapter, adler32, pskdomain, pskcrypto, swarmutils, swarm-engine/bootScripts/domainBootScript:boot-script", "autoLoad": true, "bundleExternal": false},
   "isolatesBoot": {"deps": "overwrite-require, edfs, pskcrypto, swarm-engine/bootScripts/IsolateBootScript:boot-script", "autoLoad": true, "bundleExternal": false},
   "launcherBoot": {"deps": "overwrite-require, zmq_adapter, psk-security-context, bar, psk-http-client, edfs, edfs-middleware, edfs-brick-storage, bar-fs-adapter, adler32, pskdomain, pskcrypto, swarmutils, swarm-engine/bootScripts/launcherBootScript:boot-script", "autoLoad": true, "bundleExternal": false},
-  "walletBoot": {"deps": "overwrite-require, edfs, pskcrypto, swarmutils, bar, psk-http-client, bar-fs-adapter, edfs-brick-storage, adler32, pskwallet/index.js:boot-script", "autoLoad": true, "bundleExternal": false}
+  "walletBoot": {"deps": "overwrite-require, edfs, dossier, swarm-engine, callflow, pskcrypto, swarmutils, bar, psk-http-client, bar-fs-adapter, edfs-brick-storage, adler32, pskwallet/index.js:boot-script", "autoLoad": true, "bundleExternal": false}
 }
