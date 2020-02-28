@@ -1,16 +1,12 @@
 /**
- * Test Integration Runner
+ * Test Infrastructure Runner
  *
  */
-
-const config = {
-    addressForSubscribers: process.env.PSK_SUBSCRIBE_FOR_LOGS_ADDR || 'tcp://127.0.0.1:7001'
-};
-
 const path = require('path');
+process.env.PSK_ROOT_INSTALATION_FOLDER = require("path").join(__dirname, "../../../");
 
-require(path.resolve(path.join(__dirname, "../../bundles/edfsBar.js")));
-require(path.resolve(path.join(__dirname, "../../bundles/virtualMQ.js")));
+require(path.resolve(path.join(process.env.PSK_ROOT_INSTALATION_FOLDER, "psknode/bundles/edfsBar.js")));
+require(path.resolve(path.join(process.env.PSK_ROOT_INSTALATION_FOLDER, "psknode/bundles/virtualMQ.js")));
 
 const os = require('os');
 const fs = require('fs');
@@ -26,20 +22,6 @@ const createKey = function (name) {
                 : word.substr(0, 1).toLocaleUpperCase() + word.toLowerCase().substr(1)
         )
         .join('');
-};
-
-const rmDeep = folder => {
-    if (fs.existsSync(folder)) {
-        fs.readdirSync(folder).forEach(file => {
-            const curPath = path.join(folder, file);
-            if (fs.lstatSync(curPath).isDirectory()) {
-                rmDeep(curPath);
-            } else {
-                fs.unlinkSync(curPath);
-            }
-        });
-        fs.rmdirSync(folder);
-    }
 };
 
 function buildConstitutionFromDescription(describer, options) {
@@ -94,21 +76,44 @@ function createConstitution(prefix, describer, options, constitutionSourcesFolde
         constitutionSourcesFolder.push(tempConstitutionFolder);
     }
 
-    console.log('[TIR] Will construct constitution from', constitutionSourcesFolder);
+    //console.log('[TIR] Will construct constitution from', constitutionSourcesFolder);
     pskdomain.createConstitutionFromSources(constitutionSourcesFolder, prefix, callback);
+}
+
+
+function whenAllFinished(array, handler, callback) {
+    let tasksLeft = array.length;
+
+    if(tasksLeft === 0) {
+        callback();
+    }
+
+    for (const task of array) {
+        handler(task, (err) => {
+            tasksLeft--;
+
+            if (err) {
+                tasksLeft = -1;
+                return callback(err);
+            }
+
+            if (tasksLeft === 0) {
+                callback(undefined);
+            }
+        });
+    }
 }
 
 const Tir = function () {
     const virtualMQ = require('virtualmq');
     const pingPongFork = require('../../core/utils/pingpongFork');
     const EDFS = require('edfs');
+    let edfs; // will be instantiated after getting virtualMQ node up and getting the url
 
     if (!$$.securityContext) {
         $$.securityContext = require("psk-security-context").createSecurityContext();
     }
 
-    const edfsTransportStrategyName = 'tirTransport';
-    const edfs = EDFS.attach(edfsTransportStrategyName);
     const domainConfigs = {};
     const rootFolder = fs.mkdtempSync(path.join(os.tmpdir(), 'psk_'));
 
@@ -175,6 +180,9 @@ const Tir = function () {
 
         console.info('[TIR] setting working folder root', rootFolder);
 
+        const assert = require("double-check").assert;
+        assert.addCleaningFunction(this.tearDown);
+
         launchVirtualMQNode(100, rootFolder, (err, vmqPort) => {
             if (err) {
                 throw err;
@@ -191,28 +199,25 @@ const Tir = function () {
 
             launchLocalMonitor(callCallbackWhenAllDomainsStarted);
 
-            const confFolder = path.join(rootFolder, 'conf');
-            fs.mkdirSync(confFolder);
             fs.mkdirSync(path.join(rootFolder, 'nodes'));
 
-            console.info('[TIR] pskdb on', confFolder);
-
-            const defaultConstitutionBundlesPath = path.resolve(path.join(__dirname, "../../bundles"));
+            const defaultConstitutionBundlesPath = path.resolve(path.join(process.env.PSK_ROOT_INSTALATION_FOLDER, "psknode/bundles"));
             const launcherBar = edfs.createBar();
             launcherBar.addFolder(defaultConstitutionBundlesPath, EDFS.constants.CSB.CONSTITUTION_FOLDER, (err) => {
                 if(err) { throw err; }
 
                 const launcherBarSeed = launcherBar.getSeed();
-                edfs.loadCSB(launcherBarSeed, (err, launcherCSB) => {
+                const dossier = require("dossier");
+                dossier.load(launcherBarSeed, "TIR_AGENT_IDENTITY", (err, csbHandler) => {
                     if(err) { throw err; }
 
-                    $$.blockchain = launcherCSB;
+                    global.currentHandler = csbHandler;
                     whenAllFinished(Object.values(domainConfigs), this.buildDomainConfiguration, (err) => {
                         if (err) {
                             throw err;
                         }
 
-                        const seed = launcherCSB.getSeed().toString();
+                        const seed = launcherBarSeed;
 
                         testerNode = pingPongFork.fork(
                             path.resolve(path.join(__dirname, "../../core/launcher.js")),
@@ -277,7 +282,7 @@ const Tir = function () {
             }
 
             const edfsURL = `http://localhost:${virtualMQPort}`;
-            $$.brickTransportStrategiesRegistry.add(edfsTransportStrategyName, new EDFS.HTTPBrickTransportStrategy(edfsURL));
+            edfs = EDFS.attachToEndpoint(edfsURL);
 
             $$.securityContext.generateIdentity((err, agentId) => {
                 if (err) {
@@ -331,7 +336,11 @@ const Tir = function () {
 
     function initializeSwarmEngine(port) {
         const se = require('swarm-engine');
-        se.initialise();
+        try{
+            se.initialise();
+        }catch(err){
+            //
+        }
 
         const powerCordToDomain = new se.SmartRemoteChannelPowerCord([`http://127.0.0.1:${port}/`]);
         $$.swarmEngine.plug("*", powerCordToDomain);
@@ -352,7 +361,6 @@ const Tir = function () {
      */
     this.buildDomainConfiguration = (domainConfig, callback) => {
         console.info('[TIR] domain ' + domainConfig.name + ' in workspace', domainConfig.workspace);
-        console.info('[TIR] domain ' + domainConfig.name + ' inbound', domainConfig.inbound);
 
         fs.mkdirSync(domainConfig.workspace, {recursive: true});
 
@@ -369,15 +377,18 @@ const Tir = function () {
                 }
             };
 
-            $$.blockchain.startTransactionAs("secretAgent", "Domain", "add", domainConfig.name, "system", domainConfig.workspace, constitutionSeed)
-                .onCommit((err) => {
+
+
+            global.currentHandler.startTransaction( "Domain", "add", domainConfig.name, "system", domainConfig.workspace, constitutionSeed)
+                .onReturn((err) => {
                     if (err) {
                         return callback(err);
                     }
 
                     if (domainConfig.agents && Array.isArray(domainConfig.agents) && domainConfig.agents.length > 0) {
 
-                        edfs.loadCSB(constitutionSeed, (err, csb) => {
+                        const dossier = require("dossier");
+                        dossier.load(constitutionSeed, "TIR_AGENT_IDENTITY", (err, csbHandler) => {
                             if (err) {
                                 return callback(err);
                             }
@@ -388,12 +399,12 @@ const Tir = function () {
 
                             domainConfig.agents.forEach(agentName => {
                                 console.info('[TIR] domain ' + domainConfig.name + ' agent', agentName);
-                                csb.startTransactionAs("secretAgent", "Agents", "add", agentName, "public_key")
-                                    .onCommit(maybeCallCallback);
+                                csbHandler.startTransaction("Agents", "add", agentName, "public_key")
+                                    .onReturn(maybeCallCallback);
                             });
 
-                            csb.startTransactionAs('secretAgent', 'DomainConfigTransaction', 'add', domainConfig.name, communicationInterfaces)
-                                .onCommit(maybeCallCallback);
+                            csbHandler.startTransaction('DomainConfigTransaction', 'add', domainConfig.name, communicationInterfaces)
+                                .onReturn(maybeCallCallback);
 
                             function maybeCallCallback(err) {
                                 if (err) {
@@ -422,7 +433,7 @@ const Tir = function () {
 
 
                 const constitutionBundles = [pathToConstitution, domainConfig.bundlesSourceFolder];
-                console.log("constitutionBundles", constitutionBundles);
+                //console.log("constitutionBundles", constitutionBundles);
 
                 deployConstitutionCSB(constitutionBundles, domainConfig.name, (err, seedBuffer) => {
                     if (err) {
@@ -520,7 +531,7 @@ const Tir = function () {
         setTimeout(() => {
             try {
                 console.info('[TIR] Removing temporary folder', rootFolder);
-                rmDeep(rootFolder);
+                fs.rmdirSync(rootFolder, {recursive: true});
                 console.info('[TIR] Temporary folder removed', rootFolder);
             } catch (e) {
                 //just avoid to display error on console
@@ -539,34 +550,9 @@ const Tir = function () {
             if(err){
                 return callback(err);
             }
-            const edfs = require("edfs");
-            targetArchive.addFile(fileName, `${edfs.constants.CSB.CONSTITUTION_FOLDER}/domain.js`, callback);
+            targetArchive.addFile(fileName, `${EDFS.constants.CSB.CONSTITUTION_FOLDER}/domain.js`, callback);
         });
     }
 };
-
-
-function whenAllFinished(array, handler, callback) {
-    let tasksLeft = array.length;
-
-    if(tasksLeft === 0) {
-        callback();
-    }
-
-    for (const task of array) {
-        handler(task, (err) => {
-            tasksLeft--;
-
-            if (err) {
-                tasksLeft = -1;
-                return callback(err);
-            }
-
-            if (tasksLeft === 0) {
-                callback(undefined);
-            }
-        });
-    }
-}
 
 module.exports = new Tir();
