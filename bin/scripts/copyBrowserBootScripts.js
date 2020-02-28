@@ -1,9 +1,9 @@
 let browserBootScripts = [
     {src: "swBoot.js", target: "/"},
     {src: "swHostBoot.js", target: "/"},
-    {src: "ssappBoot.js", target: "/"},
-    {src: "edfsBar.js", target: "/"},
-    {src: "webshims.js", target: "/"}
+    {src: "ssappBoot.js", target: "/bundles"},
+    {src: "edfsBar.js", target: "/bundles"},
+    {src: "webshims.js", target: "/bundles"}
 ];
 
 
