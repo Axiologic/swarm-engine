@@ -24,38 +24,6 @@ const createKey = function (name) {
         .join('');
 };
 
-function buildConstitutionFromDescription(describer, options) {
-    let opts = Object.assign(
-        {
-            nl: '\n',
-            semi: ';',
-            tab: '  '
-        },
-        options
-    );
-
-    const contents = Object.keys(describer)
-        .reduce((c, name) => {
-            let line = "$$.swarms.describe('" + name + "', {";
-            line += Object.keys(describer[name])
-                .reduce((f, prop) => {
-                    if (typeof describer[name][prop] === 'object') {
-                        f.push(opts.nl + opts.tab + prop + ': ' + JSON.stringify(describer[name][prop]));
-                    } else {
-                        f.push(opts.nl + opts.tab + prop + ': ' + describer[name][prop].toString());
-                    }
-                    return f;
-                }, [])
-                .join(',');
-            line += opts.nl + '})' + opts.semi;
-            c.push(line);
-            return c;
-        }, [])
-        .join(opts.nl);
-
-    return contents;
-}
-
 function createConstitution(prefix, describer, options, constitutionSourcesFolder, callback) {
     const pskdomain = require('../../../modules/pskdomain');
 
@@ -137,26 +105,13 @@ const Tir = function () {
         domainConfigs[domainName] = {
             name: domainName,
             agents,
-            constitution: {},
+            /*constitution: {},*/
             constitutionSourceFolder,
             bundlesSourceFolder: bundlesSourceFolder || path.resolve(path.join(__dirname, '../../bundles')),
             workspace: workspace,
             blockchain: path.join(workspace, 'conf')
         };
-
-        return new SwarmDescriber(domainName);
     };
-
-    this._createConstitution = createConstitution;
-
-    function SwarmDescriber(domainName) {
-        function describe(swarmName, swarmDescription) {
-            domainConfigs[domainName].constitution[swarmName] = swarmDescription;
-        }
-
-        this.swarms = {describe};
-        this.swarm = {describe};
-    }
 
     /**
      * Launches all the configured domains.
@@ -199,15 +154,26 @@ const Tir = function () {
 
             launchLocalMonitor(callCallbackWhenAllDomainsStarted);
 
-            fs.mkdirSync(path.join(rootFolder, 'nodes'));
+            fs.mkdirSync(path.join(rootFolder, 'nodes'), {recursive: true});
 
-            const defaultConstitutionBundlesPath = path.resolve(path.join(process.env.PSK_ROOT_INSTALATION_FOLDER, "psknode/bundles"));
+            const fakeDomainFile = path.join(rootFolder, 'domain.js');
+            fs.writeFileSync(fakeDomainFile, "console.log('domain.js loaded.')");
+
+            const defaultConstitutionBundlesPath = [
+                                path.resolve(path.join(process.env.PSK_ROOT_INSTALATION_FOLDER, "psknode/bundles/pskruntime.js")),
+                                path.resolve(path.join(process.env.PSK_ROOT_INSTALATION_FOLDER, "psknode/bundles/edfsBar.js")),
+                                path.resolve(path.join(process.env.PSK_ROOT_INSTALATION_FOLDER, "psknode/bundles/blockchain.js")),
+                                path.resolve(path.join(process.env.PSK_ROOT_INSTALATION_FOLDER, "psknode/bundles/virtualMQ.js")),
+                                fakeDomainFile
+                            ];
+
             const launcherBar = edfs.createBar();
-            launcherBar.addFolder(defaultConstitutionBundlesPath, EDFS.constants.CSB.CONSTITUTION_FOLDER, (err) => {
+            launcherBar.addFiles(defaultConstitutionBundlesPath, EDFS.constants.CSB.CONSTITUTION_FOLDER, (err) => {
                 if(err) { throw err; }
 
                 const launcherBarSeed = launcherBar.getSeed();
                 const dossier = require("dossier");
+
                 dossier.load(launcherBarSeed, "TIR_AGENT_IDENTITY", (err, csbHandler) => {
                     if(err) { throw err; }
 
@@ -377,8 +343,6 @@ const Tir = function () {
                 }
             };
 
-
-
             global.currentHandler.startTransaction( "Domain", "add", domainConfig.name, "system", domainConfig.workspace, constitutionSeed)
                 .onReturn((err) => {
                     if (err) {
@@ -426,23 +390,21 @@ const Tir = function () {
         });
 
         function getConstitutionSeed(callback) {
-            getConstitutionFile((err, pathToConstitution) => {
+            const constitutionBundles = [domainConfig.bundlesSourceFolder];
+            //console.log("constitutionBundles", constitutionBundles);
+
+            deployConstitutionCSB(constitutionBundles, domainConfig.name, (err, archive) => {
                 if (err) {
                     return callback(err);
                 }
 
-
-                const constitutionBundles = [pathToConstitution, domainConfig.bundlesSourceFolder];
-                //console.log("constitutionBundles", constitutionBundles);
-
-                deployConstitutionCSB(constitutionBundles, domainConfig.name, (err, seedBuffer) => {
-                    if (err) {
+                buildConstitution(domainConfig.constitutionSourceFolder, archive, (err)=>{
+                    if(err){
                         return callback(err);
                     }
-
-                    callback(undefined, seedBuffer.toString());
+                    callback(undefined, archive.getSeed());
                 });
-            })
+            });
         }
 
         function deployConstitutionCSB(constitutionPaths, domainName, callback) {
@@ -459,8 +421,7 @@ const Tir = function () {
                     return callback(err);
                 }
 
-                const seed = constitutionArchive.getSeed();
-                callback(undefined, seed);
+                callback(undefined, constitutionArchive);
             };
 
             const __addNext = (index = 0) => {
@@ -476,7 +437,6 @@ const Tir = function () {
                 }
 
                 const currentPath = constitutionPaths[index];
-
                 constitutionArchive.addFolder(currentPath, EDFS.constants.CSB.CONSTITUTION_FOLDER, (err) => {
                     if (err) {
                         return callback(err);
@@ -490,11 +450,7 @@ const Tir = function () {
         }
 
         function getConstitutionFile(callback) {
-            if (typeof domainConfig.constitution === 'string') {
-                callback(undefined, domainConfig.constitution);
-            } else {
-                createConstitution(domainConfig.workspace, domainConfig.constitution, undefined, domainConfig.constitutionSourceFolder, callback);
-            }
+            createConstitution(domainConfig.workspace, domainConfig.constitution, undefined, domainConfig.constitutionSourceFolder, callback);
         }
     };
 
@@ -543,7 +499,7 @@ const Tir = function () {
         }, 100);
     };
 
-    this.buildConstitution = function(path, targetArchive, callback){
+    function buildConstitution(path, targetArchive, callback){
         const pskdomain = require("pskdomain");
         process.env.PSK_ROOT_INSTALATION_FOLDER = require("path").join(__dirname, "../../../");
         pskdomain.createConstitutionFromSources(path, (err, fileName)=>{
@@ -553,6 +509,7 @@ const Tir = function () {
             targetArchive.addFile(fileName, `${EDFS.constants.CSB.CONSTITUTION_FOLDER}/domain.js`, callback);
         });
     }
+    this.buildConstitution = buildConstitution;
 };
 
 module.exports = new Tir();
