@@ -55,7 +55,9 @@ function startProcess(filePath,  args, options) {
 
 startProcess(path.join(__dirname, 'startZeromqProxy.js'));
 startProcess(path.join(__dirname, 'virtualMq.js'));
+
 require('../../bundles/virtualMQ');
+require('../../bundles/pskruntime');
 require('../../bundles/blockchain');
 require('../../bundles/edfsBar');
 require('callflow');
@@ -67,4 +69,3 @@ ConfigBox.getSeed((err, seed) => {
 
     startProcess(path.join(__dirname, '../../core/launcher.js'), [seed.toString()]);
 });
-

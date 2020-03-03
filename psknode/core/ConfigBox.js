@@ -5,6 +5,7 @@ let confFolder = process.env.PSK_CONF_FOLDER || path.resolve(path.join(__dirname
 const seedFileName = 'confSeed';
 const vmqPort = process.env.vmq_port || 8080;
 const vmqAddress = `http://127.0.0.1:${vmqPort}`;
+const identity = "launcherIdentity";
 
 if(!confFolder.endsWith('/')) {
     confFolder += '/';
@@ -37,7 +38,7 @@ function getSeed(callback) {
 
 function createCSB(callback) {
     const pskdomain = require('pskdomain');
-
+    const dossier = require('dossier');
     pskdomain.ensureEnvironmentIsReady(vmqAddress);
     $$.securityContext.generateIdentity((err) => {
         if(err) throw err;
@@ -48,23 +49,23 @@ function createCSB(callback) {
             }
 
             const constitutionCSBSeed = csbSeedBuffer.toString();
-            pskdomain.deployConstitutionFolderCSB(constitutionFolder, '', (err, launcherCSBSeed) => {
+            pskdomain.deployConstitutionFolderCSB(constitutionFolder, 'launcher', (err, launcherCSBSeed) => {
                 if (err) {
                     throw err;
                 }
 
-                pskdomain.loadCSB(launcherCSBSeed, (err, launcherCSB) => {
+                dossier.load(launcherCSBSeed, identity, (err, launcherCSB) => {
                    if(err) {
                        throw err;
                    }
 
-                    pskdomain.loadCSB(constitutionCSBSeed, (err, domainCSB) => {
+                    dossier.load(constitutionCSBSeed, identity, (err, domainCSB) => {
                         if(err) {
                             throw err;
                         }
 
-                        launcherCSB.startTransactionAs("secretAgent", "Domain", "add", 'local', "system", '../../', constitutionCSBSeed)
-                            .onCommit((err) => {
+                        launcherCSB.startTransaction("Domain", "add", 'local', "system", '../../', constitutionCSBSeed)
+                            .onReturn((err) => {
                                 if (err) {
                                     throw err;
                                 }
@@ -76,8 +77,8 @@ function createCSB(callback) {
                                     }
                                 };
 
-                                domainCSB.startTransactionAs('secretAgent', 'DomainConfigTransaction', 'add', 'local', communicationInterfaces)
-                                    .onCommit((err) => {
+                                domainCSB.startTransaction('DomainConfigTransaction', 'add', 'local', communicationInterfaces)
+                                    .onReturn((err) => {
                                         if (err) {
                                             throw err;
                                         }
