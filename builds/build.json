@@ -4,7 +4,7 @@
   "virtualMQ": "overwrite-require, pskcrypto, edfs, virtualmq, buffer-crc32, node-fd-slicer, edfs-middleware, psk-http-client, zmq_adapter, swarmutils, callflow, soundpubsub, psk-security-context",
   "consoleTools":"pskwallet, buffer-crc32, node-fd-slicer, csb-wizard",
   "blockchain": "blockchain",
-  "sandboxBase": {"deps": "callflow, swarm-engine, overwrite-require, psklogger, swarmutils, soundpubsub, pskbuffer, agentBase, assert, buffer, events, path, querystring, stream, string_decoder, timers, url, util, inherits, zlib, ieee754, base64-js, process/browser.js", "insertGlobals":true, "bare": false, "bundleExternal": false, "autoLoad": true},
+  "sandboxBase": {"deps": "callflow, swarm-engine, overwrite-require, psklogger, swarmutils, soundpubsub, pskbuffer, assert, buffer, events, path, querystring, stream, string_decoder, timers, url, util, inherits, zlib, ieee754, base64-js, process/browser.js", "insertGlobals":true, "bare": false, "bundleExternal": false, "autoLoad": true},
   "edfsBar": "bar, psk-http-client, edfs, edfs-middleware, edfs-brick-storage, bar-fs-adapter, adler32, pskdomain, overwrite-require, swarmutils, pskcrypto, dossier",
   "testsRuntime": "overwrite-require, pskcrypto, edfs, double-check, pskdomain, blockchain, swarmutils, soundpubsub, dossier, swarm-engine",
   "csbBoot": "overwrite-require, edfs, pskdomain, dossier",
