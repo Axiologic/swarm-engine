@@ -182,22 +182,6 @@ const config = {
                     "target": "tests"
                 }
             ]
-        },
-        {
-            "name": "psk-browser-tests",
-            "src": "https://github.com/PrivateSky/psk-browser-tests.git",
-            "actions": [
-                {
-                    "type": "smartClone",
-                    "target": "tests"
-                }
-            ]
-        },
-        {
-            "name": "",
-            "src": "npm",
-            "actions": ["install"],
-            "workDir": "tests/psk-browser-tests"
         }
     ]
 };
