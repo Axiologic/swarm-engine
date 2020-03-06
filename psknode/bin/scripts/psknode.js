@@ -5,6 +5,7 @@
  */
 
 const path = require('path');
+process.env.PSK_ROOT_INSTALATION_FOLDER = path.resolve(path.join(__dirname, "../../../"));
 const ConfigBox = require('../../core/ConfigBox');
 const max_timeout = 10*60*1000; // 10 minutes
 const restartDelays = {};

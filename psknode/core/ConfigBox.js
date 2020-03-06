@@ -7,7 +7,9 @@ const vmqPort = process.env.vmq_port || 8080;
 const vmqAddress = `http://127.0.0.1:${vmqPort}`;
 const identity = "launcherIdentity";
 
-if(!confFolder.endsWith('/')) {
+const brickStorageStrategyName = "ConfigBoxStrategy";
+
+if (!confFolder.endsWith('/')) {
     confFolder += '/';
 }
 
@@ -31,36 +33,79 @@ function getSeed(callback) {
         const seed = fs.readFileSync(seedFileLocation, 'utf8');
         callback(undefined, seed);
     } else {
-        createCSB(callback);
+        createConfiguration(callback);
     }
-
 }
 
-function createCSB(callback) {
-    const pskdomain = require('pskdomain');
-    const dossier = require('dossier');
-    pskdomain.ensureEnvironmentIsReady(vmqAddress);
-    $$.securityContext.generateIdentity((err) => {
-        if(err) throw err;
+function ensureEnvironmentIsReady(edfsURL) {
+    const EDFS = require('edfs');
 
-        pskdomain.deployConstitutionFolderCSB(constitutionFolder, "localDomain", (err, csbSeedBuffer) => {
-            if(err) {
+    if (!$$.securityContext) {
+        $$.securityContext = require("psk-security-context").createSecurityContext();
+    }
+
+    const hasHttpStrategyRegistered = $$.brickTransportStrategiesRegistry.has(brickStorageStrategyName);
+
+    if (!hasHttpStrategyRegistered) {
+        $$.brickTransportStrategiesRegistry.add(brickStorageStrategyName, new EDFS.HTTPBrickTransportStrategy(edfsURL));
+    }
+}
+
+function createBarWithConstitution(constitutionSourceFolder, domainName, callback) {
+    const EDFS = require('edfs');
+
+    if (typeof domainName === "function" && typeof callback === "undefined") {
+        callback = domainName;
+        domainName = "";
+    }
+
+    const edfs = EDFS.attach(brickStorageStrategyName);
+
+    let barHandler = edfs.createBar();
+
+    const finish = function (err) {
+        if (err) {
+            return callback(err);
+        }
+        callback(undefined, barHandler.getSeed());
+    };
+
+    barHandler.addFolder(constitutionSourceFolder, EDFS.constants.CSB.CONSTITUTION_FOLDER, (err) => {
+        if (err) {
+            return callback(err);
+        }
+
+        if (domainName !== "") {
+            barHandler.writeFile(EDFS.constants.CSB.DOMAIN_IDENTITY_FILE, domainName, finish);
+        } else {
+            finish();
+        }
+    });
+}
+
+function createConfiguration(callback) {
+    const dossier = require('dossier');
+    ensureEnvironmentIsReady(vmqAddress);
+    $$.securityContext.generateIdentity((err) => {
+        if (err) throw err;
+
+        createBarWithConstitution(constitutionFolder, "localDomain", (err, constitutionCSBSeed) => {
+            if (err) {
                 throw err;
             }
 
-            const constitutionCSBSeed = csbSeedBuffer.toString();
-            pskdomain.deployConstitutionFolderCSB(constitutionFolder, 'launcher', (err, launcherCSBSeed) => {
+            createBarWithConstitution(constitutionFolder, 'launcher', (err, launcherCSBSeed) => {
                 if (err) {
                     throw err;
                 }
 
                 dossier.load(launcherCSBSeed, identity, (err, launcherCSB) => {
-                   if(err) {
-                       throw err;
-                   }
+                    if (err) {
+                        throw err;
+                    }
 
                     dossier.load(constitutionCSBSeed, identity, (err, domainCSB) => {
-                        if(err) {
+                        if (err) {
                             throw err;
                         }
 
@@ -83,15 +128,8 @@ function createCSB(callback) {
                                             throw err;
                                         }
 
-                                        launcherCSB.listFiles('',(err, fileContent) => {
-                                            if(err) throw err;
-                                            const seed = launcherCSB.getSeed();
-
-                                            fs.writeFileSync(seedFileLocation, seed, 'utf8');
-
-                                            callback(undefined, seed);
-                                        })
-
+                                        fs.writeFileSync(seedFileLocation, launcherCSBSeed, 'utf8');
+                                        callback(undefined, launcherCSBSeed);
                                     });
                             });
                     })
@@ -101,7 +139,6 @@ function createCSB(callback) {
         });
     });
 }
-
 
 module.exports = {
     getSeed
