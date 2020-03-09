@@ -30,7 +30,7 @@ function createConstitutionFromSources(sources, options, callback) {
     const fs = require('fs');
 
     let pskBuildPath = path.resolve(path.join(__dirname, '../../psknode/bin/scripts/pskbuild.js'));
-    if(typeof process.env.PSK_ROOT_INSTALATION_FOLDER !== "undefined"){
+    if (typeof process.env.PSK_ROOT_INSTALATION_FOLDER !== "undefined") {
         pskBuildPath = path.resolve(path.join(process.env.PSK_ROOT_INSTALATION_FOLDER, 'psknode/bin/scripts/pskbuild.js'));
     }
 
@@ -133,7 +133,7 @@ function createConstitution(prefix, describer, options, constitutionSourcesFolde
 function whenAllFinished(array, handler, callback) {
     let tasksLeft = array.length;
 
-    if(tasksLeft === 0) {
+    if (tasksLeft === 0) {
         callback();
     }
 
@@ -217,7 +217,7 @@ const Tir = function () {
         console.info('[TIR] setting working folder root', rootFolder);
 
         const assert = require("double-check").assert;
-        assert.addCleaningFunction(()=>{
+        assert.addCleaningFunction(() => {
             this.tearDown(0);
         });
 
@@ -228,7 +228,7 @@ const Tir = function () {
 
             virtualMQPort = vmqPort;
 
-            if(Object.keys(domainConfigs).length === 0) { // no domain added
+            if (Object.keys(domainConfigs).length === 0) { // no domain added
                 prepareTeardownTimeout();
                 callable(undefined, virtualMQPort);
 
@@ -243,22 +243,26 @@ const Tir = function () {
             fs.writeFileSync(fakeDomainFile, "console.log('domain.js loaded.')");
 
             const defaultConstitutionBundlesPath = [
-                                path.resolve(path.join(process.env.PSK_ROOT_INSTALATION_FOLDER, "psknode/bundles/pskruntime.js")),
-                                path.resolve(path.join(process.env.PSK_ROOT_INSTALATION_FOLDER, "psknode/bundles/edfsBar.js")),
-                                path.resolve(path.join(process.env.PSK_ROOT_INSTALATION_FOLDER, "psknode/bundles/blockchain.js")),
-                                path.resolve(path.join(process.env.PSK_ROOT_INSTALATION_FOLDER, "psknode/bundles/virtualMQ.js")),
-                                fakeDomainFile
-                            ];
+                path.resolve(path.join(process.env.PSK_ROOT_INSTALATION_FOLDER, "psknode/bundles/pskruntime.js")),
+                path.resolve(path.join(process.env.PSK_ROOT_INSTALATION_FOLDER, "psknode/bundles/edfsBar.js")),
+                path.resolve(path.join(process.env.PSK_ROOT_INSTALATION_FOLDER, "psknode/bundles/blockchain.js")),
+                path.resolve(path.join(process.env.PSK_ROOT_INSTALATION_FOLDER, "psknode/bundles/virtualMQ.js")),
+                fakeDomainFile
+            ];
 
             const launcherBar = edfs.createBar();
             launcherBar.addFiles(defaultConstitutionBundlesPath, EDFS.constants.CSB.CONSTITUTION_FOLDER, (err) => {
-                if(err) { throw err; }
+                if (err) {
+                    throw err;
+                }
 
                 const launcherBarSeed = launcherBar.getSeed();
                 const dossier = require("dossier");
 
                 dossier.load(launcherBarSeed, "TIR_AGENT_IDENTITY", (err, csbHandler) => {
-                    if(err) { throw err; }
+                    if (err) {
+                        throw err;
+                    }
 
                     global.currentHandler = csbHandler;
                     whenAllFinished(Object.values(domainConfigs), this.buildDomainConfiguration, (err) => {
@@ -296,7 +300,7 @@ const Tir = function () {
             }
         }
 
-        function prepareTeardownTimeout() {
+        let prepareTeardownTimeout = () => {
             setTimeout(() => {
                 if (tearDownAfter !== null) {
                     setTimeout(() => this.tearDown(1), tearDownAfter);
@@ -310,13 +314,13 @@ const Tir = function () {
             return;
         }
 
-        if(typeof storageFolder === "function"){
+        if (typeof storageFolder === "function") {
             callback = storageFolder;
             storageFolder = maxTries;
             maxTries = 100;
         }
 
-        if(typeof maxTries === "function"){
+        if (typeof maxTries === "function") {
             callback = maxTries;
             storageFolder = rootFolder;
             maxTries = 100;
@@ -343,6 +347,7 @@ const Tir = function () {
 
         });
     }
+
     this.launchVirtualMQNode = launchVirtualMQNode;
 
     function launchLocalMonitor(maxTries, onBootMessage) {
@@ -385,9 +390,9 @@ const Tir = function () {
 
     function initializeSwarmEngine(port) {
         const se = require('swarm-engine');
-        try{
+        try {
             se.initialise();
-        }catch(err){
+        } catch (err) {
             //
         }
 
@@ -426,7 +431,7 @@ const Tir = function () {
                 }
             };
 
-            global.currentHandler.startTransaction( "Domain", "add", domainConfig.name, "system", domainConfig.workspace, constitutionSeed)
+            global.currentHandler.startTransaction("Domain", "add", domainConfig.name, "system", domainConfig.workspace, constitutionSeed)
                 .onReturn((err) => {
                     if (err) {
                         return callback(err);
@@ -481,8 +486,8 @@ const Tir = function () {
                     return callback(err);
                 }
 
-                buildConstitution(domainConfig.constitutionSourceFolder, archive, (err)=>{
-                    if(err){
+                buildConstitution(domainConfig.constitutionSourceFolder, archive, (err) => {
+                    if (err) {
                         return callback(err);
                     }
                     callback(undefined, archive.getSeed());
@@ -582,15 +587,16 @@ const Tir = function () {
         }, 100);
     };
 
-    function buildConstitution(path, targetArchive, callback){
+    function buildConstitution(path, targetArchive, callback) {
         process.env.PSK_ROOT_INSTALATION_FOLDER = require("path").join(__dirname, "../../../");
-        createConstitutionFromSources(path, (err, fileName)=>{
-            if(err){
+        createConstitutionFromSources(path, (err, fileName) => {
+            if (err) {
                 return callback(err);
             }
             targetArchive.addFile(fileName, `${EDFS.constants.CSB.CONSTITUTION_FOLDER}/domain.js`, callback);
         });
     }
+
     this.buildConstitution = buildConstitution;
 };
 
