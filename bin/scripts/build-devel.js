@@ -55,10 +55,6 @@ const baseDeps = [
         "src": "https://github.com/PrivateSky/node-fd-slicer.git"
     },
     {
-        "name": "pskdomain",
-        "src": "https://github.com/PrivateSky/pskdomain.git"
-    },
-    {
         "name": "csb-wizard",
         "src": "https://github.com/PrivateSky/csb-wizard.git"
     },
