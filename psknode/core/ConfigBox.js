@@ -37,6 +37,7 @@ function getSeed(callback) {
     }
 }
 
+let edfs;
 function ensureEnvironmentIsReady(edfsURL) {
     const EDFS = require('edfs');
 
@@ -44,22 +45,16 @@ function ensureEnvironmentIsReady(edfsURL) {
         $$.securityContext = require("psk-security-context").createSecurityContext();
     }
 
-    const hasHttpStrategyRegistered = $$.brickTransportStrategiesRegistry.has(brickStorageStrategyName);
 
-    if (!hasHttpStrategyRegistered) {
-        $$.brickTransportStrategiesRegistry.add(brickStorageStrategyName, new EDFS.HTTPBrickTransportStrategy(edfsURL));
-    }
+     edfs = EDFS.attachToEndpoint(edfsURL);
 }
 
 function createBarWithConstitution(constitutionSourceFolder, domainName, callback) {
     const EDFS = require('edfs');
-
     if (typeof domainName === "function" && typeof callback === "undefined") {
         callback = domainName;
         domainName = "";
     }
-
-    const edfs = EDFS.attach(brickStorageStrategyName);
 
     let barHandler = edfs.createBar();
 
