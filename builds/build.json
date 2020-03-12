@@ -1,5 +1,5 @@
 {
-  "webshims": {"deps": "assert, crypto, zlib, util, path,os, events, stream, buffer, timers", "bare": false, "bundleExternal": true, "exclude": "psklogger"},
+  "webshims": {"deps": "overwrite-require, assert, crypto, zlib, util, path,os, events, stream, buffer, timers", "bare": false, "bundleExternal": true, "exclude": "psklogger"},
   "pskruntime": "callflow, swarmutils, soundpubsub, pskbuffer, @msgpack/msgpack, psklogger, psk-security-context, syndicate, swarm-engine",
   "virtualMQ": "overwrite-require, pskcrypto, edfs, virtualmq, buffer-crc32, node-fd-slicer, edfs-middleware, psk-http-client, zmq_adapter, swarmutils, callflow, soundpubsub, psk-security-context",
   "consoleTools":"pskwallet, buffer-crc32, node-fd-slicer, csb-wizard",
