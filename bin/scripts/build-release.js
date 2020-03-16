@@ -3,14 +3,14 @@
  */
 
 const path = require("path");
-const deployer = require(path.resolve(path.join(__dirname, "./../../deployer/Deployer.js")));
+const deployer = require("deployer");
 const TAG = "[Prepare Release]";
 deployer.setTag(TAG);
 
 const PSK_RELEASE_REPO_NAME = "psk-release";
 
 const config = {
-    workingDir:".",
+    workDir:".",
     dependencies: [
         {
             "name": PSK_RELEASE_REPO_NAME,
@@ -34,14 +34,6 @@ const config = {
                     "type": "copy",
                     "src": "./psknode",
                     "target": `../${PSK_RELEASE_REPO_NAME}/psknode`,
-                    "options":{
-                        "overwrite": true
-                    }
-                },
-                {
-                    "type": "copy",
-                    "src": "./conf",
-                    "target": `../${PSK_RELEASE_REPO_NAME}/conf`,
                     "options":{
                         "overwrite": true
                     }

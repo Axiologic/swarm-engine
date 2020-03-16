@@ -48,7 +48,7 @@
     "postinstall": "node bin/scripts/build-devel.js && node bin/scripts/githelpers/gitStatusCheck.js .",
     "update": "git pull && npm install",
     "clear-stash": "node bin/scripts/githelpers/gitClearStash.js .",
-    "release": "node ./bin/scripts/pskbuild.js ./builds/build.json && node bin/scripts/build-release.js",
+    "release": "rm -rf psknode/bundles && node bin/scripts/pskbuild.js --projectMap=./builds/build.json --prod=true && node bin/scripts/build-release.js",
     "build": "node ./bin/scripts/pskbuild.js --projectMap=./builds/build.json",
     "watch": "node ./bin/scripts/watcher.js --watch ./ --run \"./bin/scripts/pskbuild.js\" --args=\"--projectMap=./builds/build.json\" --ignore=\"/psknode/bundles/,/builds,/tests/,/bin/\"",
     "start": "npm run build && node ./bin/scripts/psknode.js",
