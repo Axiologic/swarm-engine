@@ -3,7 +3,7 @@
 */
 
 const path = require("path");
-const deployer = require("deployer");
+const updater = require("updater");
 
 const baseDeps = [
     {
@@ -198,15 +198,15 @@ const argv = process.argv;
 argv.shift();
 argv.shift();
 
-deployer.setTag("[Builder]");
+updater.setTag("[Updater]");
 
-function runDeployer(config, callback = () => {}) {
-    deployer.run(config, function (error, result) {
+function runUpdater(config, callback = () => {}) {
+    updater.run(config, function (error, result) {
         if (error) {
-            console.log("[Builder - Error]", error);
+            console.log("[Updater - Error]", error);
             process.exit(1);
         } else {
-            console.log("[Builder - Result]", result);
+            console.log("[Updater - Result]", result);
         }
         callback();
     });
@@ -227,7 +227,7 @@ function handleArguments(index = 0) {
 
     if(configForArgument) {
         console.log("Running build for argument", argv[index]);
-        runDeployer(configForArgument, () => handleArguments(index + 1));
+        runUpdater(configForArgument, () => handleArguments(index + 1));
     } else {
         throw new Error("Wrong argument found: "+argv[index]);
         handleArguments(index + 1);
@@ -238,5 +238,5 @@ if (argv.length > 0) {
     handleArguments();
 } else {
     console.log("Running build for argument --all");
-    runDeployer(config);
+    runUpdater(config);
 }

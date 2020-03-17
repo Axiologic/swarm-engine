@@ -38,14 +38,14 @@
     "@msgpack/msgpack": "^1.8.0",
     "browserify": "^16.5.0",
     "chokidar": "^3.0.2",
-    "deployer": "git+http://git@github.com/privatesky/deployer.git",
+    "updater": "git+http://git@github.com/privatesky/updater.git",
     "isolated-vm": "2.0.3",
     "source-map-support": "^0.5.13",
     "zeromq": "^4.6.0"
   },
   "scripts": {
     "preinstall": "node bin/scripts/preinstall-checks.js",
-    "postinstall": "node bin/scripts/build-devel.js && node bin/scripts/githelpers/gitStatusCheck.js .",
+    "postinstall": "node bin/scripts/install_deps.js && node bin/scripts/githelpers/gitStatusCheck.js .",
     "update": "git pull && npm install",
     "clear-stash": "node bin/scripts/githelpers/gitClearStash.js .",
     "release": "rm -rf psknode/bundles && node bin/scripts/pskbuild.js --projectMap=./builds/build.json --prod=true && node bin/scripts/build-release.js",
