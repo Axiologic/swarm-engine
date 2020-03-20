@@ -12,6 +12,7 @@ const config = {
     quick: false,
     only:undefined,
     projectMap: undefined,
+    jsonInput: false,
     input: path.join(process.cwd(), "builds", "tmp"),
     output: path.join(process.cwd(), "psknode", "bundles"),
     source: [path.resolve(process.cwd(), "modules"), path.resolve(process.cwd(), "libraries")]
@@ -67,12 +68,16 @@ const externals = {
 let projectMap = {};
 
 if(config.hasOwnProperty('projectMap')) {
-    const projectMapAsString = fs.readFileSync(config.projectMap, 'utf8');
-    if (!projectMapAsString) {
-        console.log("Invalid project map file:", config.projectMap);
+    if(typeof config.jsonInput !== "undefined" && config.jsonInput){
+        projectMap = JSON.parse(config.projectMap);
     }else{
-        console.log("Found project map", config.projectMap);
-        projectMap = JSON.parse(projectMapAsString);
+        const projectMapAsString = fs.readFileSync(config.projectMap, 'utf8');
+        if (!projectMapAsString) {
+            console.log("Invalid project map file:", config.projectMap);
+        }else{
+            console.log("Found project map", config.projectMap);
+            projectMap = JSON.parse(projectMapAsString);
+        }
     }
 }
 
@@ -382,12 +387,11 @@ function buildDependencyMap(targetName, configProperty, output) {
         const line = `\n\tif(typeof $$.__runtimeModules["${ia.alias}"] === "undefined"){\n\t\t$$.__runtimeModules["${ia.alias}"] = require("${ia.module}");\n\t}\n`;
         result += line;
     });
-    result += `}\nif (${autoLoad}) {\n\t${targetName}LoadModules();\n}; \nglobal.` + `${targetName}Require = require;\n` +
-    `if (typeof $$ !== "undefined") {            
-    $$.requireBundle("${targetName}");
-    };
-    ${config.isProduction ? '' : "require('source-map-support').install({});"}
-    `;
+    result += "};";
+    result += `\nif (${autoLoad}) {\n\t${targetName}LoadModules();\n}`;
+    result += `\nglobal.` + `${targetName}Require = require;`;
+    result += `\nif (typeof $$ !== "undefined") {\n\t$$.requireBundle("${targetName}");\n}`;
+    result += `\n${config.isProduction ? '' : "require('source-map-support').install({});"}`;
 
     //ensure dir struct exists
     try {

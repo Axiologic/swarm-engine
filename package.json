@@ -49,7 +49,7 @@
     "update": "git pull && npm install",
     "clear-stash": "node bin/scripts/githelpers/gitClearStash.js .",
     "release": "rm -rf psknode/bundles && node bin/scripts/pskbuild.js --projectMap=./builds/build.json --prod=true && node bin/scripts/build-release.js",
-    "build": "node ./bin/scripts/pskbuild.js --projectMap=./builds/build.json",
+    "build": "node ./bin/scripts/pskbuild.js --jsonInput=true --projectMap={\\\"domain\\\":{\\\"deps\\\":\\\"./../../domain\\\",\\\"autoLoad\\\":true}} && node ./bin/scripts/pskbuild.js --projectMap=./builds/build.json",
     "watch": "node ./bin/scripts/watcher.js --watch ./ --run \"./bin/scripts/pskbuild.js\" --args=\"--projectMap=./builds/build.json\" --ignore=\"/psknode/bundles/,/builds,/tests/,/bin/\"",
     "start": "npm run build && node ./bin/scripts/psknode.js",
     "git-status": "node bin/scripts/githelpers/gitStatusCheck.js .",
@@ -59,13 +59,7 @@
     "smoke-tests": "npm run build && node ./bin/scripts/testrunner.js --directory='./tests/psk-smoke-testing'",
     "benchmark-tests": "npm run build && node ./bin/scripts/testrunner.js --directory='./tests/psk-benchmark-testing'",
     "bash": "bash --init-file bin/bashEnv.sh",
-    "link": "node ./psknode/bin/scripts/link.js",
-    "unlink": "node ./psknode/bin/scripts/link.js --unlink",
     "browser-scripts": "npm run build -- --only=edfsBar,ssappBoot,swBoot,swHostBoot,webshims --prod && node ./bin/scripts/copyBrowserBootScripts.js",
     "start-vmq": "node ./psknode/bin/scripts/basicStart.js ./psknode/bin/scripts/startZeromqProxy.js & node ./psknode/bin/scripts/basicStart.js ./psknode/bin/scripts/virtualMq.js --port=8080 --folder=\"../tmp\""
-  },
-  "bin": {
-    "selectRemote": "./psknode/bin/cmds/usePSKCommand.js",
-    "startSwarm": "./psknode/bin/cmds/startSwarmCommand.js"
   }
 }
