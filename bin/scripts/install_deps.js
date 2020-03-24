@@ -27,10 +27,6 @@ const baseDeps = [
         "src": "https://github.com/PrivateSky/choreo.git"
     },
     {
-        "name": "browser-server",
-        "src": "https://github.com/PrivateSky/browser-server"
-    },
-    {
         "name": "pskcrypto",
         "src": "https://github.com/PrivateSky/pskcrypto.git"
     },
