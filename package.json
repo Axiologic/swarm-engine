@@ -60,6 +60,6 @@
     "benchmark-tests": "npm run build && node ./bin/scripts/testrunner.js --directory='./tests/psk-benchmark-testing'",
     "bash": "bash --init-file bin/bashEnv.sh",
     "browser-scripts": "npm run build -- --only=edfsBar,ssappBoot,swBoot,swHostBoot,webshims --prod && node ./bin/scripts/copyBrowserBootScripts.js",
-    "start-vmq": "node ./psknode/bin/scripts/basicStart.js ./psknode/bin/scripts/startZeromqProxy.js & node ./psknode/bin/scripts/basicStart.js ./psknode/bin/scripts/virtualMq.js --port=8080 --folder=\"../tmp\""
+    "start-vmq": "npm run build && node ./psknode/bin/scripts/basicStart.js ./psknode/bin/scripts/startZeromqProxy.js & node ./psknode/bin/scripts/basicStart.js ./psknode/bin/scripts/virtualMq.js --port=8080 --folder=\"../tmp\""
   }
 }
