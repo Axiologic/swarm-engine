@@ -50,11 +50,9 @@ function createOrUpdateConfiguration(fileConfiguration, callback) {
 
 	$$.securityContext.generateIdentity((err) => {
 		if (err) throw err;
-		console.log("FileConfiguration", fileConfiguration);
 		if (fileConfiguration) {
 			let constitutionBar = edfs.loadBar(fileConfiguration.constitutionSeed);
-			console.log("bar loaded");
-			constitutionBar.deleteFile("/", (err) => {
+			constitutionBar.delete("/", (err) => {
 				if (err) {
 					throw err;
 				}
@@ -65,7 +63,6 @@ function createOrUpdateConfiguration(fileConfiguration, callback) {
 		} else {
 			let fileConfiguration = {};
 			let constitutionBar = edfs.createBar();
-			console.log("Bar created")
 			constitutionBar.addFolder(constitutionFolder, "/", {encrypt: true}, (err) => {
 				if (err) {
 					throw err;
@@ -79,7 +76,6 @@ function createOrUpdateConfiguration(fileConfiguration, callback) {
 			let launcherConfigDossier = edfs.createCSB();
 			launcherConfigDossier.writeFile(EDFS.constants.CSB.DOMAIN_IDENTITY_FILE, " ", 0, (err) => {
 				fileConfiguration.launcherSeed = launcherConfigDossier.getSeed();
-				console.log("finish writing to launcher")
 				if (err) {
 					throw err;
 				}
@@ -87,32 +83,26 @@ function createOrUpdateConfiguration(fileConfiguration, callback) {
 				let domainConfigDossier = edfs.createCSB();
 				domainConfigDossier.writeFile(EDFS.constants.CSB.DOMAIN_IDENTITY_FILE, defaultDomainName, 0, (err) => {
 					fileConfiguration.domainSeed = domainConfigDossier.getSeed();
-					console.log("File Configuration completed", fileConfiguration);
-
 
 					launcherConfigDossier.mount("/", EDFS.constants.CSB.CONSTITUTION_FOLDER, fileConfiguration.constitutionSeed, function (err) {
-						console.log("finish mounting to launcher")
+
 						if (err) {
 							throw err;
 						}
 
 						domainConfigDossier.mount("/", EDFS.constants.CSB.CONSTITUTION_FOLDER, fileConfiguration.constitutionSeed, function (err) {
-							console.log("finish mounting to domain")
 							if (err) {
 								throw err;
 							}
 
 							domainConfigDossier.readFile(EDFS.constants.CSB.MANIFEST_FILE, function (err, content) {
 								console.log("Getting", err, content.toString());
-
-								console.log("finish writing to domain");
 								if (err) {
 									throw err;
 								}
 							});
-console.log("trying to boot dossier with seed", fileConfiguration.launcherSeed);
+
 							dossier.load(fileConfiguration.launcherSeed, identity, (err, launcherCSB) => {
-								console.log("finish booting dossier to launcher")
 								if (err) {
 									throw err;
 								}
@@ -160,14 +150,14 @@ console.log("trying to boot dossier with seed", fileConfiguration.launcherSeed);
 
 function getSeed(callback) {
 	let fileConfiguration;
-	try {
+	/*try {
 		fileConfiguration = fs.readFileSync(seedFileLocation, 'utf8');
 		fileConfiguration = JSON.parse(fileConfiguration);
 	} catch (err) {
 		// no need to treat here errors ... i think...
-	} finally {
+	} finally {*/
 		createOrUpdateConfiguration(fileConfiguration, callback);
-	}
+	/*}*/
 }
 
 module.exports = {
