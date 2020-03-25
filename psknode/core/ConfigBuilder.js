@@ -74,14 +74,14 @@ function createOrUpdateConfiguration(fileConfiguration, callback) {
 
 		function buildDossierInfrastructure(fileConfiguration) {
 			let launcherConfigDossier = edfs.createCSB();
-			launcherConfigDossier.writeFile(EDFS.constants.CSB.DOMAIN_IDENTITY_FILE, " ", 0, (err) => {
+			launcherConfigDossier.writeFile(EDFS.constants.CSB.DOMAIN_IDENTITY_FILE, " ", {depth:0}, (err) => {
 				fileConfiguration.launcherSeed = launcherConfigDossier.getSeed();
 				if (err) {
 					throw err;
 				}
 
 				let domainConfigDossier = edfs.createCSB();
-				domainConfigDossier.writeFile(EDFS.constants.CSB.DOMAIN_IDENTITY_FILE, defaultDomainName, 0, (err) => {
+				domainConfigDossier.writeFile(EDFS.constants.CSB.DOMAIN_IDENTITY_FILE, defaultDomainName, {depth:0}, (err) => {
 					fileConfiguration.domainSeed = domainConfigDossier.getSeed();
 
 					launcherConfigDossier.mount("/", EDFS.constants.CSB.CONSTITUTION_FOLDER, fileConfiguration.constitutionSeed, function (err) {
