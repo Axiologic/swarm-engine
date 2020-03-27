@@ -21,6 +21,8 @@ jobs:
     steps:
     # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
     - uses: actions/checkout@v2
+      env:
+        DOUBLE_CHECK_POOL_SIZE: 1
 
     # Runs a set of commands using the runners shell
     - name: Run install and test
