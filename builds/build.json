@@ -9,7 +9,7 @@
   "testsRuntime": "overwrite-require, pskcrypto, edfs, double-check, blockchain, swarmutils, soundpubsub, dossier, swarm-engine",
   "csbBoot": "overwrite-require, edfs, dossier",
   "bindableModel": "overwrite-require, swarmutils, soundpubsub, psk-bindable-model",
-  "swBoot": {"deps":"edfs,  swarm-engine/bootScripts/browser/sw:boot-sw, pskcrypto", "autoLoad": true, "bundleExternal":  true, "bare":  false},
+  "swBoot": {"deps":"edfs,  swarm-engine/bootScripts/browser/sw:boot-sw, pskcrypto", "autoLoad": true, "bundleExternal":  true, "bare":  false, "exclude": "psklogger"},
   "swHostBoot": {"deps":"overwrite-require, edfs, swarm-engine/bootScripts/browser/sw-host:boot-host, pskcrypto","autoLoad": true, "bundleExternal":true, "exclude": "psklogger"},
   "ssappBoot": {"deps": "swarm-engine/bootScripts/browser/ssapp:boot-ssapp, pskcrypto","autoLoad": true, "bundleExternal": true, "exclude": "psklogger"},
   "threadBoot": {"deps": "overwrite-require, edfs, bar, bar-fs-adapter, edfs-brick-storage, swarmutils, adler32, pskcrypto, psk-http-client, swarm-engine/bootScripts/ThreadWorkerBootScript:boot-script", "autoLoad": true},
