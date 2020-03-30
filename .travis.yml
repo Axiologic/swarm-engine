@@ -3,3 +3,9 @@ node_js:
   - 12.11.1
 after_failure:
   echo "Below you have HTML test runner report copy localy and check it out! \n\n\n" && cat /home/travis/build/PrivateSky/privatesky/tests/psk-smoke-testing/testReport.html
+notifications:
+  email:
+    recipients:
+      - psk.build.track@gmail.com
+    on_success: change
+    on_failure: always
