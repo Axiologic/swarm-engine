@@ -7,7 +7,7 @@ setup_git() {
 
 commit_test_report() {
   git checkout -b test_reports
-  git add tests/psk-smoke-testing/testReport.html
+  git add -f tests/psk-smoke-testing/testReport.html
   git commit --message "Travis build: $TRAVIS_BUILD_NUMBER"
 }
 
