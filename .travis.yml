@@ -2,8 +2,7 @@ language: node_js
 node_js:
   - 12.11.1
 after_failure:
-  echo "Below you have HTML test runner report copy localy and check it out! \n\n\n" && cat /home/travis/build/PrivateSky/privatesky/tests/psk-smoke-testing/testReport.html
-  .travis/push_test_report.sh
+  chmod +x .travis/push_test_report.sh && .travis/push_test_report.sh
 notifications:
   email:
     recipients:
