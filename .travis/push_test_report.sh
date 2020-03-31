@@ -14,7 +14,7 @@ commit_test_report() {
 
 push_to_github() {
   git remote add new_origin https://${GIT_TOKEN}@github.com/privatesky/privatesky > /dev/null 2>&1
-  git push --quiet --set-upstream  new_origin test_reports
+  git push -f new_origin test_reports
 }
 
 setup_git
