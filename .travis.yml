@@ -1,6 +1,8 @@
 language: node_js
 node_js:
   - 12.11.1
+cache:
+  false
 after_failure:
   chmod +x .travis/push_test_report.sh && .travis/push_test_report.sh
 notifications:
